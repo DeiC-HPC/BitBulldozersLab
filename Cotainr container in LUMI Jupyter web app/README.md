@@ -16,7 +16,7 @@ First you must create a [conda environment YAML file](https://conda.io/projects/
 - jupyterlab >= 3.0.0
 - nbclassic
 
-A minimal example of such a conda environment YAML file is [conda_env.yml](conda_env.yaml).
+A minimal example of such a conda environment YAML file is [conda_env.yml](conda_env.yml).
 
 ### Build the container using cotainr
 
