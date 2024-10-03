@@ -1,6 +1,6 @@
 # Cotainr container in LUMI Jupyter web app
 
-- **Keywords:** cotainr, Singualrity, Jupyter, OOD
+- **Keywords:** cotainr, Singularity, Jupyter, OOD
 - **Date:** 2024-10-03
 
 An example of using a Singularity container built using [cotainr](https://cotainr.readthedocs.io/en/stable/) with the JupyterLab app provided by the [LUMI web interface](https://www.lumi.csc.fi/public/).
