@@ -20,17 +20,23 @@ A minimal example of such a conda environment YAML file is [conda_env.yml](conda
 
 ### Build the container using cotainr
 
-To build a container we first need to login to LUMI, you can either [login to LUMI via ssh](https://docs.lumi-supercomputer.eu/firststeps/loggingin/) or use the [Login node shell](https://docs.lumi-supercomputer.eu/runjobs/webui/#shell) available once you have [logged in to the LUMI web interface](https://docs.lumi-supercomputer.eu/firststeps/loggingin-webui/).
-Next, we can get a conda environment file on LUMI directly from GitHub by running the following command on LUMI,
+To build a container you first need to login to LUMI. You can either [login to LUMI via ssh](https://docs.lumi-supercomputer.eu/firststeps/loggingin/) or use the [Login node shell](https://docs.lumi-supercomputer.eu/runjobs/webui/#shell) available once you have [logged in to the LUMI web interface](https://docs.lumi-supercomputer.eu/firststeps/loggingin-webui/).
+
+Next, you need to copy or otherwise create your conda environment file on LUMI. To use the [conda_env.yml](conda_env.yml) provided in this example, on LUMI, you can clone the this git repository running:
+
 ```bash
 git clone https://github.com/DeiC-HPC/BitBulldozersLab.git
 ```
-Then to build a container based on [conda_env.yml](conda_env.yml) for use with LUMI-C, run the following commands,
+
+Then to build a container based on [conda_env.yml](conda_env.yml) for use with LUMI-C, run the following commands:
+
 ```bash
 module load CrayEnv cotainr
 cotainr build my_container.sif --system=lumi-c --conda-env=BitBulldozersLab/conda_env.yml
 ```
-Note, This can take a few minutes to finish. In the beginning you will be prompted to accept the Miniconda license, answer `yes` and hit ENTER. Finally, you can see (and remember) the location the `my_container.sif` by running
+
+Note, This can take a few minutes to finish. In the beginning you will be prompted to accept the Miniconda license, answer `yes` and hit ENTER to proceed. Finally, you can see (and remember) the location the `my_container.sif` by running:
+
 ```bash
 pwd
 ```
@@ -43,7 +49,7 @@ In a browser, log in to the [LUMI web interface](https://www.lumi.csc.fi/public/
 python="singularity exec --bind=/pfs,/scratch,/projappl,/project,/flash,/appl </path/to/my_container.sif> python3"
 ```
 
-where you replace `</path/to/my_container.sif>` with the with path your noted previously from running `pwd`, for example `/users/myname/my_container.sif.
+where you replace `</path/to/my_container.sif>` with the path your noted previously from running `pwd`, for example `/users/myname/my_container.sif.
 
 You configuration should look something like this (with `project_465000227` replaced by your project number):
 ![Jupyter App configuration](lumi_jupyter_app_configuration.png)
