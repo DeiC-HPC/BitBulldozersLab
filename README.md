@@ -13,8 +13,8 @@ The PoCs and examples are organized into a flat namespace, i.e. each folder in t
 The `README.md` file in each PoC / example folder contains at least the following:
 
 * The title of the PoC / example
-* A list of keywords, formatted on a single line as `**Keywords:** MPI, AI, ...`
-* The date that the PoC / example was last run, formatted as `**Date:** YYYY-MM-DD`
+* A list of keywords, formatted on a single line as `- **Keywords:** MPI, AI, ...`
+* The date that the PoC / example was last run, formatted on a single line as `- **Date:** YYYY-MM-DD`
 * A description of the purpose of the PoC / example
 * A description of how to run the PoC / example
 * A summary of the main findings
@@ -28,12 +28,14 @@ The [GitHub search syntax](https://docs.github.com/en/search-github/github-code-
 
 The following keywords are used in the PoCs / examples:
 
-| Keyword         | Description                                             |
-| --------------- | ------------------------------------------------------- |
-| AI              | Artificial Intelligence                                 |
-| MPI             | Message Parsing Interface                               |
-| cotainr         | The [cotainr](https://github.com/DeiC-HPC/cotainr) tool |
-| Singularity     | Singularity containers                                  |
+| Keyword         | Description                                                 |
+| --------------- | ----------------------------------------------------------- |
+| AI              | Artificial Intelligence                                     |
+| cotainr         | The [cotainr](https://github.com/DeiC-HPC/cotainr) tool     |
+| Jupyter         | Interactive computing using [Jupyter](https://jupyter.org/) |
+| MPI             | Message Parsing Interface                                   |
+| OOD             | [OpenOnDemand](https://openondemand.org/)                   |
+| Singularity     | Singularity containers                                      |
 
 ## Licensing Information
 
