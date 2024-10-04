@@ -11,7 +11,7 @@ This is a step-by-step guide to building a container with a custom conda environ
 
 ### Specify the conda environment
 
-First you must create a [conda environment YAML file](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) specifying the conda/pip packages you want to use. As part of your list of packages, you must include the following:
+First you must create a [conda environment YAML file](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#creating-an-environment-file-manually) specifying the conda/pip packages you want to use. As part of your list of packages, you must include the following:
 
 - jupyterlab >= 3.0.0
 - nbclassic
@@ -20,33 +20,39 @@ A minimal example of such a conda environment YAML file is [conda_env.yml](conda
 
 ### Build the container using cotainr
 
-To build a container based on [conda_env.yml](conda_env.yml) for use with LUMI-C, run the following commands on LUMI:
-
+To build a container we first need to login to LUMI, you can either [login to LUMI via ssh](https://docs.lumi-supercomputer.eu/firststeps/loggingin/) or use the [Login node shell](https://docs.lumi-supercomputer.eu/runjobs/webui/#shell) available once you have [logged in to the LUMI web interface](https://docs.lumi-supercomputer.eu/firststeps/loggingin-webui/).
+Next, we can get a conda environment file on LUMI directly from GitHub by running the following command on LUMI,
+```bash
+git clone https://github.com/DeiC-HPC/BitBulldozersLab.git
+```
+Then to build a container based on [conda_env.yml](conda_env.yml) for use with LUMI-C, run the following commands,
 ```bash
 module load CrayEnv cotainr
-cotainr build my_container.sif --system=lumi-c --conda-env=conda_env.yml
+cotainr build my_container.sif --system=lumi-c --conda-env=BitBulldozersLab/conda_env.yml
 ```
-
-To run these commands, you can either [login to LUMI via ssh](https://docs.lumi-supercomputer.eu/firststeps/loggingin/) or use the [shell apps](https://docs.lumi-supercomputer.eu/runjobs/webui/#shell) available once you have [logged in to the LUMI web interface](https://docs.lumi-supercomputer.eu/firststeps/loggingin-webui/).
+Note, This can take a few minutes to finish. In the beginning you will be prompted to accept the Miniconda license, answer `yes` and hit ENTER. Finally, you can see (and remember) the location the `my_container.sif` by running
+```bash
+pwd
+```
 
 ### Launch Jupyterlab based on the built container
 
-In a browser, log in to the [LUMI web interface](https://www.lumi.csc.fi/public/). Next, choose the `Jupyter` app. Specify project, SLURM partition (e.g. `interactive` for LUMI-C), and resources as usual. Under `Settings`, choose `Advanced` and set `Custom init` to `Text`. In the text box paste the following:
+In a browser, log in to the [LUMI web interface](https://www.lumi.csc.fi/public/). Next, choose the `Jupyter` app. Specify project, SLURM partition (e.g. `interactive` for LUMI-C), and resources as seen in an example below. Under `Settings`, choose `Advanced` and set `Custom init` to `Text`. In the text box paste the following:
 
 ```bash
 python="singularity exec --bind=/pfs,/scratch,/projappl,/project,/flash,/appl </path/to/my_container.sif> python3"
 ```
 
-where you replace `</path/to/my_container.sif>` with the actual full path to the `my_container.sif` container, you have built.
+where you replace `</path/to/my_container.sif>` with the with path your noted previously from running `pwd`, for example `/users/myname/my_container.sif.
 
 You configuration should look something like this (with `project_465000227` replaced by your project number):
 ![Jupyter App configuration](lumi_jupyter_app_configuration.png)
 
-Press the `Launch` button and wait for the interactive session to start. Once it has started, press the `Connect to Jupyter` button, as usual.
+Press the `Launch` button and wait for the interactive session to start. Once it has started, press the `Connect to Jupyter` button.
 
 Using this approach, the JupyterLab instance is started within the container using the conda environment installed in the container based on [conda_env.yml](conda_env.yml), and with all the LUMI user file systems (/scratch, /project, and /flash) mounted in the container.
 
-Once you have connected to the JupyterLab instance, you can use the [cotainr_LUMI_jupyter_demo.ipynb](cotainr_LUMI_jupyter_demo.ipynb) notebook to verify that you are indeed running in the container, you have built.
+Once you have connected to the JupyterLab instance, you can use the [cotainr_LUMI_jupyter_demo.ipynb](cotainr_LUMI_jupyter_demo.ipynb) notebook in the BitBulldozersLab folder to verify that you are indeed running in the container, you have built.
 
 ## References
 
