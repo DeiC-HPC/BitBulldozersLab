@@ -35,7 +35,7 @@ module load CrayEnv cotainr
 cotainr build my_container.sif --system=lumi-c --conda-env=BitBulldozersLab/conda_env.yml
 ```
 
-Note, This can take a few minutes to finish. In the beginning you will be prompted to accept the Miniconda license, answer `yes` and hit ENTER to proceed. Finally, you can see (and remember) the location the `my_container.sif` by running:
+Note, This can take a few minutes to finish. In the beginning you will be prompted to accept the Miniconda license, answer `yes` and hit ENTER to proceed. Finally, you can see (and remember) the location to `my_container.sif` by running:
 
 ```bash
 pwd
@@ -49,7 +49,7 @@ In a browser, log in to the [LUMI web interface](https://www.lumi.csc.fi/public/
 python="singularity exec --bind=/pfs,/scratch,/projappl,/project,/flash,/appl </path/to/my_container.sif> python3"
 ```
 
-where you replace `</path/to/my_container.sif>` with the path your noted previously from running `pwd`, for example `/users/myname/my_container.sif.
+where you replace `</path/to/my_container.sif>` with the path you noted previously from running `pwd`, for example `/users/myname/my_container.sif.
 
 You configuration should look something like this (with `project_465000227` replaced by your project number):
 ![Jupyter App configuration](lumi_jupyter_app_configuration.png)
