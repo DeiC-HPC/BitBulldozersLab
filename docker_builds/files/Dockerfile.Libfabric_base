@@ -1,0 +1,164 @@
+FROM opensuse/leap:15.5
+LABEL authors="julius"
+
+ENTRYPOINT ["top", "-b"]
+
+# Versions
+ENV ROCM_RELEASE=6.0.3
+ENV LIBFABRIC_RELEASE=1.22.0
+ENV SLE_RELEASE=15.5
+ENV AMDGPU_INSTALLER_RELEASE=6.0.60003-1
+ENV GCC_RELEASE=12
+
+ENV ROCM_RPM=https://repo.radeon.com/amdgpu-install/$ROCM_RELEASE/sle/$SLE_RELEASE/amdgpu-install-$AMDGPU_INSTALLER_RELEASE.noarch.rpm
+# Libfabric on LUMI is v1.15.2
+
+# copy files needed to DOCKER
+COPY rocminfo rocm_agent_enumerator amdgpu-arch.cpp .
+
+# Repo contains perl libraries (?) that are needed for the rocm install. If the repos arent added the amdgpu-installer cannot resolve the dependencies.
+RUN set -eux ; \
+   zypper -n addrepo https://download.opensuse.org/repositories/devel:/languages:/perl/SLE_15_SP5 myrepo5 ; \
+   echo 'gpgcheck=0' >> /etc/zypp/repos.d/myrepo5.repo
+
+# update & upgrade image and install some base packages
+RUN zypper refresh
+RUN zypper update -y
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install -y --force-resolution \
+    git cmake gcc$GCC_RELEASE gcc$GCC_RELEASE-c++ gcc$GCC_RELEASE-fortran zlib-devel numactl awk patch tar autoconf automake libtool libjson-c-devel graphviz ncurses-devel nano which perl wget lbzip2  libjansson4 libnl3-200; \
+  zypper clean
+
+# Try to remove GPG key check
+RUN set -eux ; \
+  sed -i 's#gpgcheck=1#gpgcheck=0#g' /etc/zypp/repos.d/*.repo
+
+# Add AMD key
+RUN set -eux ; \
+    wget -O rocm.gpg.key https://repo.radeon.com/rocm/rocm.gpg.key ; \
+    rpm --import rocm.gpg.key ; \
+    rm rocm.gpg.key
+
+# Install amdgpu-install
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install $ROCM_RPM
+
+# in Samuels build. Needed??
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install --oldpackage libsystemd0-249.16 libudev1-249.16
+
+# Use amdgpu-install to install rocm et al. Should also install rccl.
+RUN set -eux ; \
+  amdgpu-install -y --no-dkms --usecase=hiplibsdk,rocm,rocmdev,mllib --rocmrelease=$ROCM_RELEASE
+
+# including mllib should have MIOpen in it? But its a lot smaller??
+
+## Remove amd* (e.g. amdclang). Why? Not needed anymore for newer version? Then install MIOpen. But how do you know the version??
+#RUN set -eux ; \
+##  rm -rf /opt/rocm-*/bin/amd* ; \
+#  zypper --no-gpg-checks -n install -y --force miopen-hip-gfx90akdb
+
+#
+# ROCm environment
+#
+ENV ROCM_PATH=/opt/rocm-$ROCM_RELEASE
+ENV PATH=$ROCM_PATH/bin:$ROCM_PATH/llvm/bin:$PATH
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROCM_PATH/lib
+
+#
+# Mark RCCL as non-debug - this can me overriden by RCCL debug build.
+#
+ENV RCCL_DEBUG=0
+
+# Fake having the amd gpus? so that aws-ofi-rccl installs properly?
+
+RUN set -eux ; \
+  cd $ROCM_PATH/bin ; \
+  for i in rocm_agent_enumerator rocminfo ; do \
+    rm -rf $i ; \
+#    curl -LO http://localhost:$SERVER_PORT/$i ; \
+    cp /$i . ; \
+    chmod +x $i ; \
+  done
+
+RUN set -eux ; \
+  cd $ROCM_PATH/llvm/bin ; \
+#  curl -LO http://localhost:$SERVER_PORT/amdgpu-arch.cpp ; \
+  cp /amdgpu-arch.cpp . ;\
+  rm amdgpu-arch offload-arch ; \
+  g++-$GCC_RELEASE amdgpu-arch.cpp -DNUM_TARGETS=8 -o amdgpu-arch ; \
+  g++-$GCC_RELEASE amdgpu-arch.cpp -DNUM_TARGETS=1 -o offload-arch ; \
+  rm -rf amdgpu-arch.cpp ; \
+  ./amdgpu-arch ; \
+  ./offload-arch ; \
+  true ; \
+  cd /
+
+# Download and install libfabric. CXI provider doesnt get installed atm.
+RUN set -eux ; \
+    wget https://github.com/ofiwg/libfabric/releases/download/v$LIBFABRIC_RELEASE/libfabric-$LIBFABRIC_RELEASE.tar.bz2 ; \
+    tar -xf libfabric-$LIBFABRIC_RELEASE.tar.bz2; \
+    rm libfabric-$LIBFABRIC_RELEASE.tar.bz2; \
+    cd libfabric-$LIBFABRIC_RELEASE; \
+    CC=gcc-$GCC_RELEASE ./configure --prefix=/opt/libfabric; \
+    make -j;\
+    make install;\
+    cd /; \
+    rm -rf libfabric-$LIBFABRIC_RELEASE
+
+#
+# libfabric environmentz
+#
+ENV LIBFABRIC_PATH=/opt/libfabric
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBFABRIC_PATH/lib
+ENV LD_RUN_PATH=$LD_RUN_PATH:$LIBFABRIC_PATH/lib
+
+#Original build from Samuel includes LDFLAGS='-lcxi' before both the ./ configure and make lines
+#Seems to be incompatible with latest libfabric version 2.0.0
+RUN set -eux ; \
+  git clone -b cxi https://github.com/ROCmSoftwarePlatform/aws-ofi-rccl /opt/mybuild ; \
+  cd /opt/mybuild ; \
+  ./autogen.sh ; \
+  \
+  cd /opt/mybuild ; \
+  export CPATH=$LIBFABRIC_PATH/include ; \
+  export LIBRARY_PATH=$LD_LIBRARY_PATH ; \
+  CC=gcc-$GCC_RELEASE ./configure --with-libfabric=$LIBFABRIC_PATH --enable-trace --with-hip=$ROCM_PATH --with-rccl=$ROCM_PATH/rccl --disable-tests ; \
+  CC=gcc-$GCC_RELEASE nice make -j ; \
+  \
+  mkdir /opt/aws-ofi-rccl ; \
+  mv src/.libs/librccl-net.so* /opt/aws-ofi-rccl ; \
+  rm -rf /opt/mybuild
+
+#
+# Add relevant libs to execution environment
+#
+ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/aws-ofi-rccl
+ENV CXI_FORK_SAFE=1
+ENV CXI_FORK_SAFE_HP=1
+ENV FI_CXI_DISABLE_CQ_HUGETLB=1
+
+#
+# Add Tests
+#
+RUN set -eux ; \
+  git clone https://github.com/rocm/rccl-tests /opt/mybuild ; \
+  sed -i 's/-std=c++14/-std=c++14 --amdgpu-target=gfx90a:xnack- --amdgpu-target=gfx90a:xnack+/g' /opt/mybuild/src/Makefile ; \
+  \
+  cd /opt/mybuild ; \
+  CC=gcc-$GCC_RELEASE \
+    DEBUG=$RCCL_DEBUG \
+    CXX=g++-$GCC_RELEASE \
+#    MPI_HOME=$MPICH_PATH \
+    ROCM_PATH=$ROCM_PATH \
+    MPI=0 \
+    NCCL_HOME=$ROCM_PATH/rccl \
+    nice make -j ; \
+  mkdir /opt/rccltests ; \
+  mv /opt/mybuild/build/* /opt/rccltests ; \
+  rm -rf /opt/mybuild
+
+
+# Remove libfabric
+RUN set -eux ; \
+    rm -rf /opt/libfabric
