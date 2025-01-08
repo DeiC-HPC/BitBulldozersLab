@@ -1,0 +1,26 @@
+ENV MPICH_PATH=/opt/mpich
+ENV MPICH_TAR=https://github.com/pmodels/mpich/releases/download/v${MPICH_RELEASE}/mpich-${MPICH_RELEASE}.tar.gz
+
+#
+# Add MPICH
+#
+#  CC=gcc-12 CXX=g++-12 ./configure --prefix=/opt/mpich/ --with-libfabric=/opt/libfabric --with-hip-lib=/opt/rocm-6.0.3/lib/ --with-hip-include=/opt/rocm-6.0.3/include/ ##--with-pm=none --with-pmi=slurm reuired??
+RUN set -eux ; \
+    cd / ;\
+    wget $MPICH_TAR ; \
+    tar -xzf mpich-$MPICH_RELEASE.tar.gz; \
+    rm mpich-$MPICH_RELEASE.tar.gz;\
+    cd mpich-$MPICH_RELEASE ;\
+    CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE  \
+        ./configure --prefix=$MPICH_PATH  \
+            --with-libfabric=/opt/libfabric  \
+            --with-hip-lib=/opt/rocm-6.0.3/lib/  \
+            --with-hip-include=/opt/rocm-6.0.3/include/  \
+            --disable-fortran;\
+    make -j ;\
+    make install ;\
+    cd /;\
+    rm -rf mpich-$MPICH_RELEASE
+
+ENV PATH=$MPICH_PATH/bin:$PATH
+ENV LD_LIBRARY_PATH=$MPICH_PATH/lib:$PATH

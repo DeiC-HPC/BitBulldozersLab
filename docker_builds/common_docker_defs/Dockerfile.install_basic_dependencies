@@ -1,0 +1,8 @@
+# update & upgrade image and install some base packages
+RUN zypper refresh
+RUN zypper update -y
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install -y --force-resolution \
+    git cmake gcc${GCC_RELEASE} gcc${GCC_RELEASE}-c++ gcc${GCC_RELEASE}-fortran zlib-devel numactl awk patch tar autoconf automake libtool libjson-c-devel graphviz ncurses-devel nano which perl wget lbzip2  libjansson4 libnl3-200; \
+  zypper clean
+

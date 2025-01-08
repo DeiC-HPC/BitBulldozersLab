@@ -1,0 +1,25 @@
+
+#we need to copy files needed to DOCKER
+COPY rocminfo rocm_agent_enumerator amdgpu-arch.cpp /
+
+# Fake having the amd gpus? so that aws-ofi-rccl installs properly?
+RUN set -eux ; \
+  cd $ROCM_PATH/bin ; \
+  for i in rocm_agent_enumerator rocminfo ; do \
+    rm -rf $i ; \
+    cp /$i . ; \
+    chmod +x $i ; \
+  done
+
+RUN set -eux ; \
+  cd $ROCM_PATH/llvm/bin ; \
+  cp /amdgpu-arch.cpp . ;\
+  rm amdgpu-arch offload-arch ; \
+  g++-$GCC_RELEASE amdgpu-arch.cpp -DNUM_TARGETS=8 -o amdgpu-arch ; \
+  g++-$GCC_RELEASE amdgpu-arch.cpp -DNUM_TARGETS=1 -o offload-arch ; \
+  rm -rf amdgpu-arch.cpp ; \
+  ./amdgpu-arch ; \
+  ./offload-arch ; \
+  true ; \
+  cd;
+

@@ -1,0 +1,42 @@
+# Repo contains perl libraries (?) that are needed for the rocm install. If the repos arent added the amdgpu-installer cannot resolve the dependencies.
+RUN set -eux ; \
+   zypper -n addrepo https://download.opensuse.org/repositories/devel:/languages:/perl/SLE_15_SP5 myrepo5 ; \
+   echo 'gpgcheck=0' >> /etc/zypp/repos.d/myrepo5.repo
+
+ENV ROCM_RPM=https://repo.radeon.com/amdgpu-install/$ROCM_RELEASE/sle/$SLE_RELEASE/amdgpu-install-$AMDGPU_INSTALLER_RELEASE.noarch.rpm
+
+# Try to remove GPG key check
+RUN set -eux ; \
+  sed -i 's#gpgcheck=1#gpgcheck=0#g' /etc/zypp/repos.d/*.repo
+
+# Add AMD key
+RUN set -eux ; \
+    wget -O rocm.gpg.key https://repo.radeon.com/rocm/rocm.gpg.key ; \
+    rpm --import rocm.gpg.key ; \
+    rm rocm.gpg.key
+
+# Install amdgpu-install
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install $ROCM_RPM
+
+# in Samuels build. Needed??
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install --oldpackage libsystemd0-249.16 libudev1-249.16
+
+# Use amdgpu-install to install rocm et al. Should also install rccl.
+RUN set -eux ; \
+  amdgpu-install -y --no-dkms --usecase=hiplibsdk,rocm,rocmdev,mllib --rocmrelease=$ROCM_RELEASE
+
+# including mllib should have MIOpen in it? But its a lot smaller??
+
+## Remove amd* (e.g. amdclang). Why? Not needed anymore for newer version? Then install MIOpen. But how do you know the version??
+#RUN set -eux ; \
+##  rm -rf /opt/rocm-*/bin/amd* ; \
+#  zypper --no-gpg-checks -n install -y --force miopen-hip-gfx90akdb
+
+#
+# ROCm environment
+#
+ENV ROCM_PATH=/opt/rocm-$ROCM_RELEASE
+ENV PATH=$ROCM_PATH/bin:$ROCM_PATH/llvm/bin:$PATH
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROCM_PATH/lib
