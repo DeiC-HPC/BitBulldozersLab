@@ -4,18 +4,19 @@
 #
 # Todo: enable/disable MPI
 RUN set -eux ; \
-  git clone https://github.com/rocm/rccl-tests /opt/mybuild ; \
+  git clone -b master https://github.com/rocm/rccl-tests /opt/mybuild
+
+RUN set -eux ; \
   sed -i 's/-std=c++14/-std=c++14 --amdgpu-target=gfx90a:xnack- --amdgpu-target=gfx90a:xnack+/g' /opt/mybuild/src/Makefile ; \
-  \
-  cd /opt/mybuild ; \
+  cd /opt/mybuild ;\
   CC=gcc-$GCC_RELEASE \
     DEBUG=$RCCL_DEBUG \
     CXX=g++-$GCC_RELEASE \
     MPI_HOME=$MPICH_PATH \
     ROCM_PATH=$ROCM_PATH \
-    MPI=0 \
+    MPI=1 \
     NCCL_HOME=$ROCM_PATH/rccl \
-    nice make -j ; \
-#  mkdir /opt/rccltests ; \
-#  mv /opt/mybuild/build/* /opt/rccltests ; \
-#  rm -rf /opt/mybuild
+    nice make -j ;\
+  mkdir /opt/rccltests ; \
+  mv /opt/mybuild/build/* /opt/rccltests ; \
+  rm -rf /opt/mybuild

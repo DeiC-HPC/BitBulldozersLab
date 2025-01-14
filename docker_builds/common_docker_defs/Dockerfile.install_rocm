@@ -27,11 +27,11 @@ RUN set -eux ; \
 RUN set -eux ; \
   amdgpu-install -y --no-dkms --usecase=hiplibsdk,rocm,rocmdev,mllib --rocmrelease=$ROCM_RELEASE
 
-# including mllib should have MIOpen in it? But its a lot smaller??
+# including mllib should have MIOpen in it? But its a lot smaller?? hiplibsdk,rocm,rocmdev
 
 ## Remove amd* (e.g. amdclang). Why? Not needed anymore for newer version? Then install MIOpen. But how do you know the version??
 #RUN set -eux ; \
-##  rm -rf /opt/rocm-*/bin/amd* ; \
+#  rm -rf /opt/rocm-*/bin/amd* ; \
 #  zypper --no-gpg-checks -n install -y --force miopen-hip-gfx90akdb
 
 #

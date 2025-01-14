@@ -1,0 +1,4 @@
+
+# Remove mpich
+RUN set -eux ; \
+    rm -rf /opt/mpich

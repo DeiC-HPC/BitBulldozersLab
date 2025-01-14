@@ -1,0 +1,21 @@
+ENV OSU_PATH=/opt/osu
+
+#
+# We can't run MPI during configure phase as we don't really have MPI available at build time.
+# Therefore we trick configure to believe MPI exists and we just link during the build phase.
+#
+RUN set -eux ; \
+  mkdir /opt/builds ; \
+  cd /opt/builds ; \
+  curl -LO  https://mvapich.cse.ohio-state.edu/download/mvapich/osu-micro-benchmarks-$OSU_VERSION.tar.gz ; \
+  tar -xf osu-*.tar.gz ; \
+  rm -rf osu-*.tar.gz ; \
+  \
+  cd /opt/builds/osu-*/ ; \
+  \
+  CC=$ROCM_PATH/llvm/bin/clang CXX=$ROCM_PATH/llvm/bin/clang++ \
+    CFLAGS="-I$MPICH_PATH/include -D__HIP_PLATFORM_AMD__=1" \
+    ./configure --enable-rocm --with-rocm=$ROCM_PATH --prefix=$OSU_PATH ; \
+  make -j install ; \
+  \
+  cd / ; rm -rf /opt/builds
