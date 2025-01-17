@@ -34,14 +34,15 @@ docker_install_rccl = "Dockerfile.install_rccl"
 docker_install_mpich = "Dockerfile.install_mpich"
 docker_install_rccl_tests = "Dockerfile.install_rccl_tests"
 docker_install_osu = "Dockerfile.install_osu"
+docker_install_osu_noRocm = "Dockerfile.install_osu_noRocm"
 docker_install_osu_gpu = "Dockerfile.install_osu_gpu" # TODO!
 docker_remove_libfabric = "Dockerfile.remove_libfabric"
 docker_remove_mpich = "Dockerfile.remove_mpich"
 
 # For building multiple images
-images_to_build = {"Docker_only" : [],
-                   "libfabric_hybrid": [],
-                    "mpich_hybrid": [],}
+images_to_build = {"Docker_only" : []}
+                   # "libfabric_hybrid": [],
+                   #  "mpich_hybrid": [],}
 
 # Base image with all libraries and tests. Not removing libfabric or mpich
 images_to_build["Docker_only"] += [docker_header,
@@ -53,17 +54,17 @@ images_to_build["Docker_only"] += [docker_header,
                                         docker_install_rccl,
                                         docker_install_mpich,
                                         docker_install_rccl_tests,
-                                        docker_install_osu
+                                        docker_install_osu_noRocm
                                         ]
 
 # Libfabric_hybrid --> Removing libfabric
-images_to_build["libfabric_hybrid"] = images_to_build["Docker_only"].copy()
-images_to_build["libfabric_hybrid"].append(docker_remove_libfabric)
-
-# mpich_hybrid --> Removing libfabric and MPICH
-images_to_build["mpich_hybrid"] = images_to_build["Docker_only"].copy()
-images_to_build["mpich_hybrid"].append(docker_remove_libfabric)
-images_to_build["mpich_hybrid"].append(docker_remove_mpich)
+# images_to_build["libfabric_hybrid"] = images_to_build["Docker_only"].copy()
+# images_to_build["libfabric_hybrid"].append(docker_remove_libfabric)
+#
+# # mpich_hybrid --> Removing libfabric and MPICH
+# images_to_build["mpich_hybrid"] = images_to_build["Docker_only"].copy()
+# images_to_build["mpich_hybrid"].append(docker_remove_libfabric)
+# images_to_build["mpich_hybrid"].append(docker_remove_mpich)
 
 print(images_to_build)
 

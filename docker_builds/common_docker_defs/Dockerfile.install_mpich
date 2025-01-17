@@ -1,6 +1,7 @@
 ENV MPICH_PATH=/opt/mpich
-ENV MPICH_TAR=https://github.com/pmodels/mpich/releases/download/v${MPICH_RELEASE}/mpich-${MPICH_RELEASE}.tar.gz
+ENV MPICH_TAR=http://www.mpich.org/static/downloads/${MPICH_RELEASE}/mpich-${MPICH_RELEASE}.tar.gz
 
+# TODO: compile with SLURM
 #
 # Add MPICH
 #

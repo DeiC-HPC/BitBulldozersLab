@@ -13,9 +13,9 @@ RUN set -eux ; \
   \
   cd /opt/builds/osu-*/ ; \
   \
-  CC=$ROCM_PATH/llvm/bin/clang CXX=$ROCM_PATH/llvm/bin/clang++ \
-    CFLAGS="-I$MPICH_PATH/include -D__HIP_PLATFORM_AMD__=1" \
-    ./configure --enable-rocm --with-rocm=$ROCM_PATH --prefix=$OSU_PATH ; \
-  make LDFLAGS="-I/opt/rocm/include/ -L/opt/rocm/lib  -lamdhip64 -lhsa-runtime64" -j install ; \
+  CC=$(which mpicc) CXX=$(which mpicxx) \
+    CFLAGS="-I$MPICH_PATH/include" \
+    ./configure --disable-rocm --prefix=$OSU_PATH ; \
+  make -j install ; \
   \
   cd / ; rm -rf /opt/builds
