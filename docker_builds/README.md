@@ -3,8 +3,8 @@ This is based on the LUMI docker build files found here:
 
 https://github.com/sfantao/lumi-containers/tree/lumi-sep2024
 
-
 The main aim is to be able to build docker base images without needing a system similar to LUMI.  
+We have a basic image which works on LUMi. However, the interconnects are not properly used. 
 
 # step-by-step
 1. Basic Container
@@ -13,17 +13,18 @@ The main aim is to be able to build docker base images without needing a system 
 4. Link GTL into lumi bind mount
 5. Link GTL into libfabric hybrid container
 
-# TODO List && Questions
+# TODO List && Research Questions
 
 Questions we aim to answer with this BitBulldozer
 
-- [ ] Basic container:
-  - [ ] bandwidth? 
-  - [ ] latency?
+- [X] Basic container:
+  - [X] bandwidth? 
+  - [X] latency?
+  - [ ] RCCL
   - [ ] Is libfabric actually used in the basic container via TCP IP?
   - [ ] GTL linking:
     - [ ] Can we post link the GTL into the basic MPICH? 
-- [ ] Lumi bind mount container:
+- [X] Lumi bind mount container:
   - [ ] bandwidth? 
   - [ ] latency?
   - [ ] GTL linking:
@@ -45,16 +46,16 @@ Questions we aim to answer with this BitBulldozer
 ***
 ### Basic container:
 #### Bandwidth tests
-- [ ] Basic host-host OSU bandwidth test
-- [ ] Basic device-host OSU bandwidth test
-- [ ] Basic host-device OSU bandwidth test
-- [ ] Basic device-device OSU bandwidth test
+- [X] Basic host-host OSU bandwidth test
+- [X] Basic device-host OSU bandwidth test
+- [X] Basic host-device OSU bandwidth test
+- [X] Basic device-device OSU bandwidth test
 
 #### Latency tests
-- [ ] Basic host-host OSU Latency test
-- [ ] Basic device-host OSU Latency test
-- [ ] Basic host-device OSU Latency test
-- [ ] Basic device-device OSU Latency test
+- [X] Basic host-host OSU Latency test
+- [X] Basic device-host OSU Latency test
+- [X] Basic host-device OSU Latency test
+- [X] Basic device-device OSU Latency test
 
 #### NCCL bandwidth test
 - [ ] Basic device-device NCCL bandwidth tests
@@ -143,9 +144,12 @@ Link GTL
 # Backlog & Questions
 - GROMACS or similar? https://www.gromacs.org/tutorial_webinar.html
 - Speed tests for pytorch
+  - real world Pytorch examples would be good
 - MPICH with slurm for more options?
 - Can we do better than 25GB/s? 
   - Maybe through some slurm configs to select NICs?
+- are the pure RCCL tests necessary?
+- Do we need to do internode testing?
 
 ***
 ***
@@ -197,71 +201,74 @@ Take Basic container and replace and **ONLY** replace libfabric.
 
 ## Basic container
 
-OSU test with container MPI - Host to Host:
+### Bandwidth:
 
-| # OSU MPI Bandwidth Test v7.2 |                  |
-|-------------------------------|------------------|
-| # Size                        |                  |
-| # Datatype: MPI_CHAR.         | Bandwidth (MB/s) |
-| 1                             | 0.16             |
-| 2                             | 0.31             |
-| 4                             | 0.64             |
-| 8                             | 1.27             |
-| 16                            | 2.57             |
-| 32                            | 5.13             |
-| 64                            | 10.14            |
-| 128                           | 20.40            |
-| 256                           | 38.75            |
-| 512                           | 77.28            |
-| 1024                          | 146.53           |
-| 2048                          | 282.54           |
-| 4096                          | 531.06           |
-| 8192                          | 940.30           |
-| 16384                         | 1434.97          |
-| 32768                         | 2045.56          |
-| 65536                         | 2155.63          |
-| 131072                        | 1929.44          |
-| 262144                        | 2071.33          |
-| 524288                        | 2142.00          |
-| 1048576                       | 2170.57          |
-| 2097152                       | 2195.92          |
-| 4194304                       | 2198.81          |
+| # OSU MPI Bandwidth Test v7.5 |                  |                |                |                  |
+|-------------------------------|------------------|----------------|----------------|------------------|
+| # Size                        | Bandwidth (MB/s) |                |                |                  |
+| # Datatype: MPI_CHAR.         | Host to Host     | Host to Device | Device to Host | Device to Device |
+| 1                             | 0.18             | 0.17           | 0.17           | 0.19             |
+| 2                             | 0.36             | 0.35           | 0.35           | 0.39             |
+| 4                             | 0.73             | 0.70           | 0.70           | 0.77             |
+| 8                             | 1.45             | 1.41           | 1.40           | 1.53             |
+| 16                            | 2.90             | 2.82           | 2.77           | 3.09             |
+| 32                            | 5.80             | 5.63           | 5.60           | 6.19             |
+| 64                            | 11.52            | 11.12          | 11.13          | 12.34            |
+| 128                           | 23.10            | 22.30          | 22.26          | 24.51            |
+| 256                           | 41.53            | 38.42          | 38.48          | 46.00            |
+| 512                           | 81.40            | 76.13          | 77.59          | 91.26            |
+| 1024                          | 162.18           | 150.12         | 160.22         | 180.07           |
+| 2048                          | 170.40           | 151.91         | 162.70         | 193.40           |
+| 4096                          | 276.87           | 280.85         | 269.58         | 290.04           |
+| 8192                          | 314.43           | 318.35         | 296.91         | 333.52           |
+| 16384                         | 354.44           | 346.47         | 328.21         | 361.73           |
+| 32768                         | 382.66           | 362.71         | 356.73         | 391.50           |
+| 65536                         | 380.86           | 366.00         | 354.78         | 381.19           |
+| 131072                        | 386.05           | 377.53         | 363.19         | 398.58           |
+| 262144                        | 388.65           | 381.71         | 375.69         | 396.36           |
+| 524288                        | 390.54           | 379.17         | 386.95         | 396.57           |
+| 1048576                       | 390.32           | 379.67         | 387.71         | 398.08           |
+| 2097152                       | 381.37           | 380.68         | 386.68         | 398.60           |
+| 4194304                       | 389.20           | 374.46         | 388.07         | 397.83           |
+
+### Latency
+- Host to device has a very high latency?
+
+| # OSU MPI Latency Test v7.5 |                 |                |                |                  |
+|-----------------------------|-----------------|----------------|----------------|------------------|
+| # Datatype: MPI_CHAR.       | Avg Latency(us) |                |                |                  |
+| # Size                      | Host to Host    | Host to Device | Device to Host | Device to Device |
+| 1                           | 16.31           | 15.16          | 16.30          | 15.67            |
+| 2                           | 16.33           | 15.05          | 16.30          | 15.65            |
+| 4                           | 16.31           | 15.18          | 16.30          | 15.67            |
+| 8                           | 16.33           | 15.14          | 16.40          | 15.66            |
+| 16                          | 16.33           | 15.18          | 16.31          | 15.67            |
+| 32                          | 16.33           | 15.16          | 16.14          | 15.68            |
+| 64                          | 16.39           | 15.21          | 16.19          | 15.65            |
+| 128                         | 16.43           | 15.16          | 16.26          | 15.70            |
+| 256                         | 18.25           | 17.25          | 18.40          | 17.93            |
+| 512                         | 18.26           | 17.16          | 18.25          | 17.86            |
+| 1024                        | 18.42           | 17.47          | 18.18          | 17.95            |
+| 2048                        | 26.12           | 25.37          | 26.08          | 25.11            |
+| 4096                        | 28.22           | 27.30          | 28.38          | 27.82            |
+| 8192                        | 38.35           | 37.35          | 39.58          | 38.99            |
+| 16384                       | 60.01           | 57.00          | 63.36          | 63.28            |
+| 32768                       | 99.29           | 92.15          | 100.77         | 101.13           |
+| 65536                       | 164.36          | 158.42         | 182.50         | 182.29           |
+| 131072                      | 294.38          | 291.48         | 343.89         | 339.74           |
+| 262144                      | 776.39          | 736.25         | 839.23         | 819.19           |
+| 524288                      | 1601.35         | 1589.33        | 1770.13        | 1721.75          |
+| 1048576                     | 2796.96         | 2854.39        | 3319.93        | 3287.44          |
+| 2097152                     | 5593.95         | 5466.32        | 6464.68        | 6442.70          |
+| 4194304                     | 11063.38        | 10848.60       | 12942.70       | 12732.32         |
+
+### RCCL
+
 
 ***
-## Lumi bin mount container
-OSU test with container MPI - Device to Host/Host to Device:
-- basically the same
-
-| # OSU MPI Bandwidth Test v7.2 |                  |
-|-------------------------------|------------------|
-| # Size                        |                  |
-| # Datatype: MPI_CHAR.         | Bandwidth (MB/s) |
-| 1                             | 0.15             |
-| 2                             | 0.32             |
-| 4                             | 0.51             |
-| 8                             | 1.02             |
-| 16                            | 2.04             |
-| 32                            | 4.07             |
-| 64                            | 8.10             |
-| 128                           | 16.32            |
-| 256                           | 32.24            |
-| 512                           | 65.03            |
-| 1024                          | 123.97           |
-| 2048                          | 249.06           |
-| 4096                          | 484.88           |
-| 8192                          | 903.43           |
-| 16384                         | 1442.01          |
-| 32768                         | 2091.72          |
-| 65536                         | 2246.55          |
-| 131072                        | 1945.72          |
-| 262144                        | 2090.47          |
-| 524288                        | 2184.74          |
-| 1048576                       | 2226.57          |
-| 2097152                       | 2262.37          |
-| 4194304                       | 2258.53          |
+## Lumi bind mount container
 
 
-OSU test with host MPI:
 
 | # OSU MPI Bandwidth Test v7.2 |                  |
 |-------------------------------|------------------|
