@@ -19,8 +19,6 @@ def show_progress(line, console):
 
     console.log(log_message, markup=True)
 
-#Todo: Define versions for DOCKER
-
 docker_files_path_prefix = "common_docker_defs"
 
 # Define which docker files to use
@@ -30,19 +28,15 @@ docker_install_basic_dependencies = "Dockerfile.install_basic_dependencies"
 docker_install_rocm = "Dockerfile.install_rocm"
 docker_fake_rocm_gpu_info = "Dockerfile.fake_rocm_gpu_info"
 docker_install_libfabric = "Dockerfile.install_libfabric"
-docker_install_rccl = "Dockerfile.install_rccl"
+docker_install_aws-ofi-rccl = "Dockerfile.install_aws-ofi-rccl"
 docker_install_mpich = "Dockerfile.install_mpich"
 docker_install_rccl_tests = "Dockerfile.install_rccl_tests"
 docker_install_osu = "Dockerfile.install_osu"
-docker_install_osu_noRocm = "Dockerfile.install_osu_noRocm"
-docker_install_osu_gpu = "Dockerfile.install_osu_gpu" # TODO!
 docker_remove_libfabric = "Dockerfile.remove_libfabric"
 docker_remove_mpich = "Dockerfile.remove_mpich"
 
 # For building multiple images
 images_to_build = {"Docker_only" : []}
-                   # "libfabric_hybrid": [],
-                   #  "mpich_hybrid": [],}
 
 # Base image with all libraries and tests. Not removing libfabric or mpich
 images_to_build["Docker_only"] += [docker_header,
@@ -51,22 +45,11 @@ images_to_build["Docker_only"] += [docker_header,
                                         docker_install_rocm,
                                         docker_fake_rocm_gpu_info,
                                         docker_install_libfabric,
-                                        docker_install_rccl,
+                                        docker_install_aws-ofi-rccl,
                                         docker_install_mpich,
                                         docker_install_rccl_tests,
-                                        docker_install_osu_noRocm
+                                        docker_install_osu
                                         ]
-
-# Libfabric_hybrid --> Removing libfabric
-# images_to_build["libfabric_hybrid"] = images_to_build["Docker_only"].copy()
-# images_to_build["libfabric_hybrid"].append(docker_remove_libfabric)
-#
-# # mpich_hybrid --> Removing libfabric and MPICH
-# images_to_build["mpich_hybrid"] = images_to_build["Docker_only"].copy()
-# images_to_build["mpich_hybrid"].append(docker_remove_libfabric)
-# images_to_build["mpich_hybrid"].append(docker_remove_mpich)
-
-print(images_to_build)
 
 # Build all images one go
 for current_image_name, current_image_files in images_to_build.items():

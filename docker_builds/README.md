@@ -6,59 +6,198 @@ https://github.com/sfantao/lumi-containers/tree/lumi-sep2024
 
 The main aim is to be able to build docker base images without needing a system similar to LUMI.  
 
-### TODO
+# step-by-step
+1. Basic Container
+2. Lumi bind mount container
+3. Libfabric Hybrid container
+4. Link GTL into lumi bind mount
+5. Link GTL into libfabric hybrid container
+
+# TODO List && Questions
+
+Questions we aim to answer with this BitBulldozer
+
+- [ ] Basic container:
+  - [ ] bandwidth? 
+  - [ ] latency?
+  - [ ] Is libfabric actually used in the basic container via TCP IP?
+  - [ ] GTL linking:
+    - [ ] Can we post link the GTL into the basic MPICH? 
+- [ ] Lumi bind mount container:
+  - [ ] bandwidth? 
+  - [ ] latency?
+  - [ ] GTL linking:
+    - [ ] is there a latency difference?
+    - [ ] Is there a bandwidth difference?
+    - [ ] Does GTL linking impact NCCL?
+- [ ] Libfarbic hybrid:
+  - [ ] bandwidth? 
+  - [ ] latency?
+  - [ ] Linking GTL with libfabric Hybrid setup? 
+    - [ ] post linking? LD_PRELOAD?
+    - [ ] is there a latency difference?
+    - [ ] Is there a bandwidth difference?
+
+
+## Tests:
+
+***
+***
+### Basic container:
+#### Bandwidth tests
+- [ ] Basic host-host OSU bandwidth test
+- [ ] Basic device-host OSU bandwidth test
+- [ ] Basic host-device OSU bandwidth test
+- [ ] Basic device-device OSU bandwidth test
+
+#### Latency tests
+- [ ] Basic host-host OSU Latency test
+- [ ] Basic device-host OSU Latency test
+- [ ] Basic host-device OSU Latency test
+- [ ] Basic device-device OSU Latency test
+
+#### NCCL bandwidth test
+- [ ] Basic device-device NCCL bandwidth tests
+
+#### NCCL latency test
+- [ ] Basic device-device NCCL latency tests
+
+#### Debug:
+- [ ] Is libfabric used at all?
+
+***
+***
+### Lumi bind mount:
+#### Bandwidth tests
+- [X] host-host OSU bandwidth test
+- [ ] device-host OSU bandwidth test
+- [ ] host-devices OSU bandwidth test
+- [ ] device-device OSU bandwidth test
+
+#### Latency tests
+- [ ] host-host OSU Latency test
+- [ ] device-host OSU Latency test
+- [ ] host-devices OSU Latency test
+- [ ] device-device OSU Latency test
+
+#### NCCL bandwidth test
+- [ ] device-device NCCL bandwidth tests
+
+#### NCCL latency test
+- [ ] device-device NCCL latency tests
+
+***
+Link GTL
+
+#### GTL Bandwidth test
+- [ ] device-device OSU bandwidth test
+
+#### GTL Latency test
+- [ ] device-device OSU Latency test
+
+#### GTL NCCL Bandwidth test
+ - [ ] device-device NCCL bandwidth tests
+
+#### GTL NCCL Bandwidth test
+ - [ ] device-device NCCL latency tests
+
+***
+***
+### Libfabric hybrid:
+####  Bandwidth test
+- [ ] host-host OSU bandwidth test
+- [ ] device-host OSU bandwidth test
+- [ ] host-devices OSU bandwidth test
+- [ ] device-device OSU bandwidth test
+
+#### Latency test
+- [ ] host-host OSU Latency test
+- [ ] device-host OSU Latency test
+- [ ] host-devices OSU Latency test
+- [ ] device-device OSU Latency test
+
+#### NCCL bandwidth test
+- [ ] device-device NCCL bandwidth tests
+
+#### NCCL latency test
+- [ ] device-device NCCL latency tests
+
+***
+Link GTL
+
+#### GTL Bandwidth test
+- [ ] device-device OSU bandwidth test
+
+#### GTL Latency test
+- [ ] device-device OSU Latency test
+
+#### GTL NCCL Bandwidth test
+ - [ ] device-device NCCL bandwidth tests
+
+#### GTL NCCL Bandwidth test
+ - [ ] device-device NCCL latency tests
+
+***
+***
+
+# Backlog & Questions
 - GROMACS or similar? https://www.gromacs.org/tutorial_webinar.html
 - Speed tests for pytorch
-- OSU GPU Aware MPI somehow
-- TODO: MPICH with slurm?
-- "#export MPICH_GPU_SUPPORT_ENABLED=1" Not working. what modules to load?? or maybe what bind mounts?
-  - current setup:
-    - module load LUMI/24.03
-    - module load EasyBuild-user 
-    - eb singularity-bindings-24.03.eb -r
-    - module load singularity-bindings
-    - module load PrgEnv-cray 
-    - module load craype-accel-amd-gfx90a 
-    - module load rocm
-  - Error:
-    - MPIDI_CRAY_init: GPU_SUPPORT_ENABLED is requested, but GTL library is not linked (Other MPI error)
-    - aborting job:
-    - MPIDI_CRAY_init: GPU_SUPPORT_ENABLED is requested, but GTL library is not linked
+- MPICH with slurm for more options?
+- Can we do better than 25GB/s? 
+  - Maybe through some slurm configs to select NICs?
 
-# Containers 
+***
+***
+# Container Image
 
-## Base image
+We have one container for all three test cases (basic, lumi bind and libfabric hybrid)
+The image includes:
 
-- replace nothing
+- ROCm
+- RCCL
+- MPICH
+- aws-ofi-rccl
+- libfabric
 - RCCL tests are included and compiled with MPICH
-- OSU tests are included and compiled with MPICC which automatically seems to include ROCm.
+- OSU tests are included and compiled with MPICC. Automatically includes ROCm. And via flags also RCCL
 
-- OSU benchmarks run. Both using the host and container MPI libraries works.
+***
+***
 
-## Libfabric replacement only
+# Definition of basic, lumi bind etc. 
+## Basic
+We take the container as is, with MPICH, libfabric etc. 
+Nothing gets bind mounted and the communication should run via TCP IP.
 
-Goal: 
-- Build container with libfabric, MPI etc. 
-- And **ONLY** replace libfabric.
-- RCCL tests are included and compiled with MPICH
-- OSU tests are included and compiled with MPICC which automatically seems to include ROCm.
+The versions used for each library can be reviewed in 'common_docker_defs/Dockerfile.define_versions'.
 
-The Libfabric base works, at least to the point where the single GPU and multi GPU PyTorch examples work, as well as the RCCL test without MPICH.
+***
+## Lumi Bind
+Take Basic container and replace libfabric and MPICH using the singularity bindings module on Lumi.
+
+current setup:
+- module load LUMI/24.03
+- module load EasyBuild-user 
+- eb singularity-bindings-24.03.eb -r
+- module load singularity-bindings
+- module load PrgEnv-cray (shouldnt be necessary)
+- module load craype-accel-amd-gfx90a (shouldnt be necessary)
+- module load rocm (shouldnt be necessary)
+
+***
+## Libfabric Hybrid
+Take Basic container and replace and **ONLY** replace libfabric.
 
 
-## Libfabric & Mpich replacement (i.e. complete replacement?)
-
-Goal: 
-- Build container with libfabric, MPI etc. 
-- Replace libfabric and MPICH.
-- RCCL tests are included and compiled with MPICH
-- OSU tests --> CPU Only
+***
+***
 
 # Results
 
-## Base image
+## Basic container
 
-OSU test with container MPI:
+OSU test with container MPI - Host to Host:
 
 | # OSU MPI Bandwidth Test v7.2 |                  |
 |-------------------------------|------------------|
@@ -87,6 +226,39 @@ OSU test with container MPI:
 | 1048576                       | 2170.57          |
 | 2097152                       | 2195.92          |
 | 4194304                       | 2198.81          |
+
+***
+## Lumi bin mount container
+OSU test with container MPI - Device to Host/Host to Device:
+- basically the same
+
+| # OSU MPI Bandwidth Test v7.2 |                  |
+|-------------------------------|------------------|
+| # Size                        |                  |
+| # Datatype: MPI_CHAR.         | Bandwidth (MB/s) |
+| 1                             | 0.15             |
+| 2                             | 0.32             |
+| 4                             | 0.51             |
+| 8                             | 1.02             |
+| 16                            | 2.04             |
+| 32                            | 4.07             |
+| 64                            | 8.10             |
+| 128                           | 16.32            |
+| 256                           | 32.24            |
+| 512                           | 65.03            |
+| 1024                          | 123.97           |
+| 2048                          | 249.06           |
+| 4096                          | 484.88           |
+| 8192                          | 903.43           |
+| 16384                         | 1442.01          |
+| 32768                         | 2091.72          |
+| 65536                         | 2246.55          |
+| 131072                        | 1945.72          |
+| 262144                        | 2090.47          |
+| 524288                        | 2184.74          |
+| 1048576                       | 2226.57          |
+| 2097152                       | 2262.37          |
+| 4194304                       | 2258.53          |
 
 
 OSU test with host MPI:
