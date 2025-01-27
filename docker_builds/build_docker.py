@@ -28,7 +28,7 @@ docker_install_basic_dependencies = "Dockerfile.install_basic_dependencies"
 docker_install_rocm = "Dockerfile.install_rocm"
 docker_fake_rocm_gpu_info = "Dockerfile.fake_rocm_gpu_info"
 docker_install_libfabric = "Dockerfile.install_libfabric"
-docker_install_aws-ofi-rccl = "Dockerfile.install_aws-ofi-rccl"
+docker_install_aws_ofi_rccl = "Dockerfile.install_aws-ofi-rccl"
 docker_install_mpich = "Dockerfile.install_mpich"
 docker_install_rccl_tests = "Dockerfile.install_rccl_tests"
 docker_install_osu = "Dockerfile.install_osu"
@@ -36,16 +36,16 @@ docker_remove_libfabric = "Dockerfile.remove_libfabric"
 docker_remove_mpich = "Dockerfile.remove_mpich"
 
 # For building multiple images
-images_to_build = {"Docker_only" : []}
+images_to_build = {"base_image" : []}
 
 # Base image with all libraries and tests. Not removing libfabric or mpich
-images_to_build["Docker_only"] += [docker_header,
+images_to_build["base_image"] += [docker_header,
                                         docker_define_versions,
                                         docker_install_basic_dependencies,
                                         docker_install_rocm,
                                         docker_fake_rocm_gpu_info,
                                         docker_install_libfabric,
-                                        docker_install_aws-ofi-rccl,
+                                        docker_install_aws_ofi_rccl,
                                         docker_install_mpich,
                                         docker_install_rccl_tests,
                                         docker_install_osu
