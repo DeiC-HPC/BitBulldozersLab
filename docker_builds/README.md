@@ -32,13 +32,14 @@ Questions we aim to answer with this BitBulldozer
   - [X] bandwidth
   - [X] latency
   - [X] RCCL
-  - [ ] Is libfabric actually used in the basic container via TCP IP?
+  - [ ] Is libfabric actually used in the basic container via TCP/IP?
   - [ ] GTL linking:
     - [ ] Can we post link the GTL into the basic MPICH? 
 - [X] Native:
-  - [ ] bandwidth
-  - [ ] latency
-  - [ ] RCCL
+  - [X] bandwidth
+  - [X] latency
+  - [X] RCCL
+  - [ ] TODO: Debug: Does the MPI test actually use GPU to GPU? Or is it using the CPU? 
 - [X] Lumi bind mount container:
   - [ ] bandwidth? 
   - [ ] latency?
@@ -97,10 +98,10 @@ Questions we aim to answer with this BitBulldozer
 - [X] Device-Device
 
 #### NCCL bandwidth test
-- [ ] Device-device NCCL bandwidth tests
+- [X] Device-device NCCL bandwidth tests
 
 #### NCCL latency test
-- [ ] Device-device NCCL latency tests
+- [X] Device-device NCCL latency tests
 
 ***
 ***
@@ -215,19 +216,22 @@ The versions used for each library can be reviewed in 'common_docker_defs/Docker
 ***
 
 ## Native
-- module load LUMI/24.03
-- module load craype-x86-trento
-- module load PrgEnv-amd
-- module load craype-accel-amd-gfx90a
-- module load rocm
-- module load EasyBuild-user
-- eb aws-ofi-rccl-17d41cb-cpeGNU-24.03.eb -r
+module load LUMI/24.03
+module load craype-x86-trento
+module load PrgEnv-amd
+module load craype-accel-amd-gfx90a
+module load rocm
+module load EasyBuild-user
+eb aws-ofi-rccl-17d41cb-cpeGNU-24.03.eb -r
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/users/$USER/EasyBuild/SW/LUMI-24.03/L/aws-ofi-rccl/17d41cb-cpeGNU-24.03/lib/:/users/$USER/EasyBuild/SW/LUMI-24.03/L/aws-ofi-rccl/17d41cb-cpeGNU-24.03/lib64/
 - CC=cc CXX=CC ./configure --enable-rocm --with-rocm=/opt/rocm-6.0.3 --enable-rcclomb --with-rccl=/opt/rocm-6.0.3 --prefix=/project/project_465001699/julius/osu/build_osu
 - make install
 
 **NOTE:** 
-For native bandwidth tests with GPUs, the GTL needs to be linked in and you need to set 'export MPICH_GPU_SUPPORT_ENABLED=1'.
-Otherwise you get errors. 
+For native bandwidth tests with GPUs, the GTL needs to be linked in, and you need to set 'export MPICH_GPU_SUPPORT_ENABLED=1'.
+Otherwise, you get errors. You can check if the GTL is linked with 'ldd' and the library is 'libmpi_gtl_hsa.so.0 => /opt/cray/pe/lib64/libmpi_gtl_hsa.so.0'.
+- 'export NCCL_IGNORE_CPU_AFFINITY=1' Leads to almost 4x improvement. 
+- 
 
 
 ***
@@ -322,37 +326,67 @@ Take Basic container and replace and **ONLY** replace libfabric.
 
 ### Bandwidth
 
-| # OSU MPI Bandwidth Test v7.5 |              |                |                |                  |         |
-|-------------------------------|--------------|----------------|----------------|------------------|---------|
-| # Datatype: MPI_CHAR.         | Bandwidth    |                |                |                  |         |
-| # Size                        | Host to Host | Host to Device | Device to Host | Device to Device | RCCL    |
-| 1                             | 1.80         | 1.57           | 1.57           | 1.53             | 0.01    |
-| 2                             | 3.62         | 3.17           | 3.17           | 3.11             | 0.03    |
-| 4                             | 7.24         | 6.47           | 6.38           | 6.33             | 0.06    |
-| 8                             | 14.44        | 12.96          | 12.73          | 12.66            | 0.12    |
-| 16                            | 28.95        | 25.92          | 25.52          | 25.33            | 0.24    |
-| 32                            | 57.72        | 51.91          | 50.76          | 50.67            | 0.54    |
-| 64                            | 114.33       | 103.75         | 101.52         | 100.14           | 0.94    |
-| 128                           | 231.01       | 205.23         | 202.08         | 201.29           | 1.84    |
-| 256                           | 456.99       | 395.30         | 398.36         | 399.23           | 3.91    |
-| 512                           | 914.56       | 770.62         | 796.72         | 798.18           | 6.27    |
-| 1024                          | 1825.57      | 1573.39        | 1593.33        | 1595.32          | 14.65   |
-| 2048                          | 3646.99      | 3062.32        | 3177.55        | 3186.73          | 22.27   |
-| 4096                          | 7260.73      | 6255.99        | 6343.68        | 6341.36          | 54.60   |
-| 8192                          | 13722.94     | 13195.32       | 12609.02       | 12624.95         | 99.28   |
-| 16384                         | 17347.99     | 18591.01       | 20249.11       | 20232.51         | 152.33  |
-| 32768                         | 18859.19     | 18970.21       | 19528.19       | 19402.73         | 224.01  |
-| 65536                         | 20834.00     | 21338.66       | 20903.44       | 22365.23         | 377.62  |
-| 131072                        | 21770.94     | 22755.22       | 21902.37       | 23186.11         | 668.51  |
-| 262144                        | 22188.02     | 23369.86       | 22252.94       | 23590.67         | 1056.00 |
-| 524288                        | 22383.49     | 23689.55       | 22410.27       | 23794.20         | 1259.40 |
-| 1048576                       | 22498.72     | 23853.41       | 22499.65       | 23879.56         | 1462.45 |
-| 2097152                       | 22555.40     | 23922.00       | 22541.25       | 23926.79         | 1639.80 |
-| 4194304                       | 22584.56     | 23958.53       | 22561.99       | 23950.99         | 1701.20 |
+- RCCL results are better than initially but still far from the MPI speeds. Maybe possible to improve with additional flags. Could also be that the benchmark isn't well suited to take advantage of the hardware.
+- The debug information clearly show that RCCL is using AWS Libfabric and CXI provider.
 
+
+| # OSU MPI Bandwidth Test v7.5 |              |                |                |                  |          |
+|-------------------------------|--------------|----------------|----------------|------------------|----------|
+| # Datatype: MPI_CHAR.         | Bandwidth    |                |                |                  |          |
+| # Size                        | Host to Host | Host to Device | Device to Host | Device to Device | RCCL     |
+| 1                             | 1.80         | 1.57           | 1.57           | 1.53             | 0.10     |
+| 2                             | 3.62         | 3.17           | 3.17           | 3.11             | 0.21     |
+| 4                             | 7.24         | 6.47           | 6.38           | 6.33             | 0.40     |
+| 8                             | 14.44        | 12.96          | 12.73          | 12.66            | 0.83     |
+| 16                            | 28.95        | 25.92          | 25.52          | 25.33            | 1.68     |
+| 32                            | 57.72        | 51.91          | 50.76          | 50.67            | 3.35     |
+| 64                            | 114.33       | 103.75         | 101.52         | 100.14           | 6.39     |
+| 128                           | 231.01       | 205.23         | 202.08         | 201.29           | 12.71    |
+| 256                           | 456.99       | 395.30         | 398.36         | 399.23           | 26.20    |
+| 512                           | 914.56       | 770.62         | 796.72         | 798.18           | 51.97    |
+| 1024                          | 1825.57      | 1573.39        | 1593.33        | 1595.32          | 102.81   |
+| 2048                          | 3646.99      | 3062.32        | 3177.55        | 3186.73          | 200.84   |
+| 4096                          | 7260.73      | 6255.99        | 6343.68        | 6341.36          | 390.54   |
+| 8192                          | 13722.94     | 13195.32       | 12609.02       | 12624.95         | 53.69    |
+| 16384                         | 17347.99     | 18591.01       | 20249.11       | 20232.51         | 513.95   |
+| 32768                         | 18859.19     | 18970.21       | 19528.19       | 19402.73         | 2063.77  |
+| 65536                         | 20834.00     | 21338.66       | 20903.44       | 22365.23         | 3111.74  |
+| 131072                        | 21770.94     | 22755.22       | 21902.37       | 23186.11         | 5075.89  |
+| 262144                        | 22188.02     | 23369.86       | 22252.94       | 23590.67         | 6956.27  |
+| 524288                        | 22383.49     | 23689.55       | 22410.27       | 23794.20         | 8437.05  |
+| 1048576                       | 22498.72     | 23853.41       | 22499.65       | 23879.56         | 11580.92 |
+| 2097152                       | 22555.40     | 23922.00       | 22541.25       | 23926.79         | 12690.55 |
+| 4194304                       | 22584.56     | 23958.53       | 22561.99       | 23950.99         | 13347.54 |
 
 ### Latency
 
+| # OSU MPI Latency Test v7.5 |                 |                |                |                  |        |
+|-----------------------------|-----------------|----------------|----------------|------------------|--------|
+| # Datatype: MPI_CHAR.       | Avg Latency(us) |                |                |                  |        |
+| # Size                      | Host to Host    | Host to Device | Device to Host | Device to Device | RCCL   |
+| 1                           | 2.30            | 2.44           | 2.42           | 2.54             | 27.08  |
+| 2                           | 2.33            | 2.46           | 2.45           | 2.55             | 27.19  |
+| 4                           | 2.33            | 2.46           | 2.44           | 2.55             | 27.12  |
+| 8                           | 2.32            | 2.46           | 2.43           | 2.56             | 27.11  |
+| 16                          | 2.32            | 2.46           | 2.44           | 2.56             | 26.88  |
+| 32                          | 2.32            | 2.45           | 2.43           | 2.55             | 26.59  |
+| 64                          | 2.33            | 2.44           | 2.45           | 2.56             | 26.58  |
+| 128                         | 2.87            | 2.98           | 2.98           | 3.10             | 27.18  |
+| 256                         | 2.92            | 3.17           | 3.16           | 3.31             | 26.97  |
+| 512                         | 2.95            | 3.26           | 3.25           | 3.43             | 27.17  |
+| 1024                        | 3.01            | 3.37           | 3.36           | 3.60             | 27.29  |
+| 2048                        | 3.15            | 3.50           | 3.50           | 3.89             | 27.93  |
+| 4096                        | 3.26            | 3.66           | 3.65           | 3.93             | 27.96  |
+| 8192                        | 3.65            | 3.91           | 3.89           | 4.16             | 28.81  |
+| 16384                       | 4.30            | 4.54           | 4.56           | 4.69             | 29.60  |
+| 32768                       | 7.68            | 8.06           | 8.01           | 8.37             | 34.27  |
+| 65536                       | 9.11            | 9.41           | 9.40           | 9.70             | 39.36  |
+| 131072                      | 12.01           | 12.21          | 12.23          | 12.46            | 46.08  |
+| 262144                      | 17.79           | 17.80          | 17.77          | 17.80            | 57.84  |
+| 524288                      | 29.40           | 29.00          | 28.97          | 28.62            | 82.84  |
+| 1048576                     | 52.58           | 51.36          | 51.36          | 50.21            | 116.52 |
+| 2097152                     | 98.89           | 96.27          | 96.26          | 93.66            | 194.00 |
+| 4194304                     | 191.63          | 186.07         | 186.10         | 180.60           | 379.41 |
 
 ***
 ## Lumi bind mount container
