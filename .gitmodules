@@ -1,0 +1,4 @@
+[submodule "pytorch-cotainr/cotainr"]
+	path = pytorch-cotainr/cotainr
+	url = https://github.com/DeiC-HPC/cotainr.git
+	branch = 2023.11.0
