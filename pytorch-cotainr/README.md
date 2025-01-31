@@ -1,8 +1,10 @@
 # Custom PyTorch with additional libraries
-
 The PyTorch container on LUMI are custom built with a variety of custom wheels and source code from
 speciala ROCm repositories. An example can be seen on [GitHub](https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/pytorch/build-rocm-6.0.3-python-3.12-pytorch-v2.3.1.docker).
 This repo attempts to build a similar container using a conda_env.yml file and cotainr, the test-container is built using the command in `build.txt`.
+
+## Library removal concerns
+After installation of all the packages, the _Conda_ libstc++.so library  is explicitly [removed](https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/common/Dockerfile.no-torch-libstdc%2B%2B) from the container to ensure the container C++ library is used. This might or might not be an issue for portability of the container depending on how the base container is built. It nevertheless is an issue for the cotainer method as it doesn't support modifying the container post-install. This is done in all versions of the docker script. Note: There are similar concerns for ROCm>=6.1.3 versions (without LLVM), where the ROCm libraries from the PyTorch installation are removed.
 
 ## Writing pip commands in conda-env
 Writing pip commands to a Conda environment can be quite advanced, see [here](https://github.com/conda/conda/blob/main/tests/env/support/advanced-pip/environment.yml) for various examples of allowed notation. However, the formatting for installing packages on GitHub has undergone several iterations through the last few years, and as such, the notation in `conda-env.yml` is quite strongly dependent on the specific version of `pip`. See for example [here](https://github.com/pypa/pip/pull/11617). The current (pip version 25.0) supported per-requirement options are listed [here](https://pip.pypa.io/en/latest/reference/requirements-file-format/#per-requirement-options), although one may also get warnings that the `--global-option` was depricated in 24.2.
