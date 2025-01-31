@@ -10,7 +10,7 @@ dependencies:
   - networkx=3.2.1
   - numpy=1.26.3
   - pillow=10.2.0
-  - pip=24.0
+  - pip=25.0
   - python=3.11.7
   - sympy=1.12
   - typing-extensions=4.9.0
@@ -20,4 +20,4 @@ dependencies:
     - torch==2.3.1+rocm6.0
     - torchaudio==2.3.1+rocm6.0
     - torchvision==0.18.1+rocm6.0
-    - -v --no-build-isolation --config-settings "--build-option=--cpp_ext" --config-settings "--build-option=--cuda_ext" -e git+https://github.com/rocm/apex#egg=apex
+    - apex @ git+https://github.com/rocm/apex --config-settings "--build-option=--no-build-isolation=True" --config-settings "--build-option=--cpp_ext" --config-settings "--build-option=--cuda_ext" 
