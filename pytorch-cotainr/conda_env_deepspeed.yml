@@ -1,4 +1,4 @@
-name: pytorch-reference
+name: pytorch-deepspeed
 channels:
   - conda-forge
 dependencies:
@@ -14,10 +14,11 @@ dependencies:
   - python=3.11.7
   - sympy=1.12
   - typing-extensions=4.9.0
+  - rust
   - pip:
     - --extra-index-url https://download.pytorch.org/whl/rocm6.0/
     - pytorch-triton-rocm==2.3.1
     - torch==2.3.1+rocm6.0
     - torchaudio==2.3.1+rocm6.0
     - torchvision==0.18.1+rocm6.0
-    - apex @ git+https://github.com/rocm/apex --config-settings "--build-option=--no-build-isolation=True" --config-settings "--build-option=--cpp_ext" --config-settings "--build-option=--cuda_ext" 
+    - deepspeed==0.14.0 --config-settings "--global-option=build_ext" --config-settings "--global-option=-j32"
