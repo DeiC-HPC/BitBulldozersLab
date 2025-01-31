@@ -20,4 +20,3 @@ dependencies:
     - torch==2.3.1+rocm6.0
     - torchaudio==2.3.1+rocm6.0
     - torchvision==0.18.1+rocm6.0
-    - -v --no-build-isolation --config-settings "--build-option=--cpp_ext" --config-settings "--build-option=--cuda_ext" -e git+https://github.com/rocm/apex#egg=apex
