@@ -35,3 +35,22 @@ _A number of machine learning-related modules Flash-attn, NVidia Apex need pytor
 _You might think that these modules should declare that they depend upon Pytorch at setup time in their pyproject.toml file, but that isn't a good solution. No one wants a newly installed Pytorch version, and they might have installed pytorch using Conda or some other mechanism that pip isn't aware of. And these modules want to just work with whatever version of pytorch is already there. It would cause a LOT more problems than it would solve._
 
 Essentially, the package `Apex` **needs** to be built with `--no-build-isolation` after PyTorch is installed in a two-step process. However, because conda installs all requested dependencies at once using a generated `requirements.txt` file it would be impossible without additional steps. This could possibly be accomplished by allowing separately pip installing a `requirements.txt` after the conda installation like suggested in this [PR](https://github.com/DeiC-HPC/cotainr/pull/55). We would need to be careful that the pip installation properly uses the conda environment. Note, that this issue is not unique to the ROCm branch, but is required with Nvidia as well.
+
+## Cotainr dependency error
+As Conda attemps to build the example wheels for `conda_env_apex.yml`, it fails when attempt to resolve dependencies leading to the following error (in short)
+```pip
+> Running command git clone --filter=blob:none --quiet https://github.com/rocm/apex /tmp/pip-install-lqtpscb5/apex_def0b5a2399747bab333ceb1934b5a9a
+> Running command git submodule update --init --recursive -q
+× Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> ModuleNotFoundError: No module named 'torch'
+```
+As described in [[README.md#Conda yaml deficiencies]] this is expected for some Python packages. The following table summarizes other packages which fail identically.
+
+
+| Partial Failure | Failure         |
+| --------------- | --------------- |
+| Deepspeed       | Apex            |
+|                 | Flash-Attention |
+
+Note, the partial failure of Deepspeed is summarized in [[deepspeed-env_report.md]]. Pip installation is succesful, however this is without the hardware acceleration from no C++/CUDA/hip ops (extensions). These ops need to be [compiled against PyTorch](https://www.deepspeed.ai/tutorials/advanced-install/#pre-install-deepspeed-ops) like Apex.
