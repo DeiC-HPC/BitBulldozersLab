@@ -1,1 +1,2 @@
-cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env conda_env.yml test.sif -vv --accept-licenses
+cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env conda_env_apex.yml test.sif -vv --accept-licenses
+cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env conda_env_deepspeed.yml test.sif -vv --accept-licenses
