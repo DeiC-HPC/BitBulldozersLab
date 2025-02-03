@@ -17,11 +17,15 @@ RUN set -eux ; \
             --with-libfabric=/opt/libfabric  \
             --with-hip-lib=/opt/rocm-6.0.3/lib/  \
             --with-hip-include=/opt/rocm-6.0.3/include/  \
-            --disable-fortran;\
+            --disable-fortran  \
+            --without-ucx;\
     make -j ;\
     make install ;\
     cd /;\
     rm -rf mpich-$MPICH_RELEASE
+
+# investigate!
+#--with-device=ch4:ofi \
 
 ENV PATH=$MPICH_PATH/bin:$PATH
 ENV LD_LIBRARY_PATH=$MPICH_PATH/lib:$LD_LIBRARY_PATH

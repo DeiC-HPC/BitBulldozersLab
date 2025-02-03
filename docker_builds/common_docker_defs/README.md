@@ -5,8 +5,8 @@
 4. install_rocm 
 5. fake_rocm_gpu_info
 6. install_libfabric
-7. install_rccl
-8. (install_mpich)
+7. install_aws-ofi-rccl
+8. install_mpich
 9. install_rccl_tests (todo: work on enabling/disabling MPI)
 10. install other tests??
 11. remove_libfabric

@@ -1,0 +1,5 @@
+
+COPY run_script.sh /singularity/
+
+RUN set -eux ; \
+    chmod +x /singularity/run_script.sh;
