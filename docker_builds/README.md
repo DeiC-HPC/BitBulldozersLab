@@ -17,11 +17,11 @@ We have a basic image which works on LUMi. However, the interconnects are not pr
 - For the RCCL tests (osu_xccl_bw) you need '-d rocm D D'. 
 
 # step-by-step
-1. Basic Container
-2. Native Runs
-3. Lumi bind mount container
+1. Basic Container - DONE
+2. Native Runs - DONE
+3. Lumi bind mount container - DONE
 4. Libfabric Hybrid container
-5. Link GTL into lumi bind mount
+5. Link GTL into lumi bind mount - DONE
 6. Link GTL into libfabric hybrid container
 
 # TODO List && Research Questions
@@ -40,9 +40,9 @@ Questions we aim to answer with this BitBulldozer
   - [X] bandwidth
   - [X] latency
   - [X] GTL linking:
-    - [ ] is there a latency difference?
-    - [ ] Is there a bandwidth difference?
-    - [ ] Does GTL linking impact NCCL?
+    - [X] is there a latency difference?
+    - [X] Is there a bandwidth difference?
+    - [X] Does GTL linking impact NCCL?
 - [ ] Libfarbic hybrid:
   - [ ] bandwidth? 
   - [ ] latency?
@@ -112,10 +112,10 @@ Questions we aim to answer with this BitBulldozer
 - [X] device-device OSU Latency test
 
 #### NCCL bandwidth test
-- [ ] device-device NCCL bandwidth tests
+- [X] device-device NCCL bandwidth tests
 
 #### NCCL latency test
-- [ ] device-device NCCL latency tests
+- [X] device-device NCCL latency tests
 
 ***
 Link GTL
@@ -142,20 +142,6 @@ Link GTL
 #### NCCL latency test
 - [ ] device-device NCCL latency tests
 
-***
-Link GTL
-
-#### GTL Bandwidth test
-- [ ] device-device OSU bandwidth test
-
-#### GTL Latency test
-- [ ] device-device OSU Latency test
-
-#### GTL NCCL Bandwidth test
- - [ ] device-device NCCL bandwidth tests
-
-#### GTL NCCL Bandwidth test
- - [ ] device-device NCCL latency tests
 
 ***
 ***
@@ -236,7 +222,7 @@ module load PrgEnv-amd
 module load craype-accel-amd-gfx90a
 module load rocm
 
-And then checking e.g. 'which mpicc' and ldd on missing new/missing '.so' files.
+And then checking e.g. 'which mpicc' and ldd on new/missing '.so' files.
 
 For RCCL I had to explicitly add the aws-ofi-rccl in the container to the LD_LIBRARY_PATH.
 Debugging can be turn on by uncommenting lines 99 and 100 in [run_lumi_bind_rccl_bandwidth_and_latency_tests.sh](tests/lumi_bind/run_lumi_bind_rccl_bandwidth_and_latency_tests.sh)
