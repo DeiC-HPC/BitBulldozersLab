@@ -34,6 +34,7 @@ docker_install_rccl_tests = "Dockerfile.install_rccl_tests"
 docker_install_osu = "Dockerfile.install_osu"
 docker_remove_libfabric = "Dockerfile.remove_libfabric"
 docker_remove_mpich = "Dockerfile.remove_mpich"
+docker_run_script = "Dockerfile.run_script"
 
 # For building multiple images
 images_to_build = {"base_image" : []}
@@ -48,7 +49,10 @@ images_to_build["base_image"] += [docker_header,
                                         docker_install_aws_ofi_rccl,
                                         docker_install_mpich,
                                         docker_install_rccl_tests,
-                                        docker_install_osu
+                                        docker_install_osu,
+                                        docker_run_script,
+                                        # docker_remove_libfabric,
+                                        # docker_remove_mpich
                                         ]
 
 # Build all images one go
