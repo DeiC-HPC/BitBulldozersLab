@@ -3,6 +3,24 @@ The PyTorch container on LUMI are custom built with a variety of custom wheels a
 speciala ROCm repositories. An example can be seen on [GitHub](https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/pytorch/build-rocm-6.0.3-python-3.12-pytorch-v2.3.1.docker).
 This repo attempts to build a similar container using a conda_env.yml file and cotainr, the test-container is built using the command in `build.txt`.
 
+## Running this BitBulldozer
+We first `git clone https://github.com/DeiC-HPC/BitBulldozersLab.git` this repo to LUMI.
+This repo used the 2023.11.0 cotainr release, which is included in this repo as a submodule. It is an empty folder by default, and requires initialization 
+```
+$ git submodule init
+$ git submodule update
+```
+Before we are ready to run `cotainr` we need to have a sufficiently recent Python executable, so we run
+```
+module load cray-python
+```
+Then, we are ready to test various packages, the neccesary commands are included in `build.txt` which copy-pasted and run. Note, that in order to get the unfiltered error message from `cotainr`, we have to change the following line
+```diff
+> cotainr/cotainr/container.py#L258
+- [line for line in e.stderr.split("\n") if line.startswith("FATAL")]
++ [line for line in e.stderr.split("\n")]
+```
+
 ## Library removal concerns
 After installation of all the packages, the _Conda_ libstc++.so library  is explicitly [removed](https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/common/Dockerfile.no-torch-libstdc%2B%2B) from the container to ensure the container C++ library is used. This might or might not be an issue for portability of the container depending on how the base container is built. It nevertheless is an issue for the cotainer method as it doesn't support modifying the container post-install. This is done in all versions of the docker script. Note: There are similar concerns for ROCm>=6.1.3 versions (without LLVM), where the ROCm libraries from the PyTorch installation are removed.
 
