@@ -15,6 +15,17 @@ export MIOPEN_USER_DB_PATH=/tmp/${USER}-miopen-cache-${SLURM_JOB_ID}
 export MIOPEN_CUSTOM_CACHE_DIR=${MIOPEN_USER_DB_PATH}
 
 export MPICH_GPU_SUPPORT_ENABLED=1
+export MPICH_OFI_NIC_POLICY=GPU
+
+# Try debug regular MPICH and libfabric
+#export MPICH_OFI_CXI_COUNTER_VERBOSE=3
+#export MPICH_OFI_CXI_COUNTER_REPORT=3
+#export MPICH_OFI_NIC_VERBOSE=1
+#export MPICH_OFI_VERBOSE=1
+#export UCX_LOG_LEVEL=verbose
+#export MPICH_MEMORY_REPORT=1
+#export NCCL_DEBUG=INFO
+#export NCCL_DEBUG_SUBSYS=INIT,COLL
 
 srun --output=native_bandwidth_host_host.txt --exclusive /project/project_465001699/julius/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H H
 srun --output=native_bandwidth_device_host.txt --exclusive /project/project_465001699/julius/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw D H
