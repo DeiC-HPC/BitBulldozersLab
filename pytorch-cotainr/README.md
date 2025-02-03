@@ -16,7 +16,7 @@ module load cray-python
 ```
 Then, we are ready to test various packages, the neccesary commands are included in `build.txt` which copy-pasted and run. Note, that in order to get the unfiltered error message from `cotainr`, we have to change the following line
 ```diff
-> cotainr/cotainr/container.py#L258
+cotainr/cotainr/container.py#L258
 - [line for line in e.stderr.split("\n") if line.startswith("FATAL")]
 + [line for line in e.stderr.split("\n")]
 ```
@@ -45,7 +45,7 @@ As Conda attemps to build the example wheels for `conda_env_apex.yml`, it fails 
   │ exit code: 1
   ╰─> ModuleNotFoundError: No module named 'torch'
 ```
-As described in [[README.md#Conda yaml deficiencies]] this is expected for some Python packages. The following table summarizes other packages which fail identically.
+As described in previously this is expected for some Python packages. The following table summarizes other packages which fail identically.
 
 
 | Partial Failure | Failure         |
@@ -53,4 +53,4 @@ As described in [[README.md#Conda yaml deficiencies]] this is expected for some 
 | Deepspeed       | Apex            |
 |                 | Flash-Attention |
 
-Note, the partial failure of Deepspeed is summarized in [[deepspeed-env_report.md]]. Pip installation is succesful, however this is without the hardware acceleration from no C++/CUDA/hip ops (extensions). These ops need to be [compiled against PyTorch](https://www.deepspeed.ai/tutorials/advanced-install/#pre-install-deepspeed-ops) like Apex.
+Note, the partial failure of Deepspeed is summarized in `deepspeed-env_report.md`. Pip installation is succesful, however, this is without the hardware acceleration from no C++/CUDA/hip ops (extensions). These ops need to be [compiled against PyTorch](https://www.deepspeed.ai/tutorials/advanced-install/#pre-install-deepspeed-ops) like Apex.
