@@ -23,7 +23,8 @@ export SINGULARITYENV_LD_LIBRARY_PATH=\
 '/opt/cray/pals/1.3.2/lib:'\
 '/usr/lib64:'\
 '/opt/rocm-6.0.3/llvm/lib:'\
-'/opt/rocm-6.0.3/lib:'
+'/opt/rocm-6.0.3/lib:'\
+'/opt/aws-ofi-rccl/'
 
 export SINGULARITY_BIND=\
 '/opt/cray,'\
@@ -81,14 +82,34 @@ export SINGULARITY_BIND=\
 export MPICH_GPU_SUPPORT_ENABLED=1
 export MPICH_OFI_NIC_POLICY=GPU
 
+# Tell RCCL to use Slingshot interfaces and GPU RDMA. Additional optimisations
+export NCCL_SOCKET_IFNAME=hsn0,hsn1,hsn2,hsn3
+export NCCL_CROSS_NIC=1
+export NCCL_IGNORE_CPU_AFFINITY=1 #4x improvement in bandwidth!
 
-#export SINGULARITYENV_LD_PRELOAD="/opt/cray/pe/lib64/libmpi_gtl_hsa.so $LD_PRELOAD"
-srun --output=lumi_bind_bandwidth_host_host.txt singularity exec -B /project/project_465001699/ base_with_mpich_libfabric.sif /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H H
-srun --output=lumi_bind_bandwidth_host_device.txt singularity exec -B /project/project_465001699/ base_with_mpich_libfabric.sif /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H D
-srun --output=lumi_bind_bandwidth_device_host.txt singularity exec -B /project/project_465001699/ base_with_mpich_libfabric.sif /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw D H
-srun --output=lumi_bind_bandwidth_device_device.txt --exclusive singularity exec -B /project/project_465001699/ base_with_mpich_libfabric.sif /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw D D
+# PHB is recommended by HPE. '3' was used by https://arxiv.org/abs/2408.14090 and is not better or worse.
+# However, 3 leads to better performance on large message sizes when 'export NCCL_NCHANNELS_PER_PEER=32' is used.
+export NCCL_NET_GDR_LEVEL=PHB
+# Leads to about 3GB/s improvements for large message sizes (tested 4194304) but much worse for smaller message sizes.
+# Better to turn off at least for intra node?
+# export NCCL_NCHANNELS_PER_PEER=32
 
-srun --output=lumi_bind_latency_host_host.txt --exclusive singularity exec -B /project/project_465001699/ base_with_mpich_libfabric.sif /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency H H
-srun --output=lumi_bind_latency_host_device.txt --exclusive singularity exec -B /project/project_465001699/ base_with_mpich_libfabric.sif /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency H D
-srun --output=lumi_bind_latency_device_host.txt --exclusive singularity exec -B /project/project_465001699/ base_with_mpich_libfabric.sif /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency D H
-srun --output=lumi_bind_latency_device_device.txt --exclusive singularity exec -B /project/project_465001699/ base_with_mpich_libfabric.sif /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency D D
+
+# debug RCCL, prints loads of messages
+#export NCCL_DEBUG=INFO
+#export NCCL_DEBUG_SUBSYS=INIT,COLL
+
+# various cxi, libfabric environment settings
+export CXI_FORK_SAFE=1
+export CXI_FORK_SAFE_HP=1
+export FI_CXI_DISABLE_CQ_HUGETLB=1
+# Maybe already set?
+#export FI_CXI_ATS=0
+#export FI_MR_CACHE_MONITOR=userfaultfd
+#export FI_CXI_DISABLE_HOST_REGISTER=1
+#export FI_CXI_RDZV_PROTO=alt_read
+#export FI_CXI_RX_MATCH_MODE=software
+
+
+srun --output=lumi_bind_rccl_bandwidth.txt  singularity exec -B /project/project_465001699/ base_with_mpich_libfabric.sif /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/xccl/pt2pt/osu_xccl_bw -d rocm D D
+srun --output=lumi_bind_rccl_latency.txt  singularity exec -B /project/project_465001699/ base_with_mpich_libfabric.sif /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/xccl/pt2pt/osu_xccl_latency -d rocm D D
