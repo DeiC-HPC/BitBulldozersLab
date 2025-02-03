@@ -1,4 +1,0 @@
-[submodule "pytorch-cotainr/cotainr"]
-	path = pytorch-cotainr/cotainr
-	url = https://github.com/DeiC-HPC/BitBulldozersLab.git
-	branch = ebff6be
