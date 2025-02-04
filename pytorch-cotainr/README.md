@@ -19,6 +19,12 @@ Then, we are ready to test various packages, the neccesary commands are included
 cotainr/cotainr/container.py#L258
 - [line for line in e.stderr.split("\n") if line.startswith("FATAL")]
 + [line for line in e.stderr.split("\n")]
+
+The success library most closely resembling the [Container by Samuel](https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/pytorch/build-rocm-6.0.3-python-3.12-pytorch-v2.3.1.docker), is run via
+```
+cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env conda_env_success.yml test.sif -vv --accept-licenses
+```
+
 ```
 
 ## Library removal concerns
@@ -36,21 +42,30 @@ _You might think that these modules should declare that they depend upon Pytorch
 
 Essentially, the package `Apex` **needs** to be built with `--no-build-isolation` after PyTorch is installed in a two-step process. However, because conda installs all requested dependencies at once using a generated `requirements.txt` file it would be impossible without additional steps. This could possibly be accomplished by allowing separately pip installing a `requirements.txt` after the conda installation like suggested in this [PR](https://github.com/DeiC-HPC/cotainr/pull/55). We would need to be careful that the pip installation properly uses the conda environment. Note, that this issue is not unique to the ROCm branch, but is required with Nvidia as well.
 
-## Cotainr dependency error
-As Conda attemps to build the example wheels for `conda_env_apex.yml`, it fails when attempt to resolve dependencies leading to the following error (in short)
-```pip
-> Running command git clone --filter=blob:none --quiet https://github.com/rocm/apex /tmp/pip-install-lqtpscb5/apex_def0b5a2399747bab333ceb1934b5a9a
-> Running command git submodule update --init --recursive -q
-× Getting requirements to build wheel did not run successfully.
-  │ exit code: 1
-  ╰─> ModuleNotFoundError: No module named 'torch'
-```
-As described in previously this is expected for some Python packages. The following table summarizes other packages which fail identically.
-
+## Results summary
+The following table summarizes pip-installable packages, for which pre-compiled wheels are either not available or possible.
 
 | Partial Failure | Failure         |
 | --------------- | --------------- |
 | Deepspeed       | Apex            |
-|                 | Flash-Attention |
+| Bitsandbytes    | Flash-Attention |
 
-Note, the partial failure of Deepspeed is summarized in `deepspeed-env_report.md`. Pip installation is succesful, however, this is without the hardware acceleration from no C++/CUDA/hip ops (extensions). These ops need to be [compiled against PyTorch](https://www.deepspeed.ai/tutorials/advanced-install/#pre-install-deepspeed-ops) like Apex.
+The 2 major failing modes are pip dependency resolution and explicit compilation required:
+- As Conda attempts to build the example wheels for `conda_env_apex.yml`, it fails when attempt to resolve dependencies leading to the following error. As described in previously, this is not an ordinary dependence, but a required pre-installed module. Even if pip proceeded the installation, there are [no way to determine the installation order](https://pip.pypa.io/en/stable/cli/pip_install/#installation-order) beyond the regular "dependency" commitment. 
+```pip
+> Running command git clone --filter=blob:none --quiet https://github.com/rocm/apex /tmp/pip-install-lqtpscb5/apex_def0b5a2399747bab333ceb1934b5a9a           
+> Running command git submodule update --init --recursive -q
+× Getting requirements to build wheel did not run successfully.
+  │ exit code: 1
+  ╰─> ModuleNotFoundError: No module named 'torch'
+``` 
+- The partial failure of Deepspeed is summarized in `deepspeed-env_report.md`. Pip installation is successful, however, this is without the hardware acceleration from no C++/CUDA/hip ops (extensions). These ops need to be [compiled against PyTorch](https://www.deepspeed.ai/tutorials/advanced-install/#pre-install-deepspeed-ops) like the previous point.
+- Bitsandbytes is slightly different, here `torch` is labelled as an explicit dependency. There is [alpha releases](https://huggingface.co/docs/bitsandbytes/main/en/installation?backend=AMD+ROCm&platform=Linux#multi-backend-pip) for pre-compiled binary builds, which does successfully install. We note that these are only compatible with `rocm≥6.1`. We also find the following warning is issued upon importing the library, suggesting compilers should be installed.
+```
+Singularity> python
+Python 3.11.7 | packaged by conda-forge | (main, Dec 23 2023, 14:43:09) [GCC 12.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import bitsandbytes
+/opt/conda/envs/conda_container_env/lib/python3.11/site-packages/bitsandbytes/backends/cpu_xpu_common.py:29: UserWarning: g++ not found, torch.compile disabled for CPU/XPU.
+  warnings.warn("g++ not found, torch.compile disabled for CPU/XPU.")
+```
