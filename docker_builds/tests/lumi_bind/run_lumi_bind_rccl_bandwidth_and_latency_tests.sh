@@ -73,8 +73,7 @@ export SINGULARITY_BIND=\
 '/usr/lib64/libz.so.1,'\
 '/usr/lib64/libzstd.so.1,'\
 '/run/cxi,'\
-'/usr/share/libdrm/amdgpu.ids,'\
-'/opt/rocm-6.0.3'
+'/usr/share/libdrm/amdgpu.ids,'
 
 #Try to bind mount the GTL
 
