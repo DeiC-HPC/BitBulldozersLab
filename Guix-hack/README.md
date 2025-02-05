@@ -53,7 +53,7 @@ version: 7.4.rocm6.2.2
 ```
 and find that a recipe for the desired benchmark `osu-micro-benchmarks` in the guix-hpc channel can be readily installed. Note, we also find other relevant packages such as the osu benchmark with rocm from the amd channel. This also takes a significant amount of time and CPU resources the first time, and should be done while the laptop is not needed for other work,
 ```
-$ guix pack -RR -S /etc=etc -S /bin=libexec/osu-micro-benchmarks osu-micro-benchmarks
+$ guix pack -RR -S /etc=etc -S /opt=libexec/osu-micro-benchmarks osu-micro-benchmarks
 ...
 /gnu/store/...-osu-micro-benchmarks-tarball-pack.tar.gz
 ```
@@ -113,7 +113,7 @@ version: 4.1.6
 ```
 where we see OpenMPI version 5.0.6 is already built. We can use this version by appying a package transformation as write
 ```
-$ guix pack -RR -S /etc=etc -S /bin=libexec/osu-micro-benchmarks osu-micro-benchmarks --with-input=openmpi=openmpi@5.0.6
+$ guix pack -RR -S /etc=etc -S /opt=libexec/osu-micro-benchmarks osu-micro-benchmarks --with-input=openmpi=openmpi@5.0.6
 ```
 we note this will complete very fast as the previous packages are all cached, and only the new openmpi version needs to be built.
 
@@ -132,6 +132,9 @@ We can launch the singularity container with:
 ```
 $ sbatch run_singularity_osu.sh
 ```
+
+The performance is on par with the native osu-benchmarks and the Guix OSU benchmark run launched from the unpacked tar file.  
+(i.e. about 22-24GB/s)
 
 We can also run the OSU RCCL tests with:
 
