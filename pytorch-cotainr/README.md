@@ -21,9 +21,22 @@ cotainr/cotainr/container.py#L258
 + [line for line in e.stderr.split("\n")]
 
 ```
-The success library most closely resembling the [Container by Samuel](https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/pytorch/build-rocm-6.0.3-python-3.12-pytorch-v2.3.1.docker), is run via
+The success library most closely resembling the [Container by Samuel](https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/pytorch/build-rocm-6.1.3-python-3.12-pytorch-v2.4.1.docker), is run via
 ```
-cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env conda_env_success.yml test.sif -vv --accept-licenses
+cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.1.3.sif --conda-env conda_env_success.yml test.sif -vv --accept-licenses
+```
+Some basic import tests of key libraries result in the following warnings:
+```
+Singularity> python
+Python 3.12.8 | packaged by conda-forge | (main, Dec  5 2024, 14:24:40) [GCC 13.3.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import torch
+>>> import deepspeed
+[2025-02-05 11:40:34,904] [WARNING] [real_accelerator.py:162:get_accelerator] Setting accelerator to CPU. If you have GPU or other accelerator, we were unable to detect it.
+[2025-02-05 11:40:34,965] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cpu (auto detect)
+>>> import bitsandbytes
+/opt/conda/envs/conda_container_env/lib/python3.12/site-packages/bitsandbytes/backends/cpu_xpu_common.py:29: UserWarning: g++ not found, torch.compile disabled for CPU/XPU.
+  warnings.warn("g++ not found, torch.compile disabled for CPU/XPU.")
 ```
 
 ## Library removal concerns
