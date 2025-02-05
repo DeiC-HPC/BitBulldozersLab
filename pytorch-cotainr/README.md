@@ -20,11 +20,10 @@ cotainr/cotainr/container.py#L258
 - [line for line in e.stderr.split("\n") if line.startswith("FATAL")]
 + [line for line in e.stderr.split("\n")]
 
+```
 The success library most closely resembling the [Container by Samuel](https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/pytorch/build-rocm-6.0.3-python-3.12-pytorch-v2.3.1.docker), is run via
 ```
 cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env conda_env_success.yml test.sif -vv --accept-licenses
-```
-
 ```
 
 ## Library removal concerns
