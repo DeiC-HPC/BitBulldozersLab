@@ -139,7 +139,10 @@ The performance is on par with the native osu-benchmarks and the Guix OSU benchm
 We can also run the OSU RCCL tests with:
 
 ```
+guix pack -RR -S /etc=etc -S /opt=libexec/osu-micro-benchmarks -S /bin=bin -f squashfs bash osu-micro-benchmarks-rocm
+```
+and executing with the following script
+```
 $ sbatch run_singularity_osu_rccl.sh
 ```
-
-However, the bandwidth is poor (~1GB/s).
+Here we have added several environment variables to improve performance, however, the bandwidth remain poor (~1GB/s).
