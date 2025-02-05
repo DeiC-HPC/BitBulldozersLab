@@ -7,4 +7,4 @@
 
 export LD_LIBRARY_PATH=""
 
-srun -N2 --mpi=pmi2 ./bin/mpi/pt2pt/osu_bw
+srun -N2 --mpi=pmi2 ./opt/mpi/pt2pt/osu_bw

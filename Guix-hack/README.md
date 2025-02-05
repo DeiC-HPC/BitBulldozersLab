@@ -53,7 +53,7 @@ version: 7.4.rocm6.2.2
 ```
 and find that a recipe for the desired benchmark `osu-micro-benchmarks` in the guix-hpc channel can be readily installed. Note, we also find other relevant packages such as the osu benchmark with rocm from the amd channel. This also takes a significant amount of time and CPU resources the first time, and should be done while the laptop is not needed for other work,
 ```
-$ guix pack -RR -S /etc=etc -S /bin=libexec/osu-micro-benchmarks osu-micro-benchmarks
+$ guix pack -RR -S /etc=etc -S /opt=libexec/osu-micro-benchmarks osu-micro-benchmarks
 ...
 /gnu/store/...-osu-micro-benchmarks-tarball-pack.tar.gz
 ```
@@ -113,13 +113,36 @@ version: 4.1.6
 ```
 where we see OpenMPI version 5.0.6 is already built. We can use this version by appying a package transformation as write
 ```
-$ guix pack -RR -S /etc=etc -S /bin=libexec/osu-micro-benchmarks osu-micro-benchmarks --with-input=openmpi=openmpi@5.0.6
+$ guix pack -RR -S /etc=etc -S /opt=libexec/osu-micro-benchmarks osu-micro-benchmarks --with-input=openmpi=openmpi@5.0.6
 ```
 we note this will complete very fast as the previous packages are all cached, and only the new openmpi version needs to be built.
 
 ## Containerization
 The packages contain a lot of files, and this can be an issue in large scale HPC facilities using Lustre filesystem. We can get around this by building instead a squashfs image of the container
 ```
-$ guix pack -RR -S /etc=etc -S /bin=libexec/osu-micro-benchmarks -f squashfs bash osu-micro-benchmarks
+$ guix pack -RR -S /etc=etc -S /opt=libexec/osu-micro-benchmarks -S /bin=bin -f squashfs bash osu-micro-benchmarks
 ```
 Note, `bash` is a required package for `singularity`. To Lustre, this squashfs is one big file, thus getting around the issue of many-small-files. This can then be run on the HPC facility using `singularity run` or `singularity exec`.
+
+Note, symlinks to directories outside the root of the image, such as those in /gnu/store, are not automatically included. To include symlinks successfully, you need to ensure that the target directories exist within the root of the image.
+If you need to start singularity in shell mode the 'bin' folder needs to be symlinked. 
+
+We can launch the singularity container with:
+
+```
+$ sbatch run_singularity_osu.sh
+```
+
+The performance is on par with the native osu-benchmarks and the Guix OSU benchmark run launched from the unpacked tar file.  
+(i.e. about 22-24GB/s)
+
+We can also run the OSU RCCL tests with:
+
+```
+guix pack -RR -S /etc=etc -S /opt=libexec/osu-micro-benchmarks -S /bin=bin -f squashfs bash osu-micro-benchmarks-rocm
+```
+and executing with the following script
+```
+$ sbatch run_singularity_osu_rccl.sh
+```
+Here we have added several environment variables to improve performance, however, the bandwidth remain poor (~1GB/s).
