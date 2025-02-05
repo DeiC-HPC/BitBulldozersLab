@@ -72,12 +72,5 @@ The 2 major failing modes are pip dependency resolution and explicit compilation
   ╰─> ModuleNotFoundError: No module named 'torch'
 ``` 
 - The partial failure of Deepspeed is summarized in `deepspeed-env_report.md`. Pip installation is successful, however, this is without the hardware acceleration from no C++/CUDA/hip ops (extensions). These ops need to be [compiled against PyTorch](https://www.deepspeed.ai/tutorials/advanced-install/#pre-install-deepspeed-ops) like the previous point.
-- Bitsandbytes is slightly different, here `torch` is labelled as an explicit dependency. There is [alpha releases](https://huggingface.co/docs/bitsandbytes/main/en/installation?backend=AMD+ROCm&platform=Linux#multi-backend-pip) for pre-compiled binary builds, which does successfully install. We note that these are only compatible with `rocm≥6.1`. We also find the following warning is issued upon importing the library, suggesting compilers should be installed.
-```
-Singularity> python
-Python 3.11.7 | packaged by conda-forge | (main, Dec 23 2023, 14:43:09) [GCC 12.3.0] on linux
-Type "help", "copyright", "credits" or "license" for more information.
->>> import bitsandbytes
-/opt/conda/envs/conda_container_env/lib/python3.11/site-packages/bitsandbytes/backends/cpu_xpu_common.py:29: UserWarning: g++ not found, torch.compile disabled for CPU/XPU.
-  warnings.warn("g++ not found, torch.compile disabled for CPU/XPU.")
-```
+- Bitsandbytes is slightly different, here `torch` is labelled as an explicit dependency. There is [alpha releases](https://huggingface.co/docs/bitsandbytes/main/en/installation?backend=AMD+ROCm&platform=Linux#multi-backend-pip) for pre-compiled binary builds, which does successfully install. We note that these are only compatible with `rocm≥6.1` and thus the target container is changed from [rocm6.0.3 build](https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/pytorch/build-rocm-6.0.3-python-3.12-pytorch-v2.3.1.docker) to [rocm6.1.3 build](https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/pytorch/build-rocm-6.1.3-python-3.12-pytorch-v2.4.1.docker).
+
