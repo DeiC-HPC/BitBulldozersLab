@@ -120,6 +120,23 @@ we note this will complete very fast as the previous packages are all cached, an
 ## Containerization
 The packages contain a lot of files, and this can be an issue in large scale HPC facilities using Lustre filesystem. We can get around this by building instead a squashfs image of the container
 ```
-$ guix pack -RR -S /etc=etc -S /bin=libexec/osu-micro-benchmarks -f squashfs bash osu-micro-benchmarks
+$ guix pack -RR -S /etc=etc -S /opt=libexec/osu-micro-benchmarks -S /bin=bin -f squashfs bash osu-micro-benchmarks
 ```
 Note, `bash` is a required package for `singularity`. To Lustre, this squashfs is one big file, thus getting around the issue of many-small-files. This can then be run on the HPC facility using `singularity run` or `singularity exec`.
+
+Note, symlinks to directories outside the root of the image, such as those in /gnu/store, are not automatically included. To include symlinks successfully, you need to ensure that the target directories exist within the root of the image.
+If you need to start singularity in shell mode the 'bin' folder needs to be symlinked. 
+
+We can launch the singularity container with:
+
+```
+$ sbatch run_singularity_osu.sh
+```
+
+We can also run the OSU RCCL tests with:
+
+```
+$ sbatch run_singularity_osu_rccl.sh
+```
+
+However, the bandwidth is poor (~1GB/s).
