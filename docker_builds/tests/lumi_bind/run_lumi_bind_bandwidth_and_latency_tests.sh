@@ -74,14 +74,10 @@ export SINGULARITY_BIND=\
 '/run/cxi,'\
 '/usr/share/libdrm/amdgpu.ids,'
 
-#Try to bind mount the GTL
 
-# Figure out GTL
 export MPICH_GPU_SUPPORT_ENABLED=1
 export MPICH_OFI_NIC_POLICY=GPU
 
-
-#export SINGULARITYENV_LD_PRELOAD="/opt/cray/pe/lib64/libmpi_gtl_hsa.so $LD_PRELOAD"
 srun --output=lumi_bind_bandwidth_host_host.txt singularity exec -B /project/project_465001699/ base_with_mpich_libfabric.sif /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H H
 srun --output=lumi_bind_bandwidth_host_device.txt singularity exec -B /project/project_465001699/ base_with_mpich_libfabric.sif /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H D
 srun --output=lumi_bind_bandwidth_device_host.txt singularity exec -B /project/project_465001699/ base_with_mpich_libfabric.sif /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw D H
