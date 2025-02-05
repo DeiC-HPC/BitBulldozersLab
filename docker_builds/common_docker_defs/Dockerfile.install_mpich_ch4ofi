@@ -1,0 +1,28 @@
+ENV MPICH_PATH=/opt/mpich
+ENV MPICH_TAR=http://www.mpich.org/static/downloads/${MPICH_RELEASE_CH4}/mpich-${MPICH_RELEASE_CH4}.tar.gz
+
+#
+# Add MPICH
+#
+#  CC=gcc-12 CXX=g++-12 ./configure --prefix=/opt/mpich/ --with-libfabric=/opt/libfabric --with-hip-lib=/opt/rocm-6.0.3/lib/ --with-hip-include=/opt/rocm-6.0.3/include/ ##--with-pm=none --with-pmi=slurm reuired??
+RUN set -eux ; \
+    cd / ;\
+    wget $MPICH_TAR ; \
+    tar -xzf mpich-$MPICH_RELEASE_CH4.tar.gz; \
+    rm mpich-$MPICH_RELEASE_CH4.tar.gz;\
+    cd mpich-$MPICH_RELEASE_CH4 ;\
+    CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE  \
+        ./configure --prefix=$MPICH_PATH  \
+            --with-libfabric=/opt/libfabric  \
+            --with-hip-lib=/opt/rocm-6.0.3/lib/  \
+            --with-hip-include=/opt/rocm-6.0.3/include/  \
+            --disable-fortran  \
+            --enable-fast=all,O3  \
+            --with-device=ch4:ofi \
+            --without-ucx;\
+    make -j ;\
+    make install
+
+
+ENV PATH=$MPICH_PATH/bin:$PATH
+ENV LD_LIBRARY_PATH=$MPICH_PATH/lib:$LD_LIBRARY_PATH
