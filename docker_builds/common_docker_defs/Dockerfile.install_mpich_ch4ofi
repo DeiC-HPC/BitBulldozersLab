@@ -19,9 +19,14 @@ RUN set -eux ; \
             --disable-fortran  \
             --enable-fast=all,O3  \
             --with-device=ch4:ofi \
-            --without-ucx;\
+            --without-ucx \
+             --with-pm=none \
+            --disable-silent-rules \
+            --enable-debuginfo \
+            --with-hwloc;\
     make -j ;\
-    make install
+    make install;\
+    ldconfig
 
 
 ENV PATH=$MPICH_PATH/bin:$PATH

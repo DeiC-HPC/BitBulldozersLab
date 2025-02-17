@@ -25,8 +25,10 @@ docker_files_path_prefix = "common_docker_defs"
 docker_header = "Dockerfile.header"
 docker_define_versions = "Dockerfile.define_versions"
 docker_install_basic_dependencies = "Dockerfile.install_basic_dependencies"
+docker_install_additional_dependencies = "Dockerfile.install_additional_dependencies"
 docker_install_rocm = "Dockerfile.install_rocm"
 docker_fake_rocm_gpu_info = "Dockerfile.fake_rocm_gpu_info"
+docker_install_cxi = "Dockerfile.install_cxi"
 docker_install_libfabric = "Dockerfile.install_libfabric"
 docker_install_libfabric_cxi = "Dockerfile.install_libfabric_cxi"
 docker_install_aws_ofi_rccl = "Dockerfile.install_aws-ofi-rccl"
@@ -39,41 +41,59 @@ docker_remove_mpich = "Dockerfile.remove_mpich"
 docker_run_script = "Dockerfile.run_script"
 
 # For building multiple images
-images_to_build = {"base_image" : []}
-# images_to_build = {"base_image" : [], "base_image_mpich343_libfabric_cxi": []}
-# images_to_build = {"base_image_mpich343_libfabric_cxi": []}
+# images_to_build = {"base_image_mpich314_libfabric" : []}
+# images_to_build = {"base_image_mpich314_libfabric" : [], "base_image_mpich343_libfabric_cxi": []}
+images_to_build = {"base_image_mpich343_libfabric_cxi_opendsource": []}
 
 # Base image with all libraries and tests. Not removing libfabric or mpich
-images_to_build["base_image"] += [docker_header,
-                                        docker_define_versions,
-                                        docker_install_basic_dependencies,
-                                        docker_install_rocm,
-                                        docker_fake_rocm_gpu_info,
-                                        docker_install_libfabric,
-                                        docker_install_aws_ofi_rccl,
-                                        docker_install_mpich,
-                                        docker_install_rccl_tests,
-                                        docker_install_osu,
-                                        docker_run_script,
-                                        # docker_remove_libfabric,
-                                        # docker_remove_mpich
-                                        ]
-
-# dont have cxi atm
-# images_to_build["base_image_mpich343_libfabric_cxi"] += [docker_header,
+# images_to_build["base_image_mpich314_libfabric"] += [docker_header,
 #                                         docker_define_versions,
 #                                         docker_install_basic_dependencies,
 #                                         docker_install_rocm,
 #                                         docker_fake_rocm_gpu_info,
-#                                         docker_install_libfabric_cxi,
+#                                         docker_install_libfabric,
+#                                         docker_install_aws_ofi_rccl,
+#                                         docker_install_mpich,
+#                                         docker_install_rccl_tests,
+#                                         docker_install_osu,
+#                                         docker_run_script,
+                                        # docker_remove_libfabric,
+                                        # docker_remove_mpich
+                                        # ]
+
+# images_to_build["base_image_mpich343_libfabric"] += [docker_header,
+#                                         docker_define_versions,
+#                                         docker_install_basic_dependencies,
+#                                         docker_install_rocm,
+#                                         docker_fake_rocm_gpu_info,
+#                                         docker_install_libfabric,
 #                                         docker_install_aws_ofi_rccl,
 #                                         docker_install_mpich_ch4ofi,
 #                                         docker_install_rccl_tests,
 #                                         docker_install_osu,
 #                                         docker_run_script,
+# #                                         # docker_remove_libfabric,
+# #                                         # docker_remove_mpich
+#                                         ]
+
+# dont have cxi atm
+images_to_build["base_image_mpich343_libfabric_cxi_opendsource"] += [docker_header,
+                                        docker_define_versions,
+                                        docker_install_basic_dependencies,
+                                        docker_install_additional_dependencies,
+                                        docker_install_rocm,
+                                        docker_fake_rocm_gpu_info,
+                                        docker_install_cxi,
+                                        docker_install_libfabric_cxi,
+                                        docker_install_aws_ofi_rccl,
+                                        docker_install_mpich_ch4ofi,
+                                        docker_install_rccl_tests,
+                                        docker_install_osu,
+                                        # docker_run_script,
 #                                         # docker_remove_libfabric,
 #                                         # docker_remove_mpich
-#                                         ]
+                                        ]
+
 
 # Build all images one go
 for current_image_name, current_image_files in images_to_build.items():

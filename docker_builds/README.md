@@ -145,6 +145,15 @@ Link GTL
 
 ***
 ***
+### Full open source:
+- 
+
+Notes: 
+- libfabric version 1.22.0 leads to: "<warn> Provider cxi fi_version 1.21 < requested 1.22"
+- 
+
+***
+***
 
 # Backlog & Questions
 - GROMACS or similar? https://www.gromacs.org/tutorial_webinar.html

@@ -7,6 +7,7 @@ RUN set -eux ; \
     CC=gcc-$GCC_RELEASE ./configure --prefix=/opt/libfabric; \
     make -j;\
     make install;\
+    ldconfig ;\
     cd /; \
     rm -rf libfabric-$LIBFABRIC_RELEASE
 
