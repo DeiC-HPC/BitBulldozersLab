@@ -1,5 +1,10 @@
 # Building the LUMI PyTorch container using cotainr
+
+- **Keywords:** Pytorch, Container, AI, Cotainr
+- **Date:** 2025-02-21
+
 The PyTorch v2.3.1 container based on ROCm 6.0.3 on LUMI (i.e. `/appl/local/containers/tested-containers/lumi-pytorch-rocm-6.0.3-python-3.12-pytorch-v2.3.1-dockerhash-2c1c14cafd28.sif`) is custom built with a variety of custom wheels and source code from special ROCm repositories as defined in the Dockerfile in https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/pytorch/build-rocm-6.0.3-python-3.12-pytorch-v2.3.1.docker.
+
 This repo attempts to build a similar container using a conda_env.yml file and cotainr, the test-container is built using the command in `build.txt`.
 
 ## Running this BitBulldozer
