@@ -1,4 +1,0 @@
-cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.1.3.sif --conda-env conda_env_success.yml success.sif -vv --accept-licenses
-cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env conda_env_apex.yml apex.sif -vv --accept-licenses
-cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env conda_env_deepspeed.yml deepspeed.sif -vv --accept-licenses
-cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.1.3.sif --conda-env conda_env_bitsandbytes.yml bitsandbytes.sif -vv --accept-licenses

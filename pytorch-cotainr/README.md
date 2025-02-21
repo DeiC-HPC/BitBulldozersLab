@@ -5,9 +5,8 @@
 
 The PyTorch v2.3.1 container based on ROCm 6.0.3 on LUMI (i.e. `/appl/local/containers/tested-containers/lumi-pytorch-rocm-6.0.3-python-3.12-pytorch-v2.3.1-dockerhash-2c1c14cafd28.sif`) is custom built with a variety of custom wheels and source code from special ROCm repositories as defined in the Dockerfile in https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/pytorch/build-rocm-6.0.3-python-3.12-pytorch-v2.3.1.docker.
 
-This repo attempts to build a similar container using a conda_env.yml file and cotainr, the test-container is built using the command in `build.txt`.
-
-## Running this BitBulldozer
+## Building the containers
+### Settings up the prerequisites
 We first `git clone https://github.com/DeiC-HPC/BitBulldozersLab.git` this repo to LUMI.
 This repo used the 2023.11.0 cotainr release, which is included in this repo as a submodule. It is an empty folder by default, and requires initialization 
 ```
@@ -25,32 +24,63 @@ cotainr/cotainr/container.py#L258
 + [line for line in e.stderr.split("\n")]
 
 ```
-The success library most closely resembling the [Container by Samuel](https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/pytorch/build-rocm-6.1.3-python-3.12-pytorch-v2.4.1.docker), is run via
+
+### Building Apex container
+An attempt was made to build Apex in a one-step conda file
+```
+cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env conda_env_apex.yml apex.sif -vv --accept-licenses
+```
+This fails because the libraies are not [PEP528](https://peps.python.org/pep-0518/) compliant as described in "Conda yaml deficiencies" described below. This can be illustrated by first building
+```
+cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env conda_env_ref.yml ref.sif -vv --accept-licenses
+singularity shell ref.sif
+pip install apex @ git+https://github.com/rocm/apex
+```
+This does succesfully install the library, however it is installed to `$HOME/.local/` site-packages as a local user installation and not actually inside the container. Note that it seems like Nvidia gets around this non-compliance by distributing precompiled versions of Apex on [conda](https://anaconda.org/conda-forge/nvidia-apex/files) with a matrix of `cuda`, `pytorch` and `numpy` dependencies. 
+
+### Building the Deepspeed container
+The Deepspeed container can be built
+```
+cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env conda_env_deepspeed.yml deepspeed.sif -vv --accept-licenses
+```
+This is not an optimized installation as seen in `deepspeed-env_report.md` under the `op name ... installed` tab, where every extension report `[NO]`. Whereas the library itself is [PEP528](https://peps.python.org/pep-0518/) compliant, the actual acceleration extensions are not, and needs to be [compiled against PyTorch](https://www.deepspeed.ai/tutorials/advanced-install/#pre-install-deepspeed-ops). If we attempt to install Deepspeed with the same extensions as the target container we can run
+```
+source export_env.sh
+cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env conda_env_deepspeed.yml deepspeed.sif -vv --accept-licenses
+```
+Which does not succeed.
+
+### Building the BitsandBytes container
+The BitsandBytes container can be built
+```
+otainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.1.3.sif --conda-env conda_env_bitsandbytes.yml bitsandbytes.sif -vv --accept-licenses
+```
+However, note that we use an alpha version with ROCm support which requires a newer ROCm. The base-image container is therefore chosen to be `/appl/local/containers/sif-images/lumi-rocm-rocm-6.1.3.sif`.
+
+### Building the final container
+
+Combining the previous builds into a single container which most closely resembling the [Container by Samuel](https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/pytorch/build-rocm-6.1.3-python-3.12-pytorch-v2.4.1.docker), is run via
 ```
 cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-rocm-rocm-6.1.3.sif --conda-env conda_env_success.yml test.sif -vv --accept-licenses
 ```
-Some basic import tests of key libraries result in the following warnings:
+We attempt to import the three key libraries `torch`, `deepspeed` and `bitsandbytes` in the script `import-test.py` which is submitted to the `dev-g` partition on LUMI using the `run-import-test.sh` script (mind the bind path!). We get the output:
 ```
-Singularity> python
-Python 3.12.8 | packaged by conda-forge | (main, Dec  5 2024, 14:24:40) [GCC 13.3.0] on linux
-Type "help", "copyright", "credits" or "license" for more information.
->>> import torch
->>> import deepspeed
-[2025-02-05 11:40:34,904] [WARNING] [real_accelerator.py:162:get_accelerator] Setting accelerator to CPU. If you have GPU or other accelerator, we were unable to detect it.
-[2025-02-05 11:40:34,965] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cpu (auto detect)
->>> import bitsandbytes
+$> cat slurm-XXXXXX.out 
+[2025-02-21 16:03:09,619] [INFO] [real_accelerator.py:203:get_accelerator] Setting ds_accelerator to cuda (auto detect)
 /opt/conda/envs/conda_container_env/lib/python3.12/site-packages/bitsandbytes/backends/cpu_xpu_common.py:29: UserWarning: g++ not found, torch.compile disabled for CPU/XPU.
   warnings.warn("g++ not found, torch.compile disabled for CPU/XPU.")
+Import finished
 ```
+where we get info from deepspeed that it finds the GPU accelerator and a UserWarning from BitsandBytes that the g++ compiler is not present in the container.
 
 ## Library removal concerns
 After installation of all the packages, the _Conda_ libstc++.so library  is explicitly [removed](https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/common/Dockerfile.no-torch-libstdc%2B%2B) from the official LUMI PyTorch container to ensure the container C++ library is used. This might or might not be an issue for portability of the container depending on how the base container is built. It nevertheless is an issue for the cotainr method as it doesn't support modifying the container post-install. This is done in all versions of the docker script. Note: There are similar concerns for ROCm>=6.1.3 versions (without LLVM), where the ROCm libraries from the PyTorch installation are removed.
 
 ## Writing pip commands in conda-env
-Writing pip commands to a Conda environment can be quite advanced, see [here](https://github.com/conda/conda/blob/main/tests/env/support/advanced-pip/environment.yml) for various examples of allowed notation. However, the formatting for installing packages on GitHub has undergone several iterations through the last few years, and as such, the notation in `conda-env.yml` is quite strongly dependent on the specific version of `pip`. See for example [here](https://github.com/pypa/pip/pull/11617). The current (pip version 25.0) supported per-requirement options are listed [here](https://pip.pypa.io/en/latest/reference/requirements-file-format/#per-requirement-options), although one may also get warnings that the `--global-option` was depricated in 24.2.
+Writing pip commands to a Conda environment can be quite advanced, see [here](https://github.com/conda/conda/blob/main/tests/env/support/advanced-pip/environment.yml) for various examples of allowed notation. However, the formatting for installing packages on GitHub has undergone several iterations through the last few years, and as such, the notation in `conda_env_apex.yml` is quite strongly dependent on the specific version of `pip`. See for example [here](https://github.com/pypa/pip/pull/11617). The current (pip version 25.0) supported per-requirement options are listed [here](https://pip.pypa.io/en/latest/reference/requirements-file-format/#per-requirement-options), although one may also get warnings that the `--global-option` was depricated in 24.2.
 
 ## Conda yaml deficiencies
-The attempted cotainr build with `conda_env.yml` in this repo failed, whereas the cotainr build with `conda_env_ref.yml` and subsequent manual installing the `pip install apex @ git+https://github.com/rocm/apex` does succeed. The reason for this failure is described [here](https://github.com/astral-sh/uv/issues/1715) as:
+The reason for [PEP528](https://peps.python.org/pep-0518/) non-compliance is described [here](https://github.com/astral-sh/uv/issues/1715) as follows:
 
 _A number of machine learning-related modules Flash-attn, NVidia Apex need pytorch to be installed before they are installed, so that they can do things like compile against version of pytorch currently installed in the user's environment._
 
