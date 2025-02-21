@@ -19,20 +19,10 @@ RUN set -eux ; \
 RUN set -eux ; \
   zypper --no-gpg-checks -n install $ROCM_RPM
 
-# in Samuels build. Needed??
-RUN set -eux ; \
-  zypper --no-gpg-checks -n install --oldpackage libsystemd0-249.16 libudev1-249.16
-
 # Use amdgpu-install to install rocm et al. Should also install rccl.
 RUN set -eux ; \
   amdgpu-install -y --no-dkms --usecase=hiplibsdk,rocm,rocmdev,mllib --rocmrelease=$ROCM_RELEASE
 
-# including mllib should have MIOpen in it? But its a lot smaller?? hiplibsdk,rocm,rocmdev
-
-## Remove amd* (e.g. amdclang). Why? Not needed anymore for newer version? Then install MIOpen. But how do you know the version??
-#RUN set -eux ; \
-#  rm -rf /opt/rocm-*/bin/amd* ; \
-#  zypper --no-gpg-checks -n install -y --force miopen-hip-gfx90akdb
 
 #
 # ROCm environment

@@ -11,7 +11,6 @@ RUN set -eux ; \
     tar -xf libfabric-$LIBFABRIC_VERSION.tar.bz2; \
     rm libfabric-$LIBFABRIC_VERSION.tar.bz2; \
     cd libfabric-$LIBFABRIC_VERSION; \
-    sed -i 's/| CXI_MAP_IOVA_ALLOC//g' prov/cxi/include/cxip.h ;\
     CC=gcc-$GCC_RELEASE ./configure --enable-cxi=$LIBCXI_PATH --prefix=$LIBFABRIC_PATH CFLAGS='-I /include'; \
     make -j;\
     make install;\

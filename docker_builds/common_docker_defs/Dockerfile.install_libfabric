@@ -1,19 +1,20 @@
+
+ENV LIBFABRIC_PATH=/opt/libfabric
 # Download and install libfabric. CXI provider doesnt get installed atm.
 RUN set -eux ; \
-    wget https://github.com/ofiwg/libfabric/releases/download/v$LIBFABRIC_RELEASE/libfabric-$LIBFABRIC_RELEASE.tar.bz2 ; \
-    tar -xf libfabric-$LIBFABRIC_RELEASE.tar.bz2; \
-    rm libfabric-$LIBFABRIC_RELEASE.tar.bz2; \
-    cd libfabric-$LIBFABRIC_RELEASE; \
-    CC=gcc-$GCC_RELEASE ./configure --prefix=/opt/libfabric; \
+    wget https://github.com/ofiwg/libfabric/releases/download/v$LIBFABRIC_VERSION/libfabric-$LIBFABRIC_VERSION.tar.bz2 ; \
+    tar -xf libfabric-$LIBFABRIC_VERSION.tar.bz2; \
+    rm libfabric-$LIBFABRIC_VERSION.tar.bz2; \
+    cd libfabric-$LIBFABRIC_VERSION; \
+    CC=gcc-$GCC_RELEASE ./configure --prefix=$LIBFABRIC_PATH; \
     make -j;\
     make install;\
     ldconfig ;\
     cd /; \
-    rm -rf libfabric-$LIBFABRIC_RELEASE
+    rm -rf libfabric-$LIBFABRIC_VERSION
 
 #
 # libfabric environment
 #
-ENV LIBFABRIC_PATH=/opt/libfabric
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBFABRIC_PATH/lib
 ENV LD_RUN_PATH=$LD_RUN_PATH:$LIBFABRIC_PATH/lib
