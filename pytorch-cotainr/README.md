@@ -71,15 +71,17 @@ $> cat slurm-XXXXXX.out
   warnings.warn("g++ not found, torch.compile disabled for CPU/XPU.")
 Import finished
 ```
-where we get info from deepspeed that it finds the GPU accelerator and a UserWarning from BitsandBytes that the g++ compiler is not present in the container.
+where we get info from deepspeed that it finds the GPU accelerator and a UserWarning from BitsandBytes that the g++ compiler is not present in the container. This UserWarning could possibly be removed by including a `g++` compiler conda package.
 
-## Library removal concerns
+## Problems & concerns
+
+### Library removal concerns
 After installation of all the packages, the _Conda_ libstc++.so library  is explicitly [removed](https://github.com/sfantao/lumi-containers/blob/lumi-sep2024/common/Dockerfile.no-torch-libstdc%2B%2B) from the official LUMI PyTorch container to ensure the container C++ library is used. This might or might not be an issue for portability of the container depending on how the base container is built. It nevertheless is an issue for the cotainr method as it doesn't support modifying the container post-install. This is done in all versions of the docker script. Note: There are similar concerns for ROCm>=6.1.3 versions (without LLVM), where the ROCm libraries from the PyTorch installation are removed.
 
-## Writing pip commands in conda-env
+### Writing pip commands in conda-env
 Writing pip commands to a Conda environment can be quite advanced, see [here](https://github.com/conda/conda/blob/main/tests/env/support/advanced-pip/environment.yml) for various examples of allowed notation. However, the formatting for installing packages on GitHub has undergone several iterations through the last few years, and as such, the notation in `conda_env_apex.yml` is quite strongly dependent on the specific version of `pip`. See for example [here](https://github.com/pypa/pip/pull/11617). The current (pip version 25.0) supported per-requirement options are listed [here](https://pip.pypa.io/en/latest/reference/requirements-file-format/#per-requirement-options), although one may also get warnings that the `--global-option` was depricated in 24.2.
 
-## Conda yaml deficiencies
+### Conda yaml deficiencies
 The reason for [PEP528](https://peps.python.org/pep-0518/) non-compliance is described [here](https://github.com/astral-sh/uv/issues/1715) as follows:
 
 _A number of machine learning-related modules Flash-attn, NVidia Apex need pytorch to be installed before they are installed, so that they can do things like compile against version of pytorch currently installed in the user's environment._
