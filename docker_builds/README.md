@@ -203,15 +203,76 @@ Questions we aim to answer with this BitBulldozer
 - libfabric_hybrid: TODO: mpich 4.2.2 & libfabric 1.15.2; mpich 4.2.2 & libfabric 1.21.1 WITHOUT CXI (No libfabric version 1.21.1 or 1.22.0 due to compatibility between mpich and libfabric. MPICH <4 seems to result in issues with CXI provider.) 
 - opensource: libcxi & mpich 4.2.2 & libfabric 1.22.0; libcxi & mpich 4.2.2 & libfabric 1.21.1; TODO: libcxi & mpich 4.2.2 & libfabric 1.15.2
 
+|                                      | pure container | Full bind mount | libfabric-hybrid | Opensource |
+|--------------------------------------|----------------|-----------------|------------------|------------|
+| libfabric 1152 & mpich 314           |        Y       |        Y        |        (Y)       | (Y)        |
+| libfabric 1152 & mpich 343           |       (Y)      |        Y        |         N        | ??         |
+| libfabric 1211 & mpich 343           |       (Y)      |       (Y)       |         N        | ??         |
+| libfabric 1220 & mpich 343           |       (Y)      |       (Y)       |         N        | N          |
+| libfabric 1152 & mpich 422           |       (Y)      |        Y        |         Y        | N          |
+| libfabric 1211 & mpich 422           |       (Y)      |       (Y)       |         N        | (Y)        |
+| libfabric 1220 & mpich 422           |       (Y)      |       (Y)       |         N        | (Y)        |
+| libcxi &  libfabric 1152 & mpich 343 |       NA       |                 |         N        | N          |
+| libcxi &  libfabric 1152 & mpich 422 |       NA       |                 |         Y        | N          |
+| libcxi &  libfabric 1211 & mpich 422 |       NA       |                 |         N        | Y          |
+| libcxi &  libfabric 1220 & mpich 422 |       NA       |                 |         N        | Y          |
+
+
+
+pure container:
+- libfabric 1152 & mpich 314 --> fast (~2GBs), rccl works but much slower
+- libfabric 1152 & mpich 343 --> slow (~400MBs), so slow rccl doesnt work????
+- libfabric 1211 & mpich 343 -->  slow (~400MBs), device also super slow, rccl so slow doesnt work????
+- libfabric 1220 & mpich 343 -->  slow (~400MBs)
+- libfabric 1152 & mpich 422 --> fast (~4GBs), devices are 1/4th speed but works, rccl so slow doesnt work????
+- libfabric 1211 & mpich 422 --> fast (~4GBs), devices are 1/4th speed but works, rccl so slow doesnt work????
+- libfabric 1220 & mpich 422 --> fast (~4GBs), devices are 1/4th speed but works, rccl so slow doesnt work????
+
+Full bind mount
+- libfabric 1152 & mpich 314 --> 22GBs, rccl 13GBs
+- libfabric 1152 & mpich 343 --> 22GBs, rccl 13GBs
+- libfabric 1211 & mpich 343 --> 22GBs, rccl 5GBs
+- libfabric 1220 & mpich 343 --> 22GBs, rccl 5GBs
+- libfabric 1152 & mpich 422 --> 22GBs, rccl 13GBs
+- libfabric 1211 & mpich 422 --> 22GBs, rccl 3GBs
+- libfabric 1220 & mpich 422 --> 22GBs, rccl 3GBs
+- libcxi & libfabric 1152 & mpich 343 --> Works (~22GBs), 
+- libcxi & libfabric 1152 & mpich 422 -->  Works (~22GBs)
+- libcxi & libfabric 1211 & mpich 422 -->  Works (~22GBs)
+- libcxi & libfabric 1220 & mpich 422 --> Works (~22GBs)
+
+libfabric-hybrid:
+- libfabric 1152 & mpich 314 --> Works; fallback to TCP/IP --> not compiled with channel 4
+- libfabric 1152 & mpich 343 --> FAILS; This MPICH doesnt play well with libcxi??? (open_fabric:No data available)
+- libfabric 1211 & mpich 343 --> FAILS; MPICH expects higher fabric version
+- libfabric 1220 & mpich 343 --> FAILS; MPICH expects higher fabric version
+- libfabric 1152 & mpich 422 --> 22GBs; **GPU comms very slow even with GTL?** Can be fixed?
+- libfabric 1211 & mpich 422 --> FAILS; MPICH expects higher fabric version
+- libfabric 1220 & mpich 422 --> FAILS; MPICH expects higher fabric version
+- libcxi & libfabric 1152 & mpich 343 --> FAILS; This MPICH doesnt play well with libcxi (open_fabric:No data available)
+- libcxi & libfabric 1152 & mpich 422 --> 22GBs; **GPU comms very slow even with GTL?** Can be fixed?
+- libcxi & libfabric 1211 & mpich 422 --> FAILS; MPICH expects higher fabric version
+- libcxi & libfabric 1220 & mpich 422 --> FAILS; MPICH expects higher fabric version
+
+Opensource:
+Notes:
+- libfabric 1152 & MPICH 314 -->  WORKS. TCP/IP.
+- libfabric 1220 & MPICH 343 --> DOESNT WORK; leads to incompatability with libcxi.
+- libfabric 1211 & MPICH 422 -->  WORKS
+- libfabric 1220 & MPICH 422 --> WORKS
+- libfabric 1152 & MPICH 422 --> DOESNT WORK; libfabric --enable-cxi --> not available
+- libcxi & libfabric 1152 & mpich 343 --> FAILS; (open_fabric:No data available)
+- libcxi & libfabric 1152 & mpich 422 --> FAILS; (open_fabric:No data available)
+- libcxi & libfabric 1211 & mpich 422 --> 22GBs; **GPU comms very slow even with GTL?**
+- libcxi & libfabric 1220 & mpich 422 --> 22GBs; **GPU comms very slow even with GTL?**
+
+
 
 ## Basic
 We take the container as is, with MPICH, libfabric etc. 
 Nothing gets bind mounted and the communication should run via TCP IP.
 
 The versions used for each library can be reviewed in [Dockerfile.define_versions](common_docker_defs/Dockerfile.define_versions).
-
-### Compatability:
-- 
 
 ***
 
@@ -260,32 +321,15 @@ And then checking e.g. 'which mpicc' and ldd on new/missing '.so' files.
 For RCCL I had to explicitly add the aws-ofi-rccl in the container to the LD_LIBRARY_PATH.
 Debugging can be turn on by uncommenting lines 99 and 100 in [run_lumi_bind_rccl_bandwidth_and_latency_tests.sh](tests/lumi_bind/run_lumi_bind_rccl_bandwidth_and_latency_tests.sh)
 
-### Compatability:
-- 
 
 ***
 ## Libfabric Hybrid
 Take Basic container and replace and **ONLY** replace libfabric.
 
-### Compatability:
-- libcxi + libfabric 1.21.1 + MPICH 4.2.2 -->  DOESNT WORK (bind mounting lumi libfabric leads to ' version `FABRIC_1.7' not found' --> TRUE? Check without CXI!)
-- libcxi + libfabric 1.22.0 + MPICH 4.2.2 --> DOESNT WORK
-- libcxi + libfabric 1.22.0 + MPICH < 4 --> ??? DOESNT WORK; leads to incompatability with libcxi on the MPICH side.
-- libfabric 1.22.0 + MPICH < 4 --> ???? DOESNT WORK; leads to incompatability with libcxi on the MPICH side.
-- libfabric 1.22.0 + MPICH 4.2.2 --> ????
-- libfabric 1.15.2 + MPICH 4.2.2 --> ???
-
 
 ***
 ## Opensource:
 
-### Compatability:
-
-Notes:
-- libfabric 1.21.1 + MPICH 4.2.2 -->  WORKS
-- libfabric 1.22.0 + MPICH 4.2.2 --> WORKS
-- libfabric 1.15.2 + MPICH 4.2.2 --> DOESNT WORK; libfabric --enable-cxi --> not available
-- libfabric 1.22.0 + MPICH < 4 --> DOESNT WORK; leads to incompatability with libcxi. 
 
 
 ***
@@ -298,13 +342,6 @@ Notes:
 - TCP/IP sockets are used for RCCL comms
 - MPICH_RELEASE=3.4.3 and LIBFABRIC_RELEASE=1.22.0 lead to very poor performance on normal MPICH comms. About 7x slower. 
 - MPICH version > 4 seems to lead to better results again (but did not check libfabric version)
-
-- libfabric 1152 & mpich 314 --> fast, rccl works but much slower
-- libfabric 1152 & mpich 343 --> slow, so slow rccl doesnt work????
-- libfabric 1211 & mpich 343 --> slow, device also super slow, rccl so slow doesnt work????
-- libfabric 1152 & mpich 422 --> fast, devices are 1/5th speed but works, rccl so slow doesnt work????
-- libfabric 1211 & mpich 422 --> fast, devices are 1/5th speed but works, rccl so slow doesnt work????
-- libfabric 1220 & mpich 422 --> fast, devices are 1/5th speed but works, rccl so slow doesnt work????
 
 
 ### Bandwidth:
@@ -448,17 +485,6 @@ This is probably a side effect of setting 'MPICH_OFI_NIC_POLICY' to GPU as this 
 
 The containerized version of RCCL also performs similarly to the native RCCL tests with the same bandwidth dip at 8kB.
 
-- libfabric 1152 & mpich 314 --> 22GBs, rccl half speed
-- libfabric 1152 & mpich 343 --> 22GBs, rccl half speed
-- libfabric 1211 & mpich 343 --> 22GBs, rccl 5GBs
-- libfabric 1220 & mpich 343 --> 22GBs, rccl 5GBs
-- libfabric 1152 & mpich 422 --> 22GBs, rccl 13GBs
-- libfabric 1211 & mpich 422 --> 22GBs, rccl 3GBs
-- libfabric 1220 & mpich 422 --> 22GBs, rccl 3GBs
-- libcxi & libfabric 1152 & mpich 343 --> 
-- libcxi & libfabric 1152 & mpich 422 --> 
-- libcxi & libfabric 1211 & mpich 422 -->
-- libcxi & libfabric 1220 & mpich 422 --> 
 
 ### Bandwidth
 
@@ -523,17 +549,6 @@ The containerized version of RCCL also performs similarly to the native RCCL tes
 ***
 ## Libfabric Hybrid
 
-- libfabric 1152 & mpich 314 --> Works; fallback to TCP/IP --> not compiled with channel 4
-- libfabric 1152 & mpich 343 --> FAILS; This MPICH doesnt play well with libcxi??? (open_fabric:No data available)
-- libfabric 1211 & mpich 343 --> FAILS; MPICH expects higher fabric version
-- libfabric 1220 & mpich 343 --> FAILS; MPICH expects higher fabric version
-- libfabric 1152 & mpich 422 --> 22GBs; **GPU comms very slow even with GTL?** Can be fixed?
-- libfabric 1211 & mpich 422 --> FAILS; MPICH expects higher fabric version
-- libfabric 1220 & mpich 422 --> FAILS; MPICH expects higher fabric version
-- libcxi & libfabric 1152 & mpich 343 --> FAILS; This MPICH doesnt play well with libcxi (open_fabric:No data available)
-- libcxi & libfabric 1152 & mpich 422 --> 22GBs; **GPU comms very slow even with GTL?** Can be fixed?
-- libcxi & libfabric 1211 & mpich 422 --> FAILS; MPICH expects higher fabric version
-- libcxi & libfabric 1220 & mpich 422 --> FAILS; MPICH expects higher fabric version
 
 
 ### Bandwidth
@@ -543,10 +558,6 @@ The containerized version of RCCL also performs similarly to the native RCCL tes
 
 ***
 ## Opensource
-- libcxi & libfabric 1152 & mpich 343 --> FAILS; (open_fabric:No data available)
-- libcxi & libfabric 1152 & mpich 422 --> FAILS; (open_fabric:No data available)
-- libcxi & libfabric 1211 & mpich 422 --> 22GBs; GPU SLOW even with LD_PRELOAD GTL
-- libcxi & libfabric 1220 & mpich 422 --> 22GBs; GPU SLOW even with LD_PRELOAD GTL
 
 
 
