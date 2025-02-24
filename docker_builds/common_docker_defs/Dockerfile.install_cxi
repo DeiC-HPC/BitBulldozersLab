@@ -31,7 +31,7 @@ RUN set -eux ; \
     git checkout 0f3609b5e224636abffc7ceffe6f4e9c83244c08;\
     sed -i 's+/usr/share/cassini-headers/csr_defs.json+/share/cassini-headers/csr_defs.json+g' utils/cxi_dump_csrs.py ;\
     ./autogen.sh;\
-    CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE  ./configure --disable-static --with-udevrulesdir=$LIBCXI_PATH/lib/udev/rules.d --prefix=$LIBCXI_PATH CFLAGS='-I /include';\
+    CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE  ./configure --disable-static --with-udevrulesdir=$LIBCXI_PATH/lib/udev/rules.d --prefix=$LIBCXI_PATH CFLAGS='-I /include' --with-rocm=$ROCM_PATH;\
     make -j install;\
     ldconfig
 

@@ -79,12 +79,12 @@ tail_install = [docker_install_libfabric,
                 docker_run_script]
 
 tail_install_cxi = [docker_install_additional_dependencies,
-                    docker_install_cxi,
-                    docker_install_libfabric_cxi,
-                    docker_install_aws_ofi_rccl,
-                    docker_install_mpich_ch4ofi,
-                    # docker_install_rccl_tests,
-                    docker_install_osu,
+                    # docker_install_cxi,
+                    # docker_install_libfabric_cxi,
+                    # docker_install_aws_ofi_rccl,
+                    # docker_install_mpich_ch4ofi,
+                    # # docker_install_rccl_tests,
+                    # docker_install_osu,
                     docker_run_script]
 
 tail_install_cxi_libfabric1152 = [docker_install_additional_dependencies,
@@ -96,78 +96,78 @@ tail_install_cxi_libfabric1152 = [docker_install_additional_dependencies,
                     docker_install_osu,
                     docker_run_script]
 
-# BUILDS
-# Works: Full Container; Full Bind Mount, libfabric hybrid
-# Doesnt work: Opensource
-images_to_build["base_image_libfabric1152_mpich314"] = (base_install
-                                                        + [docker_versions_libfabric1152_mpich314]
-                                                        + tail_install)
-
-# BUILDS
-# Works: Full Container; Full Bind Mount
-# Doesnt work: libfabric hybrid; Opensource
-images_to_build["base_image_libfabric1152_mpich343"] = (base_install
-                                                        + [docker_versions_libfabric1152_mpich343]
-                                                        + tail_install)
-
-# BUILDS
-# Works: Full Container; Full Bind Mount
-# Doesnt work: libfabric hybrid; Opensource
-images_to_build["base_image_libfabric1211_mpich343"] = (base_install
-                                                        + [docker_versions_libfabric1211_mpich343]
-                                                        + tail_install)
-
-# BUILDS
-# Works: Full Container; Full Bind Mount
-# Doesnt work: libfabric hybrid; Opensource
-images_to_build["base_image_libfabric1220_mpich343"] = (base_install
-                                                        + [docker_versions_libfabric1220_mpich343]
-                                                        + tail_install)
-
-# BUILDS
-# Works: Full Container; Full Bind Mount; libfabric hybrid
-# Doesnt work: Opensource
-images_to_build["base_image_libfabric1152_mpich422"] = (base_install
-                                                        + [docker_versions_libfabric1152_mpich422]
-                                                        + tail_install)
-
-# BUILDS
-# Works: Full Container; Full Bind Mount
-# Doesnt work: libfabric hybrid; Opensource
-images_to_build["base_image_libfabric1211_mpich422"] = (base_install
-                                                        + [docker_versions_libfabric1211_mpich422]
-                                                        + tail_install)
-
-# BUILDS
-# Works: Full Container; Full Bind Mount
-# Doesnt work: libfabric hybrid; Opensource
-images_to_build["base_image_libfabric1220_mpich422"] = (base_install
-                                                        + [docker_versions_libfabric1220_mpich422]
-                                                        + tail_install)
-
-# ------------------------------------------------------------------
-# ------------------------------------------------------------------
-
-# BUILDS
-# Works:
-# Doesnt work: libfabric hybrid,  Opensource
-images_to_build["base_image_libcxi_libfabric1152_mpich343"] = (base_install
-                                                        + [docker_versions_libfabric1152_mpich343]
-                                                        + tail_install_cxi_libfabric1152)
-
-# BUILDS
-# Works: libfabric hybrid
-# Doesnt work:  Opensource
-images_to_build["base_image_libcxi_libfabric1152_mpich422"] = (base_install
-                                                        + [docker_versions_libfabric1152_mpich422]
-                                                        + tail_install_cxi_libfabric1152)
-
-# BUILDS
-# Works: Opensource
-# Doesnt work: libfabric hybrid
-images_to_build["base_image_libcxi_libfabric1211_mpich422"] = (base_install
-                                                        + [docker_versions_libfabric1211_mpich422]
-                                                        + tail_install_cxi)
+# # BUILDS
+# # Works: Full Container; Full Bind Mount, libfabric hybrid
+# # Doesnt work: Opensource
+# images_to_build["base_image_libfabric1152_mpich314"] = (base_install
+#                                                         + [docker_versions_libfabric1152_mpich314]
+#                                                         + tail_install)
+#
+# # BUILDS
+# # Works: Full Container; Full Bind Mount
+# # Doesnt work: libfabric hybrid; Opensource
+# images_to_build["base_image_libfabric1152_mpich343"] = (base_install
+#                                                         + [docker_versions_libfabric1152_mpich343]
+#                                                         + tail_install)
+#
+# # BUILDS
+# # Works: Full Container; Full Bind Mount
+# # Doesnt work: libfabric hybrid; Opensource
+# images_to_build["base_image_libfabric1211_mpich343"] = (base_install
+#                                                         + [docker_versions_libfabric1211_mpich343]
+#                                                         + tail_install)
+#
+# # BUILDS
+# # Works: Full Container; Full Bind Mount
+# # Doesnt work: libfabric hybrid; Opensource
+# images_to_build["base_image_libfabric1220_mpich343"] = (base_install
+#                                                         + [docker_versions_libfabric1220_mpich343]
+#                                                         + tail_install)
+#
+# # BUILDS
+# # Works: Full Container; Full Bind Mount; libfabric hybrid
+# # Doesnt work: Opensource
+# images_to_build["base_image_libfabric1152_mpich422"] = (base_install
+#                                                         + [docker_versions_libfabric1152_mpich422]
+#                                                         + tail_install)
+#
+# # BUILDS
+# # Works: Full Container; Full Bind Mount
+# # Doesnt work: libfabric hybrid; Opensource
+# images_to_build["base_image_libfabric1211_mpich422"] = (base_install
+#                                                         + [docker_versions_libfabric1211_mpich422]
+#                                                         + tail_install)
+#
+# # BUILDS
+# # Works: Full Container; Full Bind Mount
+# # Doesnt work: libfabric hybrid; Opensource
+# images_to_build["base_image_libfabric1220_mpich422"] = (base_install
+#                                                         + [docker_versions_libfabric1220_mpich422]
+#                                                         + tail_install)
+#
+# # ------------------------------------------------------------------
+# # ------------------------------------------------------------------
+#
+# # BUILDS
+# # Works:
+# # Doesnt work: libfabric hybrid,  Opensource
+# images_to_build["base_image_libcxi_libfabric1152_mpich343"] = (base_install
+#                                                         + [docker_versions_libfabric1152_mpich343]
+#                                                         + tail_install_cxi_libfabric1152)
+#
+# # BUILDS
+# # Works: libfabric hybrid
+# # Doesnt work:  Opensource
+# images_to_build["base_image_libcxi_libfabric1152_mpich422"] = (base_install
+#                                                         + [docker_versions_libfabric1152_mpich422]
+#                                                         + tail_install_cxi_libfabric1152)
+#
+# # BUILDS
+# # Works: Opensource
+# # Doesnt work: libfabric hybrid
+# images_to_build["base_image_libcxi_libfabric1211_mpich422"] = (base_install
+#                                                         + [docker_versions_libfabric1211_mpich422]
+#                                                         + tail_install_cxi)
 
 # BUILDS
 # Works:  Opensource

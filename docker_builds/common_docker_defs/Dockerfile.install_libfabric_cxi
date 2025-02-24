@@ -12,7 +12,7 @@ RUN set -eux ; \
     rm libfabric-$LIBFABRIC_VERSION.tar.bz2; \
     cd libfabric-$LIBFABRIC_VERSION; \
     sed -i 's/| CXI_MAP_IOVA_ALLOC//g' prov/cxi/include/cxip.h ;\
-    CC=gcc-$GCC_RELEASE ./configure --enable-cxi=$LIBCXI_PATH --prefix=$LIBFABRIC_PATH CFLAGS='-I /include'; \
+    CC=gcc-$GCC_RELEASE ./configure --enable-cxi=$LIBCXI_PATH --prefix=$LIBFABRIC_PATH CFLAGS='-I /include' --with-rocr=$ROCM_PATH --enable-rocr-dlopen; \
     make -j;\
     make install;\
     ldconfig ;\
