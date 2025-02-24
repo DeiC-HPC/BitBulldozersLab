@@ -79,12 +79,12 @@ tail_install = [docker_install_libfabric,
                 docker_run_script]
 
 tail_install_cxi = [docker_install_additional_dependencies,
-                    # docker_install_cxi,
-                    # docker_install_libfabric_cxi,
-                    # docker_install_aws_ofi_rccl,
-                    # docker_install_mpich_ch4ofi,
-                    # # docker_install_rccl_tests,
-                    # docker_install_osu,
+                    docker_install_cxi,
+                    docker_install_libfabric_cxi,
+                    docker_install_aws_ofi_rccl,
+                    docker_install_mpich_ch4ofi,
+                    # docker_install_rccl_tests,
+                    docker_install_osu,
                     docker_run_script]
 
 tail_install_cxi_libfabric1152 = [docker_install_additional_dependencies,
