@@ -1,4 +1,7 @@
-# Guix
+# Guix for managing software on laptops and LUMI
+
+- **Keywords:** Guix, Singularity, MPI
+- **Date:** 2025-01-28
 
 Guix as package manager for HPC has significant community support https://hpc.guix.info/ which is supported by 4 research french institutes and is deployed on several medium and large scale HPC facilities. It seems to be an extremely interesting and active project for reproducible environments in HPC without compromising performance. It is [stronly recommended](https://doi.org/10.1016/j.cosrev.2024.100655) as a superior solution to traditional package managers (apt-get, pip, conda) as well as container technology (Apptainer/singularity).
 
