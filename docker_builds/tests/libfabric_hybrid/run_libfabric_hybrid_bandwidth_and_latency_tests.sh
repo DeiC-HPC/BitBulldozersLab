@@ -25,8 +25,7 @@ export SINGULARITYENV_LD_LIBRARY_PATH=\
 export SINGULARITY_BIND=\
 '/opt/cray,'\
 '/var/spool/slurmd,'\
-'/usr/lib64/libcxi.so.1,'\
-'/usr/share/libdrm/amdgpu.ids,'\
+'/usr/lib64/libcxi.so.1,'
 
 # Optional??
 #'/var/spool,'\
@@ -73,31 +72,22 @@ export SINGULARITY_BIND=\
 #'/usr/lib64/libz.so.1,'\
 #'/usr/lib64/libzstd.so.1,'\
 
-# Figure out GTL
-export MPICH_GPU_SUPPORT_ENABLED=1
-export MPICH_OFI_NIC_POLICY=GPU
-
-export SINGULARITYENV_MPICH_GPU_SUPPORT_ENABLED=1
+#export SINGULARITYENV_MPICH_GPU_SUPPORT_ENABLED=1
+export SINGULARITYENV_MPIR_CVAR_CH4_OFI_ENABLE_HMEM=1
 export SINGULARITYENV_MPICH_OFI_NIC_POLICY=GPU
-export SINGULARITYENV_MPICH_OFI_USE_PROVIDER=cxi
 export SINGULARITYENV_FI_PROVIDER=cxi
 
+# Debug options
 #export SINGULARITYENV_MPICH_OFI_VERBOSE=1
 #export SINGULARITYENV_MPICH_OFI_NIC_VERBOSE=1
 #export SINGULARITYENV_FI_LOG_LEVEL=debug
-#export SINGULARITYENV_FI_PROVIDER_PATH="/usr/lib64/libcxi.so.1"
 
-
-srun --output=libfabric_hybrid_bandwidth_host_host.txt --exclusive --mpi=pmi2 singularity exec -B /project/project_465001699/ $1 /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H H
-#srun --output=libfabric_hybrid_bandwidth_host_device.txt --mpi=pmi2 singularity exec -B /project/project_465001699/ $1 /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H D
-#srun --output=libfabric_hybrid_bandwidth_device_host.txt --mpi=pmi2 singularity exec -B /project/project_465001699/ $1 /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw D H
-srun --output=libfabric_hybrid_bandwidth_device_device.txt --exclusive --mpi=pmi2 singularity exec -B /project/project_465001699/ $1 /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw -d rocm D D
+srun --output=libfabric_hybrid_bandwidth_host_host.txt --exclusive --mpi=pmi2 singularity exec -B /project/project_465001699/ $1 /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H H
+srun --output=libfabric_hybrid_bandwidth_host_device.txt --exclusive --mpi=pmi2 singularity exec -B /project/project_465001699/ $1 /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H D
+srun --output=libfabric_hybrid_bandwidth_device_host.txt --exclusive --mpi=pmi2 singularity exec -B /project/project_465001699/ $1 /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw D H
+srun --output=libfabric_hybrid_bandwidth_device_device.txt --exclusive --mpi=pmi2 singularity exec -B /project/project_465001699/ $1 /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw -d rocm D D
 #
-#srun --output=libfabric_hybrid_latency_host_host.txt --exclusive singularity exec -B /project/project_465001699/ $1 /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency H H
-#srun --output=libfabric_hybrid_latency_host_device.txt --exclusive singularity exec -B /project/project_465001699/ $1 /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency H D
-#srun --output=libfabric_hybrid_latency_device_host.txt --exclusive singularity exec -B /project/project_465001699/ $1 /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency D H
-#srun --output=libfabric_hybrid_latency_device_device.txt --exclusive singularity exec -B /project/project_465001699/ $1 /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency D D
-
-
-
-
+srun --output=libfabric_hybrid_latency_host_host.txt --exclusive --mpi=pmi2 singularity exec -B /project/project_465001699/ $1  /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency H H
+srun --output=libfabric_hybrid_latency_host_device.txt --exclusive --mpi=pmi2 singularity exec -B /project/project_465001699/ $1 /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency H D
+srun --output=libfabric_hybrid_latency_device_host.txt --exclusive --mpi=pmi2 singularity exec -B /project/project_465001699/ $1  /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency D H
+srun --output=libfabric_hybrid_latency_device_device.txt --exclusive --mpi=pmi2 singularity exec -B /project/project_465001699/ $1  /opt/osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency D D

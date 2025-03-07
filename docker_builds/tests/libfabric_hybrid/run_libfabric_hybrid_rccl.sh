@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 #
-# A LUMI SLURM batch script for the LUMI PyTorch multi GPU torchrun example from
-# https://github.com/DeiC-HPC/cotainr
 #
-#SBATCH --job-name=lumi_bind_bandwidth_and_latency_tests
+#SBATCH --job-name=libfabric_hybrid_bandwidth_and_latency_tests
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=1
 #SBATCH --gpus-per-node=1
 #SBATCH --partition=dev-g
-#SBATCH --time=00:10:00
+#SBATCH --time=00:05:00
 #SBATCH --account=project_465001699
 #SBATCH --exclusive
 
@@ -16,21 +14,18 @@ export MIOPEN_USER_DB_PATH=/tmp/${USER}-miopen-cache-${SLURM_JOB_ID}
 export MIOPEN_CUSTOM_CACHE_DIR=${MIOPEN_USER_DB_PATH}
 
 export SINGULARITYENV_LD_LIBRARY_PATH=\
-"/lib64:"\
-"/opt/cray/pe/mpich/8.1.29/ofi/amd/5.0/lib-abi-mpich:"\
+'/opt/mpich/lib:'\
 "/opt/cray/libfabric/1.15.2.0/lib64:"\
 '/opt/cray/pe/pmi/6.1.14/lib:'\
 '/opt/cray/pals/1.3.2/lib:'\
-'/usr/lib64:'\
 '/opt/rocm-6.0.3/llvm/lib:'\
-'/opt/rocm-6.0.3/lib:'\
-'/opt/aws-ofi-rccl/'
+'/usr/lib64:'\
+'/opt/rocm-6.0.3/lib:'
 
 export SINGULARITY_BIND=\
 '/opt/cray,'\
 '/var/spool/slurmd,'\
-'/usr/lib64/libcxi.so.1,'\
-'/usr/share/libdrm/amdgpu.ids,'\
+'/usr/lib64/libcxi.so.1,'
 
 # Optional??
 #'/var/spool,'\
@@ -76,13 +71,18 @@ export SINGULARITY_BIND=\
 #'/usr/lib64/libyaml-0.so.2,'\
 #'/usr/lib64/libz.so.1,'\
 #'/usr/lib64/libzstd.so.1,'\
-#'/run/cxi,'\
 
-#Try to bind mount the GTL
+export SINGULARITYENV_MPIR_CVAR_CH4_OFI_ENABLE_HMEM=1
+export SINGULARITYENV_MPICH_OFI_NIC_POLICY=GPU
+export SINGULARITYENV_FI_PROVIDER=cxi
 
-# Figure out GTL
-export MPICH_GPU_SUPPORT_ENABLED=1
+export SINGULARITYENV_NCCL_SOCKET_IFNAME=hsn0,hsn1,hsn2,hsn3
+export SINGULARITYENV_NCCL_CROSS_NIC=1
+export SINGULARITYENV_NCCL_IGNORE_CPU_AFFINITY=1
+export SINGULARITYENV_NCCL_NET_GDR_LEVEL=PHB
+
 export MPICH_OFI_NIC_POLICY=GPU
+export FI_PROVIDER=cxi
 
 # Tell RCCL to use Slingshot interfaces and GPU RDMA. Additional optimisations
 export NCCL_SOCKET_IFNAME=hsn0,hsn1,hsn2,hsn3
@@ -96,15 +96,14 @@ export NCCL_NET_GDR_LEVEL=PHB
 # Better to turn off at least for intra node?
 # export NCCL_NCHANNELS_PER_PEER=32
 
-
 # debug RCCL, prints loads of messages
 #export NCCL_DEBUG=INFO
 #export NCCL_DEBUG_SUBSYS=INIT,COLL
 
-# various cxi, libfabric environment settings
-export CXI_FORK_SAFE=1
-export CXI_FORK_SAFE_HP=1
-export FI_CXI_DISABLE_CQ_HUGETLB=1
+# MPI and FI debug
+#export SINGULARITYENV_MPICH_OFI_VERBOSE=1
+#export SINGULARITYENV_MPICH_OFI_NIC_VERBOSE=1
+#export SINGULARITYENV_FI_LOG_LEVEL=debug
 
-srun --output=lumi_bind_rccl_bandwidth.txt  singularity exec -B /project/project_465001699/ $1 /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/xccl/pt2pt/osu_xccl_bw -d rocm D D
-srun --output=lumi_bind_rccl_latency.txt  singularity exec -B /project/project_465001699/ $1 /singularity/run_script.sh /opt/osu/libexec/osu-micro-benchmarks/xccl/pt2pt/osu_xccl_latency -d rocm D D
+srun --output=libfabric_hybrid_rccl_bandwidth.txt --exclusive --mpi=pmi2 singularity exec -B /project/project_465001699/ $1 /opt/osu/libexec/osu-micro-benchmarks/xccl/pt2pt/osu_xccl_bw -d rocm D D
+srun --output=libfabric_hybrid_rccl_latency.txt --exclusive --mpi=pmi2 singularity exec -B /project/project_465001699/ $1  /opt/osu/libexec/osu-micro-benchmarks/xccl/pt2pt/osu_xccl_latency -d rocm D D

@@ -166,6 +166,7 @@ if BUILD_ALL:
                                                             + [docker_versions_libfabric1220_mpich422]
                                                             + tail_install)
 
+
 # # ------------------------------------------------------------------
 # # includes libcxi
 # # ------------------------------------------------------------------
@@ -190,17 +191,26 @@ if BUILD_ALL:
                                                             + [docker_versions_libfabric1211_mpich422]
                                                                    + tail_install_cxi)
 
+    # BUILDS
+    # Recommended:  libfabric hybrid (maybe exclude if the non libcxi version works base_image_libfabric1152_mpich422)
+    # Works: libfabric hybrid
+    # Doesnt work:  Opensource
+    images_to_build["base_image_libcxi_libfabric1152_mpich422"] = (base_install
+                                                            + [docker_versions_libfabric1152_mpich422]
+                                                            + tail_install_cxi_libfabric1152)
+
+    # BUILDS WITHOUT AWS-OFI-RCCl
+    # # Recommended:
+    # Works:
+    # Doesnt work:
+    # images_to_build["base_image_libcxi_libfabric2000_mpich422"] = (base_install
+    #                                                         + [docker_versions_libfabric2000_mpich422]
+    #                                                         + tail_install_cxi)
+
 # ------------------------------------------------------------------------------------------
 # defaults to build
 # ------------------------------------------------------------------------------------------
 
-# BUILDS
-# Recommended:  libfabric hybrid (maybe exclude if the non libcxi version works base_image_libfabric1152_mpich422)
-# Works: libfabric hybrid
-# Doesnt work:  Opensource
-images_to_build["base_image_libcxi_libfabric1152_mpich422"] = (base_install
-                                                        + [docker_versions_libfabric1152_mpich422]
-                                                        + tail_install_cxi_libfabric1152)
 
 # BUILDS
 # # Recommended: Opensource
@@ -209,14 +219,6 @@ images_to_build["base_image_libcxi_libfabric1152_mpich422"] = (base_install
 images_to_build["base_image_libcxi_libfabric1220_mpich422"] = (base_install
                                                         + [docker_versions_libfabric1220_mpich422]
                                                         + tail_install_cxi)
-
-# BUILDS
-# # Recommended:
-# Works:
-# Doesnt work:
-# images_to_build["base_image_libcxi_libfabric2000_mpich422"] = (base_install
-#                                                         + [docker_versions_libfabric2000_mpich422]
-#                                                         + tail_install_cxi)
 
 
 
