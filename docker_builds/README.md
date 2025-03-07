@@ -593,8 +593,12 @@ Bandwidth and latency is very close to the native performance for large message 
 
 ### Latency
 
-srun: Job 9813899 step creation temporarily disabled, retrying (Requested nodes are busy)
-srun: Step created for StepId=9813899.7
+During the running of the latency tests I got the following message multiple times:
+- `srun: Job 9813899 step creation temporarily disabled, retrying (Requested nodes are busy)`
+
+Could be the reason for high latency for small messages?
+
+
 
 
 | OSU MPI Latency Test v7.5 |                  |                |                |                  |        |
