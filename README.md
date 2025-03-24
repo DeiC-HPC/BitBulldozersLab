@@ -6,7 +6,7 @@ This repository contains proof-of-concepts (PoCs) and examples related to High P
 
 ## PoC / example structure
 
-The PoCs and examples are organized into a flat namespace, i.e. each folder in this repository root is a PoC / example. Each of those PoC / example folders contain all files related to that PoC / example, including a `README.md` file documenting the it.
+The PoCs and examples are organized into a flat namespace, i.e. each folder in this repository root is a PoC / example. The title of the PoC / example is used as the name of the folder. Each of those PoC / example folders contain all files related to that PoC / example, including a `README.md` file documenting the it.
 
 ### PoC / example README.md
 
@@ -32,9 +32,11 @@ The following keywords are used in the PoCs / examples:
 | --------------- | ----------------------------------------------------------- |
 | AI              | Artificial Intelligence                                     |
 | cotainr         | The [cotainr](https://github.com/DeiC-HPC/cotainr) tool     |
+| Guix            | The [Guix package manager](https://hpc.guix.info/) for HPC  |
 | Jupyter         | Interactive computing using [Jupyter](https://jupyter.org/) |
 | MPI             | Message Parsing Interface                                   |
 | OOD             | [OpenOnDemand](https://openondemand.org/)                   |
+| Pytorch         | The [Pytorch](https://pytorch.org/) AI framework            |
 | Singularity     | Singularity containers                                      |
 
 ## Licensing Information
