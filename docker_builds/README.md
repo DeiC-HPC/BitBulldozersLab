@@ -40,13 +40,13 @@ For approaches 2) to 4) we achieve similar performance to a native approach.
 1) navigate to docker_builds folder
 2) `sudo python3 build_docker.py` builds **3** different docker containers (**WARNING: Takes up to 5 hours on my laptop**) named:
    - `lumi_images:base_image_libfabric1152_mpich314`
-   - `lumi_images:base_image_libfabric1152_mpich422`
-   - `lumi_images:base_image_libcxi_libfabric1220_mpich422`
+   - `lumi_images:base_image_libfabric1152_mpich423`
+   - `lumi_images:base_image_libcxi_libfabric1220_mpich423`
 3) Each container has to be converted to an apptainer container via `sudo apptainer build $TARGET $SOURCE`
    - where $TARGET and $SOURCE have to be:
      - `base_image_mpich314_libfabric1152.sif` & `docker-daemon:lumi_images:base_image_libfabric1152_mpich314`
-     - `base_image_mpich314_libfabric1152.sif` & `docker-daemon:lumi_images:base_image_libfabric1152_mpich422`
-     - `base_image_mpich314_libfabric1152.sif` & `docker-daemon:lumi_images:base_image_libcxi_libfabric1220_mpich422` 
+     - `base_image_mpich314_libfabric1152.sif` & `docker-daemon:lumi_images:base_image_libfabric1152_mpich423`
+     - `base_image_mpich314_libfabric1152.sif` & `docker-daemon:lumi_images:base_image_libcxi_libfabric1220_mpich423` 
 4) Each of the sif files has to be copied over to lumi via your preferred method e.g. `scp base_image_mpich314_libfabric1152.sif /project/project_XXXXXX/`
 5) Copy all the .sh scripts in the 'tests' folder. (Optional: native folder)
 6) Optional: Build native osu benchmark suit. See instructions [here](#native)
@@ -106,14 +106,14 @@ Questions we aim to answer with this BitBulldozer
 | libfabric 1152 & mpich 343           |       (Y)      | Y               | N                | ??         | N                |
 | libfabric 1211 & mpich 343           |       (Y)      | (Y)             | N                | ??         | N                |
 | libfabric 1220 & mpich 343           |       (Y)      | (Y)             | N                | N          | N                |
-| libfabric 1152 & mpich 422           |       (Y)      | Y               | Y                | N          | **Y**            |
-| libfabric 1211 & mpich 422           |       (Y)      | (Y)             | N                | (Y)        | N                |
-| libfabric 1220 & mpich 422           |       (Y)      | (Y)             | N                | (Y)        | N                |
+| libfabric 1152 & mpich 423           |       (Y)      | Y               | Y                | N          | **Y**            |
+| libfabric 1211 & mpich 423           |       (Y)      | (Y)             | N                | (Y)        | N                |
+| libfabric 1220 & mpich 423           |       (Y)      | (Y)             | N                | (Y)        | N                |
 | libcxi &  libfabric 1152 & mpich 343 |       NA       | ?               | N                | N          | N                |
-| libcxi &  libfabric 1152 & mpich 422 |       NA       | ?               | Y                | N          | N                |
-| libcxi &  libfabric 1211 & mpich 422 |       NA       | ?               | N                | Y          | N                |
-| libcxi &  libfabric 1220 & mpich 422 |       NA       | ?               | N                | Y          | **Y**            |
-| libcxi &  libfabric 2000 & mpich 422 |       NA       | ?               | ?                | Y          | N                |
+| libcxi &  libfabric 1152 & mpich 423 |       NA       | ?               | Y                | N          | N                |
+| libcxi &  libfabric 1211 & mpich 423 |       NA       | ?               | N                | Y          | N                |
+| libcxi &  libfabric 1220 & mpich 423 |       NA       | ?               | N                | Y          | **Y**            |
+| libcxi &  libfabric 2000 & mpich 423 |       NA       | ?               | ?                | Y          | N                |
 
 legend:
 - Y ==> works at a proper speed
@@ -126,48 +126,48 @@ pure container:
 - libfabric 1152 & mpich 343 --> slow (~400MBs), so slow rccl doesnt work????
 - libfabric 1211 & mpich 343 -->  slow (~400MBs), device also super slow, rccl so slow doesnt work????
 - libfabric 1220 & mpich 343 -->  slow (~400MBs)
-- libfabric 1152 & mpich 422 --> fast (~4GBs), devices are 1/4th speed but works, rccl so slow doesnt work????
-- libfabric 1211 & mpich 422 --> fast (~4GBs), devices are 1/4th speed but works, rccl so slow doesnt work????
-- libfabric 1220 & mpich 422 --> fast (~4GBs), devices are 1/4th speed but works, rccl so slow doesnt work????
+- libfabric 1152 & mpich 423 --> fast (~4GBs), devices are 1/4th speed but works, rccl so slow doesnt work????
+- libfabric 1211 & mpich 423 --> fast (~4GBs), devices are 1/4th speed but works, rccl so slow doesnt work????
+- libfabric 1220 & mpich 423 --> fast (~4GBs), devices are 1/4th speed but works, rccl so slow doesnt work????
 
 Full bind mount
 - libfabric 1152 & mpich 314 --> 22GBs, rccl 13GBs
 - libfabric 1152 & mpich 343 --> 22GBs, rccl 13GBs
 - libfabric 1211 & mpich 343 --> 22GBs, rccl 5GBs
 - libfabric 1220 & mpich 343 --> 22GBs, rccl 5GBs
-- libfabric 1152 & mpich 422 --> 22GBs, rccl 13GBs
-- libfabric 1211 & mpich 422 --> 22GBs, rccl 3GBs
-- libfabric 1220 & mpich 422 --> 22GBs, rccl 3GBs
+- libfabric 1152 & mpich 423 --> 22GBs, rccl 13GBs
+- libfabric 1211 & mpich 423 --> 22GBs, rccl 3GBs
+- libfabric 1220 & mpich 423 --> 22GBs, rccl 3GBs
 - libcxi & libfabric 1152 & mpich 343 --> Works (~22GBs), 
-- libcxi & libfabric 1152 & mpich 422 -->  Works (~22GBs)
-- libcxi & libfabric 1211 & mpich 422 -->  Works (~22GBs)
-- libcxi & libfabric 1220 & mpich 422 --> Works (~22GBs)
+- libcxi & libfabric 1152 & mpich 423 -->  Works (~22GBs)
+- libcxi & libfabric 1211 & mpich 423 -->  Works (~22GBs)
+- libcxi & libfabric 1220 & mpich 423 --> Works (~22GBs)
 
 libfabric-hybrid:
 - libfabric 1152 & mpich 314 --> Works; fallback to TCP/IP --> not compiled with channel 4
 - libfabric 1152 & mpich 343 --> FAILS; This MPICH doesnt play well with libcxi??? (open_fabric:No data available)
 - libfabric 1211 & mpich 343 --> FAILS; MPICH expects higher fabric version
 - libfabric 1220 & mpich 343 --> FAILS; MPICH expects higher fabric version
-- libfabric 1152 & mpich 422 --> 22GBs; GPU comms work; RCCL much slower (3GBs)
-- libfabric 1211 & mpich 422 --> FAILS; MPICH expects higher fabric version
-- libfabric 1220 & mpich 422 --> FAILS; MPICH expects higher fabric version
+- libfabric 1152 & mpich 423 --> 22GBs; GPU comms work; RCCL much slower (3GBs)
+- libfabric 1211 & mpich 423 --> FAILS; MPICH expects higher fabric version
+- libfabric 1220 & mpich 423 --> FAILS; MPICH expects higher fabric version
 - libcxi & libfabric 1152 & mpich 343 --> FAILS; This MPICH doesnt play well with libcxi (open_fabric:No data available)
-- libcxi & libfabric 1152 & mpich 422 --> 22GBs; GPU comms work; RCCL much slower (3GBs)
-- libcxi & libfabric 1211 & mpich 422 --> FAILS; MPICH expects higher fabric version
-- libcxi & libfabric 1220 & mpich 422 --> FAILS; MPICH expects higher fabric version
+- libcxi & libfabric 1152 & mpich 423 --> 22GBs; GPU comms work; RCCL much slower (3GBs)
+- libcxi & libfabric 1211 & mpich 423 --> FAILS; MPICH expects higher fabric version
+- libcxi & libfabric 1220 & mpich 423 --> FAILS; MPICH expects higher fabric version
 
 Opensource:
 Notes:
 - libfabric 1152 & MPICH 314 -->  WORKS. TCP/IP.
 - libfabric 1220 & MPICH 343 --> DOESNT WORK; leads to incompatability with libcxi.
-- libfabric 1211 & MPICH 422 -->  WORKS
-- libfabric 1220 & MPICH 422 --> WORKS
-- libfabric 1152 & MPICH 422 --> DOESNT WORK; libfabric --enable-cxi --> not available
+- libfabric 1211 & MPICH 423 -->  WORKS
+- libfabric 1220 & MPICH 423 --> WORKS
+- libfabric 1152 & MPICH 423 --> DOESNT WORK; libfabric --enable-cxi --> not available
 - libcxi & libfabric 1152 & mpich 343 --> FAILS; (open_fabric:No data available)
-- libcxi & libfabric 1152 & mpich 422 --> FAILS; (open_fabric:No data available)
-- libcxi & libfabric 1211 & mpich 422 --> 22GBs; GPU comms work; RCCL at 13GBs
-- libcxi & libfabric 1220 & mpich 422 --> 22GBs; GPU comms work; RCCL at 13GBs
-- libcxi & libfabric 2000 & mpich 422 --> 22GBs; GPU comms work; RCCL at 3GBs (**AWS-OFI-RCCL** missing)
+- libcxi & libfabric 1152 & mpich 423 --> FAILS; (open_fabric:No data available)
+- libcxi & libfabric 1211 & mpich 423 --> 22GBs; GPU comms work; RCCL at 13GBs
+- libcxi & libfabric 1220 & mpich 423 --> 22GBs; GPU comms work; RCCL at 13GBs
+- libcxi & libfabric 2000 & mpich 423 --> 22GBs; GPU comms work; RCCL at 3GBs (**AWS-OFI-RCCL** missing)
 
 
 # Definition of basic, lumi bind etc.
@@ -250,7 +250,7 @@ Take a container with libfabric and MPICH and replace libfabric as well as inclu
 The details are in:
 [run_libfabric_hybrid_bandwidth_and_latency_tests.sh](tests/libfabric_hybrid/run_libfabric_hybrid_bandwidth_and_latency_tests.sh)
 
-This is based on the `base_image_libfabric1152_mpich422.sif` image.
+This is based on the `base_image_libfabric1152_mpich423.sif` image.
 The versions of the libraries matter a lot for this way of running containers on LUMI. 
 
 The GTL library is not required for this container as we can use the device communication from MPICH 4.2.2.
@@ -259,7 +259,7 @@ However, we do need to enable this with `MPIR_CVAR_CH4_OFI_ENABLE_HMEM=1`
 ***
 ## Opensource:
 Container with libfabric, MPICH and libcxi. No bind mounts needed.
-This is based on the `base_image_libcxi_libfabric1220_mpich422.sif` image.
+This is based on the `base_image_libcxi_libfabric1220_mpich423.sif` image.
 
 The GTL library is not required for this container as we can use the device communication from MPICH 4.2.2.
 However, we do need to enable this with `MPIR_CVAR_CH4_OFI_ENABLE_HMEM=1`
@@ -485,7 +485,7 @@ The containerized version of RCCL also performs similarly to the native RCCL tes
 ***
 ## Libfabric Hybrid
 
-Run with: base_image_libcxi_libfabric1152_mpich422.sif
+Run with: base_image_libcxi_libfabric1152_mpich423.sif
 Couldn't easily improve the RCCL performance. 
 
 Bandwidth and latency are very similar to the native performance. 
@@ -556,7 +556,7 @@ I have not investigated this more thoroughly.
 ***
 ## Opensource
 
-Run with: base_image_libcxi_libfabric1220_mpich422.sif
+Run with: base_image_libcxi_libfabric1220_mpich423.sif
 Bandwidth and latency is very close to the native performance for large message sizes but worse for small message sizes. 
 
 
