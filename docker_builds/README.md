@@ -642,3 +642,8 @@ Could be the reason for high latency for small messages?
   - Maybe through some slurm configs to select NICs?
 - are the pure RCCL tests necessary?
 - Do we need to do internode testing?
+
+# Notes on unused Files:
+- The `hipcc-*` files are currently not used but included in the repository incase we need to support flash-attention and transformers in the future
+- The `Dockerfile.install_rccl_tests` contains the original rccl tests. But they are not included in the build. We could potentially delete them. 
+- The same holds for the test files in `docker_builds/tests/older_rccl_test`. 
