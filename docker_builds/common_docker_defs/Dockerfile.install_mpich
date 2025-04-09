@@ -18,7 +18,7 @@ RUN set -eux ; \
             --with-hip-include=/opt/rocm-6.0.3/include/  \
             --disable-fortran  \
             --without-ucx;\
-    make -j ;\
+    make -j 12;\
     make install ;\
     cd /;\
     rm -rf mpich-$MPICH_VERSION
