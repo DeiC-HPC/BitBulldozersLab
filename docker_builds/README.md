@@ -24,7 +24,6 @@ This repository compares four different container approaches to a native approac
 For approaches 2) to 4) we achieve similar performance to a native approach. 
 
 # Issues
-- no AWS-OFI-RCCL2 for Libfabric 2.0 containers
 - Small message sizes in the fully open source container perform worse than native.
 
 
@@ -39,7 +38,7 @@ For approaches 2) to 4) we achieve similar performance to a native approach.
 
 ## Warning:
 **Apptainer version:**
-- v1.4 leads to significantly higher memory usage?? (~80GB vs 3.5GB)
+- v1.4 leads to significantly higher memory usage?? (~80GB vs 3.5GB). This seems to be fixed in v1.4.1.
 
 **Docker and apptainer incompatability:**
 - If you get the following error when running the apptainer build step 
@@ -51,7 +50,6 @@ For approaches 2) to 4) we achieve similar performance to a native approach.
 
 **MPI Build stage errors:**
 - If you get build errors during the MPI build phase this could be related to the number of threads used during compilation.
-- 
 
 ## Step-by-Step:
 
@@ -235,14 +233,13 @@ The following matrix shows the compatability of different mpich/libfabric combin
 
 legend:
 - MPI Speed/RCCL speed
-- - ==> Errors out
+- \- ==> Errors out
 - ? ==> Not tested
 - NA ==> Not applicable (i.e., containers with libcxi dont need to be tested with the pure container approach.)
-- * ==> Is built by default when executing the build_docker.py
+- \* ==> Is built by default when executing the build_docker.py
 - <sup>**x**</sup> ==> device to device communication significantly slower
 
-<sup>**t**</sup> --> libfabric-hybrid:
-Most combinations fail due to one of the following failures:
+<sup>**t**</sup> --> Most combinations of libfabric-hybrid fail due to one of the following failures:
 - FAILS; This MPICH doesnt play well with libcxi??? (open_fabric:No data available)
 - FAILS; MPICH expects higher fabric version
 
