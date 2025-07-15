@@ -233,7 +233,7 @@ The following matrix shows the compatability of different mpich/libfabric combin
 
 legend:
 - MPI Speed/RCCL speed
-- \- ==> Errors out
+- \- ==> Errors out or times out
 - ? ==> Not tested
 - NA ==> Not applicable (i.e., containers with libcxi dont need to be tested with the pure container approach.)
 - \* ==> Is built by default when executing the build_docker.py
