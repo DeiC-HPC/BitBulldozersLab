@@ -1,5 +1,4 @@
-#  docker_builds
-## Docker build pipeline for 4 different container approaches on LUMI
+# Docker build pipeline for 4 different container approaches on LUMI
 
 - **Keywords:** MPI, MPICH, libfabric, libcxi, container, open source, RCCL, docker, apptainer, OSU
 - **Date:** 2025-03-07
