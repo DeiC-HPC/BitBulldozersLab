@@ -199,13 +199,12 @@ if BUILD_ALL:
                                                             + [docker_versions_libfabric1152_mpich423]
                                                             + tail_install_cxi_libfabric1152)
 
-    # BUILDS WITHOUT AWS-OFI-RCCl
-    # # Recommended:
-    # Works:
-    # Doesnt work:
-    # images_to_build["base_image_libcxi_libfabric2000_mpich423"] = (base_install
-    #                                                         + [docker_versions_libfabric2000_mpich423]
-    #                                                         + tail_install_cxi)
+# # Recommended: Opensource
+# Works: Opensource
+# Doesnt work: libfabric hybrid, Full Bind Mount
+images_to_build["base_image_libcxi_libfabric2000_mpich423"] = (base_install
+                                                        + [docker_versions_libfabric2000_mpich423]
+                                                        + tail_install_cxi)
 
 # ------------------------------------------------------------------------------------------
 # defaults to build

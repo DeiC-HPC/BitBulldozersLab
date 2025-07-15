@@ -27,12 +27,12 @@ export MPICH_OFI_NIC_POLICY=GPU
 #export NCCL_DEBUG=INFO
 #export NCCL_DEBUG_SUBSYS=INIT,COLL
 
-srun --output=native_bandwidth_host_host.txt --exclusive /project/project_465001699/julius/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H H
-srun --output=native_bandwidth_device_host.txt --exclusive /project/project_465001699/julius/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw D H
-srun --output=native_bandwidth_host_device.txt --exclusive /project/project_465001699/julius/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H D
-srun --output=native_bandwidth_device_device.txt --exclusive /project/project_465001699/julius/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw D D
+srun --output=native_bandwidth_host_host.txt --exclusive /project/project_465001699/$USER/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H H
+srun --output=native_bandwidth_device_host.txt --exclusive /project/project_465001699/$USER/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw D H
+srun --output=native_bandwidth_host_device.txt --exclusive /project/project_465001699/$USER/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw H D
+srun --output=native_bandwidth_device_device.txt --exclusive /project/project_465001699/$USER/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_bw D D
 
-srun --output=native_latency_host_host.txt --exclusive /project/project_465001699/julius/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency H H
-srun --output=native_latency_device_host.txt --exclusive /project/project_465001699/julius/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency D H
-srun --output=native_latency_host_device.txt --exclusive /project/project_465001699/julius/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency H D
-srun --output=native_latency_device_device.txt --exclusive /project/project_465001699/julius/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency D D
+srun --output=native_latency_host_host.txt --exclusive /project/project_465001699/$USER/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency H H
+srun --output=native_latency_device_host.txt --exclusive /project/project_465001699/$USER/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency D H
+srun --output=native_latency_host_device.txt --exclusive /project/project_465001699/$USER/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency H D
+srun --output=native_latency_device_device.txt --exclusive /project/project_465001699/$USER/osu/build_osu/libexec/osu-micro-benchmarks/mpi/pt2pt/osu_latency D D

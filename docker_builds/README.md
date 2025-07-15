@@ -1,4 +1,5 @@
-# Docker build pipeline for 4 different container approaches on LUMI
+#  docker_builds
+## Docker build pipeline for 4 different container approaches on LUMI
 
 - **Keywords:** MPI, MPICH, libfabric, libcxi, container, open source, RCCL, docker, apptainer, OSU
 - **Date:** 2025-03-07
@@ -8,23 +9,23 @@
 In this section of the repository we explore the different options for building a docker image without proprietary libraries. 
 This is based on the LUMI docker build files found here:
 
-https://github.com/sfantao/lumi-containers/tree/lumi-sep2024
+https://github.com/sfantao/lumi-containers/
 
 The main aim is to be able to build docker base images without needing a system similar to LUMI.  
 Currently there are open source images that can be used but the interconnects don't work properly. 
 
 # Summary
 This repository compares four different container approaches to a native approach for the OSU benchmark suit. 
-1) a container only approach.
-2) a container approach with full bind mounts from LUMI.
-3) a container approach where we replace only libfabric + lower level libraries (libcxi)
-4) a fully open source container
+1) Base: a container only approach.
+2) Full Lumi bind mount: a container approach that bind mounts low level libraries (libfabric, ROCm, libcxi, lib-abi-mpich, etc.) from LUMI.
+3) Libfabric_hybrid: a container approach that only bind mounts: libfabric & libcxi
+4) Opensource: a fully open source container with no bind mounts
 
 For approaches 2) to 4) we achieve similar performance to a native approach. 
 
 # Issues
 - no AWS-OFI-RCCL2 for Libfabric 2.0 containers
-- Small message sizes in the fully open source container perform worse than native. 
+- Small message sizes in the fully open source container perform worse than native.
 
 
 # Instructions to reproduce:
@@ -32,22 +33,41 @@ For approaches 2) to 4) we achieve similar performance to a native approach.
 ## Requirements:
 - Docker 
 - Python packages:
-  - docker for python (pip install docker)
-  - rich (pip install rich)
+  - docker for python (pip install docker); version used: 7.1.0
+  - rich (pip install rich); version used: 13.9.4
+- Apptainer version: 1.3.4. Apttainer v1.3.6 also works.
+
+## Warning:
+**Apptainer version:**
+- v1.4 leads to significantly higher memory usage?? (~80GB vs 3.5GB)
+
+**Docker and apptainer incompatability:**
+- If you get the following error when running the apptainer build step 
+- `{"message":"client version 1.22 is too old. Minimum supported API version is 1.24, please upgrade your client to a newer version"}`
+- Then you have an incompatability between docker and apptainer.
+- Either you have to downgrade docker or upgrade apptainer. 
+- You can download newer versions of apptainer here: https://github.com/apptainer/apptainer/releases
+- Hopefully they have an up-to-date version using the right minimum version API
+
+**MPI Build stage errors:**
+- If you get build errors during the MPI build phase this could be related to the number of threads used during compilation.
+- 
 
 ## Step-by-Step:
 
-1) navigate to docker_builds folder
-2) `sudo python3 build_docker.py` builds **3** different docker containers (**WARNING: Takes up to 5 hours on my laptop**) named:
+1) These builds were originally done on Raxos / Primebox.
+2) navigate to docker_builds folder
+2) `sudo python3 build_docker.py` builds **4** different docker containers (**WARNING: Takes up to 5 hours on my laptop**) named:
    - `lumi_images:base_image_libfabric1152_mpich314`
    - `lumi_images:base_image_libfabric1152_mpich423`
    - `lumi_images:base_image_libcxi_libfabric1220_mpich423`
+   - `lumi_images:base_image_libcxi_libfabric2000_mpich423`
 3) Each container has to be converted to an apptainer container via `sudo apptainer build $TARGET $SOURCE`
    - where $TARGET and $SOURCE have to be:
-     - `base_image_mpich314_libfabric1152.sif` & `docker-daemon:lumi_images:base_image_libfabric1152_mpich314`
-     - `base_image_mpich314_libfabric1152.sif` & `docker-daemon:lumi_images:base_image_libfabric1152_mpich423`
-     - `base_image_mpich314_libfabric1152.sif` & `docker-daemon:lumi_images:base_image_libcxi_libfabric1220_mpich423` 
-4) Each of the sif files has to be copied over to lumi via your preferred method e.g. `scp base_image_mpich314_libfabric1152.sif /project/project_XXXXXX/`
+     - `base_image_libfabric1152_mpich314.sif` & `docker-daemon:lumi_images:base_image_libfabric1152_mpich314`
+     - `base_image_mpich423_libfabric1152.sif` & `docker-daemon:lumi_images:base_image_libfabric1152_mpich423`
+     - `base_image_mpich423_libfabric1220.sif` & `docker-daemon:lumi_images:base_image_libcxi_libfabric1220_mpich423` 
+4) Each of the sif files has to be copied over to lumi via your preferred method e.g. `scp base_image_mpich314_libfabric1152.sif /project/project_XXXXXX/$USER`
 5) Copy all the .sh scripts in the 'tests' folder. (Optional: native folder)
 6) Optional: Build native osu benchmark suit. See instructions [here](#native)
 7) `sbatch run_XXXXXX.sh TargetImage` (i.e. `sbatch run_base_bandwidth_and_latency_tests.sh base_image_mpich314_libfabric1152.sif`)
@@ -61,8 +81,9 @@ For approaches 2) to 4) we achieve similar performance to a native approach.
   - Its essentially a launcher for MPI workloads with containers. It can probably be used with Apptainer and it seems to be helpful for getting all required MPI libraries? 
   - https://e4s-project.github.io/e4s-cl.html 
   - Demo looks super easy
+- RCCL tests print the message `#Using RCCL` twice. This does not seem to be an error (i.e., race condition) but a choice by the test designers and each MPI process will print the message for source code see here: https://github.com/jwu274/osu-micro-benchmarks/blob/main/c/xccl/pt2pt/osu_xccl_bw.c#L16. 
 
-# TODO List && Research Questions
+# Research Questions
 
 Questions we aim to answer with this BitBulldozer
 
@@ -98,90 +119,18 @@ Questions we aim to answer with this BitBulldozer
 ***
 ***
 
-# Compatability:
-
-|                                      | pure container | Full bind mount | libfabric-hybrid | Opensource | Built by default |
-|--------------------------------------|----------------|-----------------|------------------|------------|------------------|
-| libfabric 1152 & mpich 314           |        Y       | Y               | (Y)              | (Y)        | **Y**            |
-| libfabric 1152 & mpich 343           |       (Y)      | Y               | N                | ??         | N                |
-| libfabric 1211 & mpich 343           |       (Y)      | (Y)             | N                | ??         | N                |
-| libfabric 1220 & mpich 343           |       (Y)      | (Y)             | N                | N          | N                |
-| libfabric 1152 & mpich 423           |       (Y)      | Y               | Y                | N          | **Y**            |
-| libfabric 1211 & mpich 423           |       (Y)      | (Y)             | N                | (Y)        | N                |
-| libfabric 1220 & mpich 423           |       (Y)      | (Y)             | N                | (Y)        | N                |
-| libcxi &  libfabric 1152 & mpich 343 |       NA       | ?               | N                | N          | N                |
-| libcxi &  libfabric 1152 & mpich 423 |       NA       | ?               | Y                | N          | N                |
-| libcxi &  libfabric 1211 & mpich 423 |       NA       | ?               | N                | Y          | N                |
-| libcxi &  libfabric 1220 & mpich 423 |       NA       | ?               | N                | Y          | **Y**            |
-| libcxi &  libfabric 2000 & mpich 423 |       NA       | ?               | ?                | Y          | N                |
-
-legend:
-- Y ==> works at a proper speed
-- (Y) ==> Runs but something is slow
-- N ==> Errors out
-- ? ==> Not tested
-
-pure container:
-- libfabric 1152 & mpich 314 --> fast (~2GBs), rccl works but is slower (1.5GBs)
-- libfabric 1152 & mpich 343 --> slow (~400MBs), so slow rccl doesnt work????
-- libfabric 1211 & mpich 343 -->  slow (~400MBs), device also super slow, rccl so slow doesnt work????
-- libfabric 1220 & mpich 343 -->  slow (~400MBs)
-- libfabric 1152 & mpich 423 --> fast (~4GBs), devices are 1/4th speed but works, rccl so slow doesnt work????
-- libfabric 1211 & mpich 423 --> fast (~4GBs), devices are 1/4th speed but works, rccl so slow doesnt work????
-- libfabric 1220 & mpich 423 --> fast (~4GBs), devices are 1/4th speed but works, rccl so slow doesnt work????
-
-Full bind mount
-- libfabric 1152 & mpich 314 --> 22GBs, rccl 13GBs
-- libfabric 1152 & mpich 343 --> 22GBs, rccl 13GBs
-- libfabric 1211 & mpich 343 --> 22GBs, rccl 5GBs
-- libfabric 1220 & mpich 343 --> 22GBs, rccl 5GBs
-- libfabric 1152 & mpich 423 --> 22GBs, rccl 13GBs
-- libfabric 1211 & mpich 423 --> 22GBs, rccl 3GBs
-- libfabric 1220 & mpich 423 --> 22GBs, rccl 3GBs
-- libcxi & libfabric 1152 & mpich 343 --> Works (~22GBs), 
-- libcxi & libfabric 1152 & mpich 423 -->  Works (~22GBs)
-- libcxi & libfabric 1211 & mpich 423 -->  Works (~22GBs)
-- libcxi & libfabric 1220 & mpich 423 --> Works (~22GBs)
-
-libfabric-hybrid:
-- libfabric 1152 & mpich 314 --> Works; fallback to TCP/IP --> not compiled with channel 4
-- libfabric 1152 & mpich 343 --> FAILS; This MPICH doesnt play well with libcxi??? (open_fabric:No data available)
-- libfabric 1211 & mpich 343 --> FAILS; MPICH expects higher fabric version
-- libfabric 1220 & mpich 343 --> FAILS; MPICH expects higher fabric version
-- libfabric 1152 & mpich 423 --> 22GBs; GPU comms work; RCCL much slower (3GBs)
-- libfabric 1211 & mpich 423 --> FAILS; MPICH expects higher fabric version
-- libfabric 1220 & mpich 423 --> FAILS; MPICH expects higher fabric version
-- libcxi & libfabric 1152 & mpich 343 --> FAILS; This MPICH doesnt play well with libcxi (open_fabric:No data available)
-- libcxi & libfabric 1152 & mpich 423 --> 22GBs; GPU comms work; RCCL much slower (3GBs)
-- libcxi & libfabric 1211 & mpich 423 --> FAILS; MPICH expects higher fabric version
-- libcxi & libfabric 1220 & mpich 423 --> FAILS; MPICH expects higher fabric version
-
-Opensource:
-Notes:
-- libfabric 1152 & MPICH 314 -->  WORKS. TCP/IP.
-- libfabric 1220 & MPICH 343 --> DOESNT WORK; leads to incompatability with libcxi.
-- libfabric 1211 & MPICH 423 -->  WORKS
-- libfabric 1220 & MPICH 423 --> WORKS
-- libfabric 1152 & MPICH 423 --> DOESNT WORK; libfabric --enable-cxi --> not available
-- libcxi & libfabric 1152 & mpich 343 --> FAILS; (open_fabric:No data available)
-- libcxi & libfabric 1152 & mpich 423 --> FAILS; (open_fabric:No data available)
-- libcxi & libfabric 1211 & mpich 423 --> 22GBs; GPU comms work; RCCL at 13GBs
-- libcxi & libfabric 1220 & mpich 423 --> 22GBs; GPU comms work; RCCL at 13GBs
-- libcxi & libfabric 2000 & mpich 423 --> 22GBs; GPU comms work; RCCL at 3GBs (**AWS-OFI-RCCL** missing)
-
-
-# Definition of basic, lumi bind etc.
-## Basic
+# Definition of Base container , lumi bind etc.
+## Base container 
 We take the container as is, with MPICH, libfabric etc. 
 Nothing gets bind mounted and the communication should run via TCP IP.
 
 The versions used for each library can be reviewed in [Dockerfile.define_versions](common_docker_defs/Dockerfile.define_versions).
 
-This is based on the `base_image_mpich314_libfabric1152.sif` image.
+This is based on the `base_image_libfabric1152_mpich314.sif` image.
 
 ***
 
-## Native
+## Native (i.e. no container)
 
 In order to build the native OSU benchmarks you have to run the following:
 
@@ -194,13 +143,14 @@ module load rocm
 module load EasyBuild-user
 export MPICH_GPU_SUPPORT_ENABLED=1
 eb aws-ofi-rccl-17d41cb-cpeGNU-24.03.eb -r
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/users/$USER/EasyBuild/SW/LUMI-24.03/L/aws-ofi-rccl/17d41cb-cpeGNU-24.03/lib/:/users/$USER/EasyBuild/SW/LUMI-24.03/L/aws-ofi-rccl/17d41cb-cpeGNU-24.03/lib64/
-cd /project/project_XXXXXXXXX/
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$EASYBUILD_PREFIX/SW/LUMI-24.03/L/aws-ofi-rccl/17d41cb-cpeGNU-24.03/lib/:$EASYBUILD_PREFIX/SW/LUMI-24.03/L/aws-ofi-rccl/17d41cb-cpeGNU-24.03/lib64/
+mkdir -p /project/project_XXXXXXXXX/$USER
+cd /project/project_XXXXXXXXX/$USER
 curl -LO  https://mvapich.cse.ohio-state.edu/download/mvapich/osu-micro-benchmarks-7.5.tar.gz
 tar -xf osu-*.tar.gz 
 rm -rf osu-*.tar.gz 
 cd osu-*/ 
-CC=cc CXX=CC ./configure --enable-rocm --with-rocm=/opt/rocm-6.0.3 --enable-rcclomb --with-rccl=/opt/rocm-6.0.3 --prefix=/project/project_465001699/osu/build_osu
+CC=cc CXX=CC ./configure --enable-rocm --with-rocm=/opt/rocm-6.0.3 --enable-rcclomb --with-rccl=/opt/rocm-6.0.3 --prefix=/project/project_XXXXXXXXX/$USER/osu/build_osu
 make install
 ```
 
@@ -208,10 +158,11 @@ make install
 For native bandwidth tests with GPUs, the GTL needs to be linked in, and you need to set 'export MPICH_GPU_SUPPORT_ENABLED=1'.
 GTL should be automatically linked when 'module load craype-accel-amd-gfx90a'. 
 Otherwise, you get errors. You can check if the GTL is linked with 'ldd' and the library is 'libmpi_gtl_hsa.so.0 => /opt/cray/pe/lib64/libmpi_gtl_hsa.so.0'.
+The GTL library can be found in the following folder on LUMI `/opt/cray/pe/lib64/`.
 - 'export NCCL_IGNORE_CPU_AFFINITY=1' Leads to almost 4x improvement.
 
 ***
-## Lumi Bind
+## Full Lumi bind mount
 Takes Basic container and replace libfabric, MPICH, Rocm and a bunch of other files. The details are in: 
 [run_lumi_bind_bandwidth_and_latency_tests.sh](tests/lumi_bind/run_lumi_bind_bandwidth_and_latency_tests.sh)
 
@@ -232,11 +183,7 @@ Additional bind mounts needed over normal singularity bind mounts:
 
 I found the correct lib-abi-mpich to include by loading the following:
 
-module load LUMI/24.03
-module load craype-x86-trento
-module load PrgEnv-amd
-module load craype-accel-amd-gfx90a
-module load rocm
+module load LUMI/24.03 craype-x86-trento PrgEnv-amd craype-accel-amd-gfx90a rocm
 
 And then checking e.g. 'which mpicc' and ldd on new/missing '.so' files.
 
@@ -267,15 +214,50 @@ However, we do need to enable this with `MPIR_CVAR_CH4_OFI_ENABLE_HMEM=1`
 ***
 ***
 
+# Results Matrix & Compatability:
+
+The following matrix shows the compatability of different mpich/libfabric combinations executed in one of the 4 container appraoches. 
+
+|                                      | pure container         | Full bind mount<sup>**t**</sup> | libfabric-hybrid  | Opensource  |
+|--------------------------------------|------------------------|---------------------------------|-------------------|-------------|
+| mpich 314 - libfabric 1152           | 2GBs/1.5GBs            | 22GBs/13GBs                     | 2GBs/1.5GBs       | 2GBs/1.5GBs | 
+| mpich 343 - libfabric 1152*          | 0.4GBs/-               | 22GBs/13GBs                     | -                 | ?           |
+| mpich 343 - libfabric 1211           | 0.4GBs/-               | 22GBs/5GBs                      | -                 | ?           |
+| mpich 343 - libfabric 1220           | 0.4GBs/-               | 22GBs/5GBs                      | -                 | -           |
+| mpich 423 - libfabric 1152*          | 4GBs<sup>**x**</sup>/- | 22GBs/13GBs                     | 22GBs/3GBs        | -           |
+| mpich 423 - libfabric 1211           | 4GBs<sup>**x**</sup>/- | 22GBs/3GBs                      | -                 | 2GBs/1.5GBs |
+| mpich 423 - libfabric 1220           | 4GBs<sup>**x**</sup>/- | 22GBs/3GBs                      | -                 | 2GBs/1.5GBs |
+| mpich 343 - libfabric 1152 - libcxi  | NA                     | 22GBs/?                         | -                 | -           |
+| mpich 423 - libfabric 1152 - libcxi  | NA                     | 22GBs/?                         | 22GBs/3GBs        | -           |
+| mpich 423 - libfabric 1211 - libcxi  | NA                     | 22GBs/?                         | -                 | 22GBs/13GBs |
+| mpich 423 - libfabric 1220 - libcxi* | NA                     | 22GBs/?                         | -                 | 22GBs/13GBs |
+| mpich 423 - libfabric 2000 - libcxi* | NA                     | ?                               | ?                 | 22GBs/?     |
+
+legend:
+- MPI Speed/RCCL speed
+- - ==> Errors out
+- ? ==> Not tested
+- NA ==> Not applicable (i.e., containers with libcxi dont need to be tested with the pure container approach.)
+- * ==> Is built by default when executing the build_docker.py
+- <sup>**x**</sup> ==> device to device communication significantly slower
+
+<sup>**t**</sup> --> libfabric-hybrid:
+Most combinations fail due to one of the following failures:
+- FAILS; This MPICH doesnt play well with libcxi??? (open_fabric:No data available)
+- FAILS; MPICH expects higher fabric version
+
+***
+***
+
 # Results
 
-## Basic container
+## pure container 
 
 Run with: base_image_mpich314_libfabric1152.sif
 
 - TCP/IP sockets are used for RCCL comms
 - MPICH_RELEASE=3.4.3 and LIBFABRIC_RELEASE=1.22.0 lead to very poor performance on normal MPICH comms. About 7x slower. 
-- MPICH version > 4 seems to lead to better results again (but did not check libfabric version)
+- MPICH version > 4 seems to lead to better results again
 
 
 ### Bandwidth:
@@ -411,7 +393,7 @@ Run with: base_image_mpich314_libfabric1152.sif
 | 4194304                     | 191.63          | 186.07         | 186.10         | 180.60           | 379.41 |
 
 ***
-## Lumi bind mount container
+## Full bind mount
 
 Run with: base_image_libfabric1152_mpich314.sif
 
@@ -486,6 +468,7 @@ The containerized version of RCCL also performs similarly to the native RCCL tes
 ## Libfabric Hybrid
 
 Run with: base_image_libcxi_libfabric1152_mpich423.sif
+(Note: base_image_libfabric1152_mpich423.sif should give the same results and is built by default.)
 Couldn't easily improve the RCCL performance. 
 
 Bandwidth and latency are very similar to the native performance. 
@@ -638,10 +621,8 @@ Could be the reason for high latency for small messages?
 - Speed tests for pytorch
   - real world Pytorch examples would be good
 - MPICH with slurm for more options? --> No. MPICH comes with Hydra which supports slurm
-- Can we do better than 25GB/s? 
-  - Maybe through some slurm configs to select NICs?
 - are the pure RCCL tests necessary?
-- Do we need to do internode testing?
+- Do we need to do intranode testing?
 
 # Notes on unused Files:
 - The `hipcc-*` files are currently not used but included in the repository incase we need to support flash-attention and transformers in the future

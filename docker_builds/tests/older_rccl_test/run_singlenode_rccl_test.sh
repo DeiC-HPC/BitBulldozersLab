@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 #
-# A LUMI SLURM batch script for the LUMI PyTorch multi GPU torchrun example from
-# https://github.com/DeiC-HPC/cotainr
-#
 #SBATCH --job-name=singlenode_rccl_test
 #SBATCH --nodes=1
 #SBATCH --tasks-per-node=1

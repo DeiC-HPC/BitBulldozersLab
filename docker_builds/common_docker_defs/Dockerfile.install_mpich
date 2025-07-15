@@ -14,8 +14,8 @@ RUN set -eux ; \
     CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE  \
         ./configure --prefix=$MPICH_PATH  \
             --with-libfabric=/opt/libfabric  \
-            --with-hip-lib=/opt/rocm-6.0.3/lib/  \
-            --with-hip-include=/opt/rocm-6.0.3/include/  \
+            --with-hip-lib=$ROCM_PATH/lib/  \
+            --with-hip-include=$ROCM_PATH/include/  \
             --disable-fortran  \
             --without-ucx;\
     make -j 12;\

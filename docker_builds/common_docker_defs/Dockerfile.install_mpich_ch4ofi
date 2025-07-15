@@ -26,8 +26,8 @@ RUN set -eux ; \
     cd mpich-$MPICH_VERSION ;\
     CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE  \
         ./configure --prefix=$MPICH_PATH  \
-            --with-hip-lib=/opt/rocm-6.0.3/lib/  \
-            --with-hip-include=/opt/rocm-6.0.3/include/  \
+            --with-hip-lib=$ROCM_PATH/lib/  \
+            --with-hip-include=$ROCM_PATH/include/  \
             --with-libfabric=/opt/libfabric  \
             --disable-fortran  \
             --enable-fast=all,O3  \

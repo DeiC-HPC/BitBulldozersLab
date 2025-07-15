@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 #
-# A LUMI SLURM batch script for the LUMI PyTorch multi GPU torchrun example from
-# https://github.com/DeiC-HPC/cotainr
-#
 #SBATCH --job-name=lumi_bind_bandwidth_and_latency_tests
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=1

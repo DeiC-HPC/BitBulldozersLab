@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 #
-# A LUMI SLURM batch script for the LUMI PyTorch multi GPU torchrun example from
-# https://github.com/DeiC-HPC/cotainr
-#
 #SBATCH --job-name=native_bandwidth_and_latency_tests
 #SBATCH --nodes=2
 #SBATCH --ntasks-per-node=1
@@ -45,5 +42,5 @@ export FI_CXI_DISABLE_CQ_HUGETLB=1
 #export FI_CXI_RX_MATCH_MODE=software
 
 
-srun --output=native_rccl_bandwidth.txt --exclusive /project/project_465001699/julius/osu/build_osu/libexec/osu-micro-benchmarks/xccl/pt2pt/osu_xccl_bw -d rocm D D
-srun --output=native_rccl_latency.txt --exclusive /project/project_465001699/julius/osu/build_osu/libexec/osu-micro-benchmarks/xccl/pt2pt/osu_xccl_latency -d rocm D D
+srun --output=native_rccl_bandwidth.txt --exclusive /project/project_465001699/$USER/osu/build_osu/libexec/osu-micro-benchmarks/xccl/pt2pt/osu_xccl_bw -d rocm D D
+srun --output=native_rccl_latency.txt --exclusive /project/project_465001699/$USER/osu/build_osu/libexec/osu-micro-benchmarks/xccl/pt2pt/osu_xccl_latency -d rocm D D
