@@ -1,0 +1,23 @@
+name: pytorch-success
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - transformers
+  - accelerate
+  - mpi4py
+  - packaging
+  - setuptools
+  - wheel
+  - ninja
+  - pip:
+    - --extra-index-url https://download.pytorch.org/whl/cu128
+    - torch==2.7.0
+    - torchaudio==2.7.0
+    - torchvision==0.22.0
+    - bitsandbytes
+    - deepspeed
+variables:
+  PIP_NO_BUILD_ISOLATION: 0
+  DS_BUILD_OPS: 1
