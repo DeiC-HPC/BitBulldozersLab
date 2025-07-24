@@ -1,0 +1,2 @@
+#flash-attn --global-option="--no-build-isolation"
+git+https://github.com/Dao-AILab/flash-attention --global-option="-v" --global-option="--no-build-isolation"
