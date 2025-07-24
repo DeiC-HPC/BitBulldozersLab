@@ -36,7 +36,8 @@ cotainr/bin/cotainr build --base-image /appl/local/containers/sif-images/lumi-ro
 singularity shell ref.sif
 pip install apex @ git+https://github.com/rocm/apex
 ```
-This does succesfully install the library, however it is installed to `$HOME/.local/` site-packages as a local user installation and not actually inside the container. Note that it seems like Nvidia gets around this non-compliance by distributing precompiled versions of Apex on [conda](https://anaconda.org/conda-forge/nvidia-apex/files) with a matrix of `cuda`, `pytorch` and `numpy` dependencies. 
+This does succesfully install the library, however it is installed to `$HOME/.local/` site-packages as a local user installation and not actually inside the container. Note that it seems like Nvidia gets around this non-compliance by distributing precompiled versions of Apex on [conda](https://anaconda.org/conda-forge/nvidia-apex/files) with a matrix of `cuda`, `pytorch` and `numpy` dependencies.
+UPDATE: [conda-forge is not officially supported](https://github.com/NVIDIA/apex/issues/1561#issuecomment-1373451443)
 
 ### Building the Deepspeed container
 The Deepspeed container can be built

@@ -1,0 +1,43 @@
+name: pytorch-success
+channels:
+  - conda-forge
+dependencies:
+  - pip
+#  - nvidia-apex --> doesnt work
+  - pip:
+    - apex @ git+https://github.com/NVIDIA/apex
+    - flash-attn --global-option "--config-settings=--no-build-isolation=True"
+variables:
+  PIP_NO_BUILD_ISOLATION: 0
+#   These Work:
+#    - flash-attn --global-option "--config-settings=--no-build-isolation=True" #--> WORKS
+#    - flash-attn --global-option "--global-option=--no-build-isolation" #--> WORKS
+#    - flash-attn --global-option "--build-option=--no-build-isolation" #--> WORKS
+
+
+
+#------------------------------------------
+#   THESE ALL DONT WORK:
+#    - apex @ git+https://github.com/NVIDIA/apex --config-settings "--config-settings=--no-build-isolation" --config-settings "--build-option=--cpp_ext" --config-settings "--build-option=--cuda_ext" #-->
+#    - apex @ git+https://github.com/NVIDIA/apex --global-option "--build-option=--no-build-isolation" --global-option  "--build-option=--cpp_ext" --global-option  "--build-option=--cuda_ext" #--> DOESNT WORK
+#    - apex @ git+https://github.com/NVIDIA/apex --global-option "--config-settings=--no-build-isolation" --global-option  "--build-option=--cpp_ext" --global-option  "--build-option=--cuda_ext" #--> DOESNT WORK
+#    - apex @ git+https://github.com/NVIDIA/apex --config-settings "--global-option=--no-build-isolation" --global-option  "--build-option=--cpp_ext" --global-option  "--build-option=--cuda_ext" #-->  DOESNT WORK
+#    - apex @ git+https://github.com/NVIDIA/apex --global-option "--global-option=--no-build-isolation"  --global-option "--global-option=--no-cache-dir"  --global-option "--global-option=--disable-pip-version-check"   #-->  DOESNT WORK
+#    - apex @ git+https://github.com/NVIDIA/apex.git --global-option "--build-option=--no-build-isolation=True" --global-option "--build-option=--no-cache-dir"  --global-option "--build-option=--disable-pip-version-check"   #--> DOESNT WORK
+#    - apex @ git+https://github.com/NVIDIA/apex.git --global-option "--global-option=--no-build-isolation"  #--> DOESNT WORK
+#    - apex @ git+https://github.com/NVIDIA/apex.git --global-option "--config-settings=--no-build-isolation"  #--> DOESNT WORK
+#    - apex @ git+https://github.com/NVIDIA/apex.git --global-option "--build-option=--no-build-isolation"  #--> DOESNT WORK
+#    - apex @ git+https://github.com/NVIDIA/apex.git --config-settings "--build-option=--no-build-isolation"  #--> DOESNT WORK
+#    - apex @ git+https://github.com/NVIDIA/apex.git --config-settings "--global-option=--no-build-isolation"  #--> DOESNT WORK
+#    - apex @ git+https://github.com/NVIDIA/apex.git --build-option "--global-option=--no-build-isolation"  #--> DOESNT WORK; invalid requirement
+#    - apex @ git+https://github.com/NVIDIA/apex.git --build-option "--build-option=--no-build-isolation"  #--> DOESNT WORK; invalid requirement
+#    - apex @ git+https://github.com/NVIDIA/apex.git --build-option "--config-settings=--no-build-isolation"  #--> DOESNT WORK; invalid requirement
+#    - git+https://github.com/NVIDIA/apex.git --config-settings "--global-option=--no-build-isolation"  #-->DOESNT WORK
+#    - git+https://github.com/NVIDIA/apex.git --config-settings "--build-option=--no-build-isolation=True" --config-settings "--build-option=--cpp_ext" --config-settings "--build-option=--cuda_ext"   #-->DOESNT WORK
+#    - apex @ git+https://github.com/NVIDIA/apex.git --config-settings "--build-option=--no-build-isolation=True" --config-settings "--build-option=--diable-pip-version-check" --config-settings "--build-option=--no-cache-dir"
+#    - flash-attn --config-settings "--config-settings=--no-build-isolation" #--> DOESNT WORK
+#    - flash-attn --config-settings "--global-option=--no-build-isolation" #--> DOESNT WORK
+#    - flash-attn --config-settings "--build-option=--no-build-isolation" #--> DOESNT WORK
+#    - flash-attn --config-settings "--build-option=--no-build-isolation=True" #--> DOESNT WORK
+#    - flash-attn --build-option "--config-settings=--no-build-isolation" #--> DOESNT WORK
+#    - flash-attn --build-option "--global-option=--no-build-isolation" #--> DOESNT WORK

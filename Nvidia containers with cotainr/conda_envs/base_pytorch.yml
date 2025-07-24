@@ -1,0 +1,21 @@
+name: pytorch-success
+channels:
+  - conda-forge
+dependencies:
+  - MarkupSafe
+  - filelock
+  - fsspec
+  - jinja2
+  - mpmath
+  - networkx
+  - numpy
+  - pip
+  - python=3.13
+  - pillow
+  - sympy
+  - typing-extensions
+  - pip:
+    - --extra-index-url https://download.pytorch.org/whl/cu126
+    - torch==2.6.0
+    - torchaudio==2.6.0
+    - torchvision==0.21.0
