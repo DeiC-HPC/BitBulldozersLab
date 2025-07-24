@@ -66,7 +66,7 @@ The container can be built with:
 
 ### Cotainr addition
 
-In order, to include `apex`, `deepspeed` and `flash attention` that are compiled against the local pytorch extension we had to add a feature to cotainr.This is because there is [no way to determine the installation order](https://pip.pypa.io/en/stable/cli/pip_install/#installation-order) beyond the regular "dependency" commitment
+In order, to include `apex`, `deepspeed` and `flash attention` that are compiled against the local pytorch extension we had to add a feature to cotainr. This is because there is [no way to determine the installation order](https://pip.pypa.io/en/stable/cli/pip_install/#installation-order) beyond the regular "dependency" commitment.
 This extension allows for a secondary conda yaml to be passed to cotainr. The secondary environment file is used in a new `conda env update` step. 
 The `conda env update` step is specifically intended to install pip packages that depend on other pip packages. Thus, if one your packages depends on pytorch (e.g., flash-attn) you would add the pytorch pip dependencies to the first yaml file and then add flash-attn to the second yaml file.
 In theory, the current implementation allows for an unlimited chaining of dependencies via multiple conda environment yamls. 
