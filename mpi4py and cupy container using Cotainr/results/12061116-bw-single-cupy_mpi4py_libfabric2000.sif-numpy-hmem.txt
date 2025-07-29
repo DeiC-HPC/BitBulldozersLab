@@ -1,0 +1,31 @@
+source: /opt/cotainr/conda/envs/conda_container_env/etc/conda/activate.d/activate-binutils_linux-64.sh:10:40: parameter expansion requires a literal
+source: /opt/cotainr/conda/envs/conda_container_env/etc/conda/activate.d/activate-gcc_linux-64.sh:10:40: parameter expansion requires a literal
+source: /opt/cotainr/conda/envs/conda_container_env/etc/conda/activate.d/activate-gxx_linux-64.sh:10:40: parameter expansion requires a literal
+source: /opt/cotainr/conda/envs/conda_container_env/etc/conda/activate.d/activate-binutils_linux-64.sh:10:40: parameter expansion requires a literal
+source: /opt/cotainr/conda/envs/conda_container_env/etc/conda/activate.d/activate-gcc_linux-64.sh:10:40: parameter expansion requires a literal
+source: /opt/cotainr/conda/envs/conda_container_env/etc/conda/activate.d/activate-gxx_linux-64.sh:10:40: parameter expansion requires a literal
+# OMB-Py MPI Bandwidth Test
+# Size (B)  Bandwidth (MB/s)
+1                       0.70
+2                       1.41
+4                       2.83
+8                       5.71
+16                     11.49
+32                     23.22
+64                     46.56
+128                    92.24
+256                   183.88
+512                   365.83
+1024                  726.01
+2048                 1413.10
+4096                 2732.12
+8192                 4182.61
+16384                4587.35
+32768                6183.09
+65536                7572.52
+131072               8357.65
+262144               8993.42
+524288               8895.44
+1048576              8985.16
+2097152              9367.54
+4194304              9509.85
