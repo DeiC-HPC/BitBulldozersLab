@@ -1,0 +1,27 @@
+source: /opt/conda/envs/conda_container_env/etc/conda/activate.d/activate-binutils_linux-64.sh:10:40: parameter expansion requires a literal
+source: /opt/conda/envs/conda_container_env/etc/conda/activate.d/activate-gcc_linux-64.sh:10:40: parameter expansion requires a literal
+source: /opt/conda/envs/conda_container_env/etc/conda/activate.d/activate-binutils_linux-64.sh:10:40: parameter expansion requires a literal
+source: /opt/conda/envs/conda_container_env/etc/conda/activate.d/activate-gcc_linux-64.sh:10:40: parameter expansion requires a literal
+# OMB Python MPI Allgather Test
+# Size (B)      Latency (us)
+1                      18.04
+2                      17.96
+4                      17.97
+8                      17.95
+16                     17.97
+32                     17.94
+64                     18.05
+128                    17.95
+256                    32.19
+512                    32.22
+1024                   37.98
+2048                   35.97
+4096                   37.49
+8192                   38.22
+16384                  42.58
+32768                  50.78
+65536                  69.73
+131072                 98.90
+262144                144.53
+524288                263.85
+1048576               507.44
