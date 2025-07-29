@@ -1,0 +1,19 @@
+name: cupy_mpi4py
+channels:
+  - conda-forge
+dependencies:
+  - c-compiler=1.11.0
+  - cxx-compiler
+  - mpi=*=mpich
+  - mpich=4.2.*=external_*
+  - numpy=2.3.1
+  - python=3.12
+  - pip=25.1.1
+  - pip:
+    - mpi4py==4.1.0
+    - fastrlock==0.8.3
+    - cupy==13.5.1
+variables:
+  ROCM_HOME: /opt/rocm-6.0.2/
+  CUPY_INSTALL_USE_HIP: 1
+  HCC_AMDGPU_TARGET: gfx90a
