@@ -14,6 +14,11 @@ In the simple approach we simply install Jax via the pip package.
 - apptainer (v1.4.1)
 - cotainr (v2025.7.2)
 
+## Env Vaiables Lumi:
+```commandline
+export PROJECT_NUM=project_XXXXXXXXXX
+```
+
 ## Containers
 - use 2 containers
 - full open source &  Lumi Base container. 
@@ -40,7 +45,7 @@ This results in the `libcxi_libfabric2000_mpich423_jax_pytorch.sif` image.
 Building the Jax image with the image on Lumi can be done with the following commands:
 
 ```commandline
- srun --output=results.out --error=results.err --account=project_XXXXXXXXXXX --time=00:30:00 --mem=160G --cpus-per-task=8 --partition=debug cotainr build jax_torch_rocm6.2.4.sif --base-image=/appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env=conda.yml --accept-licenses
+ srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:30:00 --mem=160G --cpus-per-task=8 --partition=debug cotainr build jax_torch_rocm6.2.4.sif --base-image=/appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env=conda.yml --accept-licenses
 ```
 This results in the `jax_torch_rocm6.2.4.sif` image. 
 
@@ -58,7 +63,7 @@ This is a simple test to check if the GPUs are available.
 #### Open Source Container
 For the open source container:
 ```commandline
- srun --output=results.out --error=results.err --account=project_465001699 --time=00:01:00 --mem=20G --cpus-per-task=1 --partition=dev-g --mpi=pmi2 --gpus-per-node=8 singularity exec -B /project/project_465001699/ libcxi_libfabric2000_mpich423_jax_pytorch.sif  python3 -c "import jax; print(jax.devices())"
+ srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:01:00 --mem=20G --cpus-per-task=1 --partition=dev-g --mpi=pmi2 --gpus-per-node=8 singularity exec -B /project/$PROJECT_NUM/ libcxi_libfabric2000_mpich423_jax_pytorch.sif  python3 -c "import jax; print(jax.devices())"
 ```
 
 The output should be:
@@ -70,7 +75,7 @@ The output should be:
 #### Lumi Base Container
 For the container based on Samuels image:
 ```commandline
-srun --output=results.out --error=results.err --account=project_465001699 --time=00:01:00 --mem=20G --cpus-per-task=1 --partition=dev-g --mpi=pmi2 --gpus-per-node=8 singularity exec -B /project/project_465001699/ jax_torch_rocm6.2.4.sif  python3 -c "import jax; print(jax.devices())"
+srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:01:00 --mem=20G --cpus-per-task=1 --partition=dev-g --mpi=pmi2 --gpus-per-node=8 singularity exec -B /project/$PROJECT_NUM/ jax_torch_rocm6.2.4.sif  python3 -c "import jax; print(jax.devices())"
 ```
 
 The output should be:
@@ -84,13 +89,16 @@ The output should be:
 The following command clones the Jax repository and runs a numpy test.
 
 ```commandline
+ cd /project/$PROJECT_NUM/$USER/
+ mkdir jax 
+ cd jax
  git clone https://github.com/jax-ml/jax.git
 ```
 
 #### Open Source Container
 
 ```commandline
- srun --output=results.out --error=results.err --account=project_465001699 --time=00:15:00 --mem=120G --nodes=1 --ntasks-per-node=1 --cpus-per-task=16 --partition=dev-g --mpi=pmi2 --gpus-per-node=2 singularity exec -B /project/project_465001699/julius/jax/jax libcxi_libfabric2000_mpich423_jax_pytorch.sif  bash -c 'cd jax; python tests/lax_numpy_test.py --test_targets="testPad"'
+ srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:15:00 --mem=120G --nodes=1 --ntasks-per-node=1 --cpus-per-task=16 --partition=dev-g --mpi=pmi2 --gpus-per-node=2 singularity exec -B /project/$PROJECT_NUM/$USER/jax/jax libcxi_libfabric2000_mpich423_jax_pytorch.sif  bash -c 'cd jax; python tests/lax_numpy_test.py --test_targets="testPad"'
 ```
 
 Not all tests pass. 
@@ -98,7 +106,7 @@ Not all tests pass.
 ####  Lumi Base Container
 
 ```commandline
- srun --output=results.out --error=results.err --account=project_465001699 --time=00:15:00 --mem=120G --nodes=1 --ntasks-per-node=1 --cpus-per-task=16 --partition=dev-g --mpi=pmi2 --gpus-per-node=2 singularity exec -B /project/project_465001699/julius/jax/jax jax_torch_rocm6.2.4.sif  bash -c 'cd jax; python tests/lax_numpy_test.py --test_targets="testPad"'
+ srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:15:00 --mem=120G --nodes=1 --ntasks-per-node=1 --cpus-per-task=16 --partition=dev-g --mpi=pmi2 --gpus-per-node=2 singularity exec -B /project/$PROJECT_NUM/$USER/jax/jax jax_torch_rocm6.2.4.sif  bash -c 'cd jax; python tests/lax_numpy_test.py --test_targets="testPad"'
 ```
 
 Not all tests pass. 
@@ -114,7 +122,7 @@ In the Jax Github repository you first need to change line 33 in `examples/mnist
 
 We can run the classifier using the following command:
 ```commandline
- srun --output=results.out --error=results.err --account=project_465001699 --time=00:15:00 --mem=60G --nodes=1 --ntasks-per-node=1 --cpus-per-task=8 --partition=dev-g --mpi=pmi2 --gpus-per-node=1 singularity exec -B /project/project_465001699/julius/jax/jax libcxi_libfabric2000_mpich423_jax_pytorch.sif  bash -c 'cd jax/examples; python mnist_classifier.py'
+ srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:15:00 --mem=60G --nodes=1 --ntasks-per-node=1 --cpus-per-task=8 --partition=dev-g --mpi=pmi2 --gpus-per-node=1 singularity exec -B /project/$PROJECT_NUM/$USER/jax/jax libcxi_libfabric2000_mpich423_jax_pytorch.sif  bash -c 'cd jax/examples; python mnist_classifier.py'
 ```
 
 Output:
@@ -168,7 +176,7 @@ https://github.com/jax-ml/jax/issues/24909
 
 We can run the classifier using the following command:
 ```commandline
- srun --output=results.out --error=results.err --account=project_465001699 --time=00:15:00 --mem=60G --nodes=1 --ntasks-per-node=1 --cpus-per-task=8 --partition=dev-g --mpi=pmi2 --gpus-per-node=1 singularity exec -B /project/project_465001699/julius/jax/jax jax_torch_rocm6.2.4.sif  bash -c 'cd jax/examples; python mnist_classifier.py'
+ srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:15:00 --mem=60G --nodes=1 --ntasks-per-node=1 --cpus-per-task=8 --partition=dev-g --mpi=pmi2 --gpus-per-node=1 singularity exec -B /project/$PROJECT_NUM/$USER/jax/jax jax_torch_rocm6.2.4.sif  bash -c 'cd jax/examples; python mnist_classifier.py'
 ```
 
 This results in similar errors with respect to `external/xla/xla/service/gpu/autotuning/gemm_fusion_autotuner.cc:1080` as the open source container. 
