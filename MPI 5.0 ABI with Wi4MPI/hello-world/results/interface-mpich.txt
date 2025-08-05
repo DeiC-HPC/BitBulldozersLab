@@ -1,0 +1,6 @@
+Wi4MPI interface compiled binary run with MPICH
+You are using Wi4MPI-3.6.4 with the mode interface From Interface To MPICH
+Hello world from processor joaso-laptop, rank 0 out of 4 processors
+Hello world from processor joaso-laptop, rank 1 out of 4 processors
+Hello world from processor joaso-laptop, rank 2 out of 4 processors
+Hello world from processor joaso-laptop, rank 3 out of 4 processors

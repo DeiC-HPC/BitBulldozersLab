@@ -1,0 +1,13 @@
+Running MPI ABI
+MPICH compiled binary run with OpenMPI
+You are using Wi4MPI-3.6.4 with the mode preload From MPICH To OMPI
+Hello world from processor joaso-laptop, rank 0 out of 4 processors with MPI library Open MPI v5.0.8, package: Open MPI joaso@joaso-laptop Distribution, ident: 5.0.8, repo rev: v5.0.8, May 30, 2025
+Hello world from processor joaso-laptop, rank 3 out of 4 processors with MPI library Open MPI v5.0.8, package: Open MPI joaso@joaso-laptop Distribution, ident: 5.0.8, repo rev: v5.0.8, May 30, 2025
+Hello world from processor joaso-laptop, rank 2 out of 4 processors with MPI library Open MPI v5.0.8, package: Open MPI joaso@joaso-laptop Distribution, ident: 5.0.8, repo rev: v5.0.8, May 30, 2025
+Hello world from processor joaso-laptop, rank 1 out of 4 processors with MPI library Open MPI v5.0.8, package: Open MPI joaso@joaso-laptop Distribution, ident: 5.0.8, repo rev: v5.0.8, May 30, 2025
+MPICH compiled binary run with OpenMPI
+Hello world from processor joaso-laptop, rank 1 out of 4 processors with MPI library Open MPI v5.0.8, package: Open MPI joaso@joaso-laptop Distribution, ident: 5.0.8, repo rev: v5.0.8, May 30, 2025
+Hello world from processor joaso-laptop, rank 2 out of 4 processors with MPI library Open MPI v5.0.8, package: Open MPI joaso@joaso-laptop Distribution, ident: 5.0.8, repo rev: v5.0.8, May 30, 2025
+Hello world from processor joaso-laptop, rank 3 out of 4 processors with MPI library Open MPI v5.0.8, package: Open MPI joaso@joaso-laptop Distribution, ident: 5.0.8, repo rev: v5.0.8, May 30, 2025
+You are using Wi4MPI-3.6.4 with the mode preload From MPICH To OMPI
+Hello world from processor joaso-laptop, rank 0 out of 4 processors with MPI library Open MPI v5.0.8, package: Open MPI joaso@joaso-laptop Distribution, ident: 5.0.8, repo rev: v5.0.8, May 30, 2025
