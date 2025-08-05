@@ -212,14 +212,15 @@ Error: `clang frontend command failed with exit code 139`
 We could try again after updating Raxos and installing a newer clang version. 
 
 
-## Problems & concerns
-- 
+# Results summary
 
-## Results summary
-
-The pip installation of Jax sort of works. I am not sure if the performance loss in the gemm_fusion_autotuner is a big issue, but I expect that the precision loss could result in poorly trained and non converging neural networks.
-It is worrying that this behaviour is even present in the regular Lumi containers and that users are reliant on the images that come with Jax and not much else. 
+The pip installation of Jax sort of works. I am not sure if the performance loss in the gemm_fusion_autotuner is a big issue, 
+but I expect that the precision loss could result in poorly trained and non converging neural networks.
+It is worrying that this behaviour is even present in the regular Lumi containers and that users are reliant on the images that come with Jax. 
 Additionally, the complete Jax for ROCm seems to behind by quite a few versions. Pip installs Jax v0.5.0 whereas v0.7.0 is already available. 
 
-The 
+The compilation process for Jax is not very transparent. 
+It seems to ignore the clang path and still downloads its own clang. `Ld.gold` is the default linker in a container and switching to for example `ld.ldd` is a hassle. 
+Furthermore, setting the ROCm path seems to be ignored and the linker does not find the right libraries.
 
+Lastly, the Lumi images may be missing parts required by Jax, so even the `pip install` method may fail. 
