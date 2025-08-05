@@ -189,12 +189,15 @@ The current work for this can be found here:
 https://github.com/DeiC-HPC/cotainr/tree/feature/enable_bash_script
 
 ## Build in container
-I started building Jax from source to make Bazel use `ld.ldd` instead of the `gold` linker I create a Bash script called `ld.gold` that forwards everything to ld.ldd. 
-The `gold` linker is deprecated by now https://lwn.net/Articles/1007541/ but Bazel still defaults back to it. 
+I started building Jax from source. However, in the containers Bazel defaults to use the `gold` linker. 
+To make Bazel use `ld.ldd` instead of the `gold` linker I create a Bash script called `ld.gold` that forwards everything to `ld.ldd`. 
+The `gold` linker is deprecated by now https://lwn.net/Articles/1007541/ but Bazel still defaults back to it and I havent found another way around this in the container. 
 
-Furthermore, to set the clang path properly I had to sed one of the bazelrc files from the repository. Otherwise, it would continue to default to a non-existing clang. 
+Furthermore, to set the clang path properly I had to `sed` one of the bazelrc files from the repository. Otherwise, it would continue to default to a non-existing clang. 
 
 I finally gave up after the build system could not find the right ROCm libraries. 
+
+**Note: When trying this, make sure you comment out line 23 in the conda_env.yml. That line installs jax via pip.**
 
 The command used is:
 
@@ -215,7 +218,7 @@ Additionally, I tried to build the Jax wheels outside of a container on Raxos.
 And this resulted in the following error:
 
 Error: `clang frontend command failed with exit code 139`
-- This seems to correspond to a segfault that seems to creep up in some clang versions.
+- This corresponds to a segfault that seems to creep up in some clang versions.
 
 We could try again after updating Raxos and installing a newer clang version. 
 
