@@ -52,10 +52,11 @@ The CuPy recipe requires environment variables in order to compile CuPy correctl
 	- Suboptimal single-node performance on the LUMI-G and bad performance on LUMI-C (sockets)
 - The Conda `mpich` package can only use Slingshot if it utilizes the `external_` MPICH installation
 - Libfabric version 1.22 has better CPU-CPU multi-node performance then version 2.0
+- Potentential optimization path is to enable the cxi provider in single-node jobs to match that of cray-mpich
 
 # Links
-[1] Descriptions of MPICH flags: https://fossies.org/linux/mpich/README.envvar
-[2] Descriptions of libfabric cxi flags: https://github.com/ofiwg/libfabric/blob/867c15e520c027b7872783a80a59470bf482473c/man/fi_cxi.7.md?plain=1#L440
-[3] Cray-MPICH flags: https://cpe.ext.hpe.com/docs/24.03/mpt/mpich/intro_mpi.html#general-mpich-environment-variables
-[4] https://github.com/cupy/cupy/issues/9128
-[5] https://github.com/DeiC-HPC/cotainr/issues/52#issuecomment-1918652234 
+- [1] Descriptions of MPICH flags: https://fossies.org/linux/mpich/README.envvar
+- [2] Descriptions of libfabric cxi flags: https://github.com/ofiwg/libfabric/blob/867c15e520c027b7872783a80a59470bf482473c/man/fi_cxi.7.md?plain=1#L440
+- [3] Cray-MPICH flags: https://cpe.ext.hpe.com/docs/24.03/mpt/mpich/intro_mpi.html#general-mpich-environment-variables
+- [4] https://github.com/cupy/cupy/issues/9128
+- [5] https://github.com/DeiC-HPC/cotainr/issues/52#issuecomment-1918652234 
