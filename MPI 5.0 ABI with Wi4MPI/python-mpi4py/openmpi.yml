@@ -1,0 +1,9 @@
+name: openmpi
+channels:
+  - conda-forge
+dependencies:
+  - mpi=*=openmpi
+  - openmpi=5.0.8
+  - numpy
+  - python=3.12
+  - mpi4py

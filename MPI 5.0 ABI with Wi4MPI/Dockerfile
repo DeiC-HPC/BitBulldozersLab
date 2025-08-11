@@ -5,7 +5,7 @@ LABEL version="0.1"
 LABEL description="Docker with spack-installed openmpi, mpich and wi4mpi"
 
 SHELL [ "/bin/bash", "-c" ]
-RUN apt-get update && apt-get -y install git python3-pip gcc-11 g++-11 gfortran-11 wget
+RUN apt-get update && apt-get -y install git python3-pip python3-mpi4py gcc-11 g++-11 gfortran-11 wget
 
 RUN groupadd -g 1234 customgroup && \
     useradd -m -u 1234 -g customgroup myuser
@@ -25,10 +25,10 @@ RUN source spack/share/spack/setup-env.sh && \
 FROM mpi_installation AS full_installation
 
 # Install Miniconda
-RUN wget https://repo.continuum.io/miniconda/Miniconda3-4.7.12-Linux-x86_64.sh -O /tmp/miniconda.sh
+RUN wget https://repo.continuum.io/miniconda/Miniconda3-py312_25.5.1-1-Linux-x86_64.sh -O /tmp/miniconda.sh
 RUN /bin/bash /tmp/miniconda.sh -b -p /home/myuser/conda && \
     rm /tmp/miniconda.sh
-ENV PATH=/home/myuser/conda/bin:$PATH
+ENV PATH=$PATH:/home/myuser/conda/bin
 
 #Install uv
 RUN wget -qO- https://astral.sh/uv/install.sh | sh

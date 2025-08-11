@@ -1,0 +1,9 @@
+name: mpich-ext
+channels:
+  - conda-forge
+dependencies:
+  - mpi=*=mpich
+  - mpich=4.2.3=external_*
+  - numpy=2.3.1
+  - python=3.12
+  - mpi4py
