@@ -1,0 +1,8 @@
+
+# PR 134 is needed to enable rocm 6.0.0
+RUN set -eux ; \
+    git clone https://github.com/ROCm/rccl-tests; \
+    cd rccl-tests; \
+    git fetch origin pull/134/head:pr-134; \
+    git checkout pr-134; \
+    GPU_TARGETS="gfx90a" make -j NCCL_HOME=/opt/rocm-6.0.2/include/rccl MPI=1 MPI_HOME=/opt/mpich HIP_HOME=/opt/rocm-6.0.2/bin -I /opt/rocm-6.0.2/lib/
