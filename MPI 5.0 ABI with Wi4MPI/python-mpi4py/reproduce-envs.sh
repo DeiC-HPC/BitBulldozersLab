@@ -16,6 +16,7 @@ conda env create -n mpich-ext -f mpich-ext.yml --no-default-packages --yes
 spack unload -a
 spack load openmpi
 conda env create -n openmpi-ext -f openmpi-ext.yml --no-default-packages --yes
+spack unload -a
 
 echo "Creating Python venvs"
 uv venv venv-mpi4py

@@ -35,39 +35,44 @@ There are different ways of providing the MPI backend to the python package mpi4
 - `conda install openmpi=5.0.8`
 - `conda install mpich=4.2.3`
 - `conda install openmpi=5.0.8=external_*`
-- `conda install mpich=4.2.3=external_*
-- Setting LD_LIBRARY_PATH
+- `conda install mpich=4.2.3=external_*`
 
-The script `python-mpi4py/run.sh` will run most of this matrix, which at the time of writing results in the following table. Notably we find that preload mode is working with the apt OpenMPI, the conda OpenMPI and the conda MPICH. Additionally, we find that interface mode is working for pip OpenMPI, pip MPICH, conda OpenMPI and conda MPICH. 
+The script `python-mpi4py/run.sh` will run this matrix, which at the time of writing results in the following table. Note that Wi4MPI should actually control the MPI runtime in all the cases. So even though we `conda install openmpi`, wi4mpi will catch mpi calls, process and pass to the chosen Spack controlled MPI implementation specificied by `-T`. 
+In this table the most important is the column labelled `-F self -T other` which is the preload mode of wi4mpi where the binary compiled with one MPI library is correctly translated and ran with the other MPI library. We find that only the `apt` and `conda` installations work properly with preload mode. We also test for interface mode, even though no environment is compiled against Wi4MPI. Consequentially the `-T other` column all clearly fail with helpful errors such as `Your environment has OMPI_COMM_WORLD_SIZE=4 set, but mpi4py was built with MPICH.` indicating compatibility issues.
 
-| Python<br>environment | mpi4py <br>backend impl | Wi4MPI <br>MPI config | `-T self` | `-F self`<br>`-T other` | `-F self` <br>`-T self` |
-| --------------------- | ----------------------- | --------------------- | :-------: | :---------------------: | :---------------------: |
-| apt Python3-mpi4py    | apt OpenMPI             | spack                 |     x     |            o            |            o            |
-| venv                  | pip OpenMPI             | spack                 |     o     |            /            |            o            |
-| venv                  | pip MPICH               | spack                 |     o     |            x            |            /            |
-| conda env             | conda OpenMPI           | spack                 |     o     |            o            |            o            |
-| conda env             | conda MPICH             | spack                 |     o     |            o            |            o            |
-| conda env external    | conda OpenMPI           | spack                 |     x     |            x            |            o            |
-| conda env external    | conda MPICH             | spack                 |     x     |            x            |            o            |
-| venv OpenMPI LD       | spack LD_LIB_P          | spack                 |     x     |            /            |            o            |
-| venv MPICH LD         | spack LD_LIB_P          | spack                 |     x     |            x            |            /            |
-| venv WI4MPI LD open   | spack LD_LIB_P          | spack                 |     x     |            /            |            o            |
-| venv WI4MPI LD mpich  | spack LD_LIB_P          | spack                 |     x     |            x            |            /            |
-
+| Python<br>environment | mpi4py <br>backend impl | `-T self` | `-F self`<br>`-T other` | `-F self` <br>`-T self` | `-T other` |
+| --------------------- | ----------------------- | :-------: | :---------------------: | :---------------------: | :--------: |
+| apt Python3-mpi4py    | apt OpenMPI             |     x     |            o            |            o            |     x      |
+| venv                  | pip OpenMPI             |     o     |            /            |            o            |     x      |
+| venv                  | pip MPICH               |     o     |            x            |            /            |     x      |
+| conda env             | conda OpenMPI           |     o     |            o            |            o            |     x      |
+| conda env             | conda MPICH             |     o     |            o            |            o            |     x      |
+| conda env external    | conda OpenMPI           |     x     |            x            |            o            |     x      |
+| conda env external    | conda MPICH             |     x     |            x            |            o            |     x      |
 o = Init, ring and bandwidth successful
 / = only Init successful, ring and bandwidth failed
 x = All failed
 
-The Wi4MPI MPI Config setting lets Wi4MPI change between different MPI implementations. Here we experiment with using Python ecosystem MPI implementations. However, initial results showed greater incompatibility.
+Another way to run mpi4py is to not install any python MPI implementation and rely on another mechanism such as LD_LIBRARY_PATH to ensure the correct MPI implementation is used at runtime. This is usually used to select external optimized MPI implementations on HPC clusters. Here, we first illustrate that `LD_LIBRARY_PATH` works correctly for the Spack MPICH and OpenMPI's mpirun. If we do not set `LD_LIBRARY_PATH` here, all ranks report they are rank 0, and MPICH report that the base mpi4py library seems to be built with OpenMPI.
 
-| Python<br>environment | mpi4py <br>backend impl | Wi4MPI <br>MPI config | `-T self` | `-F self`<br>`-T other` | `-F self` <br>`-T self` |
-| --------------------- | ----------------------- | --------------------- | :-------: | :---------------------: | :---------------------: |
-| venv                  | pip OpenMPI             | venv                  |    [1]    |                         |                         |
-| venv                  | pip MPICH               | venv                  |    [1]    |                         |                         |
-| conda env             | conda OpenMPI           | conda                 |     o     |            o            |                         |
-| conda env             | conda MPICH             | conda                 |     o     |            /            |                         |
-[1]: Error: could not find fortran target mpi library
-Empty = Not tried
+When we attempt to use Wi4MPI to choose the MPI implementation, we find that only initialization works in preload mode. Additionally we have to abuse wi4mpi to select OpenMPI as both the From and To, to successfully work. The interface mode clearly does not work.
 
+| Python env  | mpirun  | Init.py | ring.py | bandwidth.py |           Notes            |
+| ----------- | ------- | :-----: | :-----: | :----------: | :------------------------: |
+| venv-mpi4py | MPICH   |    o    |    o    |      o       | LD\_LIBRARY\_PATH Required |
+| venv-mpi4py | OpenMPI |    o    |    o    |      o       | LD\_LIBRARY\_PATH Required |
+| venv-mpi4py | Wi4MPI  |    o    |    o    |      o       |   -F openmpi -T openmpi    |
+| venv-mpi4py | Wi4MPI  |    o    |    x    |      x       |    -F openmpi -T mpich     |
+| venv-mpi4py | Wi4MPI  |    o    |    x    |      x       |     -F mpich -T mpich      |
+| venv-mpi4py | Wi4MPI  |    o    |    x    |      x       |    -F mpich -T openmpi     |
+| venv-mpi4py | Wi4MPI  |    x    |    x    |      x       |         -T openmpi         |
+| venv-mpi4py | Wi4MPI  |    x    |    x    |      x       |          -T mpich          |
+It is an issue that mpi4py is somewhat implicitly built with a preference to OpenMPI. If we look into the `mpi.cfg` config of mpi4py, we see that it can already be compiled against the [mpi-abi-stubs](https://github.com/mpi-forum/mpi-abi-stubs) that the MPI 5.0 ABI is based on. However, in the CI tests, we see that it is currently only tested with [mpich](https://github.com/mpi4py/mpi4py-testing/actions/workflows/abi.yml). This is because it requires `libmpi_abi.so` to work which only MPICH currently have.  We have also attempted an alternative approach (not shown in this BitBulldozers) where we compile mpi4py against Wi4MPI, however this does not work out straight away.
 ## Issues
 With `conda install mpich=4.3.*` i get several regression failures, even though the Spack installed MPICH is version 4.3.0
+
+## Summary
+- The C implementation of Wi4MPI works very well, although with a few missing methods.
+- Benchmark Wi4MPI with OSU benchmarks illustrate surprising performance increases when running a OpenMPI compiled binary compared with native MPICH.
+- Combining wi4mpi and mpi4py is not trivial due to the variety of ways the MPI library is chosen. The apt and regular conda packages are found to be the most compatible.
+- The fully integrated ABI into mpi4py seems to be the pipeline.

@@ -48,9 +48,3 @@ spack load wi4mpi
 ./run-mpich.sh
 conda deactivate
 spack unload -a
-
-# echo "Loading py-mpi4py and wi4mpi from Spack"
-# spack load py-mpi4py
-# spack load wi4mpi
-# ./run-openmpi.sh
-# spack unload -a

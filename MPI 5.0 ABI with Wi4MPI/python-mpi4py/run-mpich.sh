@@ -9,6 +9,11 @@ mpirun -n 4 -T mpich python3 init.py
 mpirun -n 4 -T mpich python3 ring.py
 mpirun -n 2 -T mpich python3 bandwidth.py
 
+echo "-T other"
+mpirun -n 4 -T openmpi python3 init.py
+mpirun -n 4 -T openmpi python3 ring.py
+mpirun -n 2 -T openmpi python3 bandwidth.py
+
 echo "-F self -T other"
 mpirun -n 4 -F mpich -T openmpi python3 init.py
 mpirun -n 4 -F mpich -T openmpi python3 ring.py
