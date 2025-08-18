@@ -49,8 +49,9 @@ In this table the most important is the column labelled `-F self -T other` which
 | conda env             | conda MPICH             |     o     |            o            |            o            |     x      |
 | conda env external    | conda OpenMPI           |     x     |            x            |            o            |     x      |
 | conda env external    | conda MPICH             |     x     |            x            |            o            |     x      |
-o = Init, ring and bandwidth successful
-/ = only Init successful, ring and bandwidth failed
+
+o = Init, ring and bandwidth successful\
+/ = Only Init successful, ring and bandwidth failed\
 x = All failed
 
 Another way to run mpi4py is to not install any python MPI implementation and rely on another mechanism such as LD_LIBRARY_PATH to ensure the correct MPI implementation is used at runtime. This is usually used to select external optimized MPI implementations on HPC clusters. Here, we first illustrate that `LD_LIBRARY_PATH` works correctly for the Spack MPICH and OpenMPI's mpirun. If we do not set `LD_LIBRARY_PATH` here, all ranks report they are rank 0, and MPICH report that the base mpi4py library seems to be built with OpenMPI.
@@ -67,6 +68,10 @@ When we attempt to use Wi4MPI to choose the MPI implementation, we find that onl
 | venv-mpi4py | Wi4MPI  |    o    |    x    |      x       |    -F mpich -T openmpi     |
 | venv-mpi4py | Wi4MPI  |    x    |    x    |      x       |         -T openmpi         |
 | venv-mpi4py | Wi4MPI  |    x    |    x    |      x       |          -T mpich          |
+
+o = test.py success\
+x = test.py failed
+
 It is an issue that mpi4py is somewhat implicitly built with a preference to OpenMPI. If we look into the `mpi.cfg` config of mpi4py, we see that it can already be compiled against the [mpi-abi-stubs](https://github.com/mpi-forum/mpi-abi-stubs) that the MPI 5.0 ABI is based on. However, in the CI tests, we see that it is currently only tested with [mpich](https://github.com/mpi4py/mpi4py-testing/actions/workflows/abi.yml). This is because it requires `libmpi_abi.so` to work which only MPICH currently have.  We have also attempted an alternative approach (not shown in this BitBulldozers) where we compile mpi4py against Wi4MPI, however this does not work out straight away.
 ## Issues
 With `conda install mpich=4.3.*` i get several regression failures, even though the Spack installed MPICH is version 4.3.0
