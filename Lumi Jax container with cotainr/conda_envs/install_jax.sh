@@ -21,7 +21,7 @@ source /opt/cotainr/conda/etc/profile.d/conda.sh
 conda activate conda_container_env
 git clone https://github.com/jax-ml/jax
 cd jax
-git fetch origin tag jax-v0.6.2
+git switch --detach jax-v0.6.2
 
 # trying to force lld instead of gold linker --> ignored
 sed -i 's|CLANG_COMPILER_PATH="/usr/lib/llvm-18/bin/clang"|CLANG_COMPILER_PATH="/opt/rocm-6.0.2/llvm/bin/amdclang"|g' .bazelrc

@@ -42,10 +42,11 @@ This results in the `libcxi_libfabric2000_mpich423_jax_pytorch.sif` image.
 
 ### Lumi Base container
 
+This uses the latest `jax[rocm]` version and ROCm 6.2.4.
 Building the Jax image with the image on Lumi can be done with the following commands:
 
 ```commandline
- srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:30:00 --mem=160G --cpus-per-task=8 --partition=debug cotainr build jax_torch_rocm6.2.4.sif --base-image=/appl/local/containers/sif-images/lumi-rocm-rocm-6.0.3.sif --conda-env=conda.yml --accept-licenses
+ srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:30:00 --mem=160G --cpus-per-task=8 --partition=debug cotainr build jax_torch_rocm6.2.4.sif --base-image=/appl/local/containers/sif-images/lumi-rocm-rocm-6.2.4.sif --conda-env=conda_env_jax_lumi.yml --accept-licenses
 ```
 This results in the `jax_torch_rocm6.2.4.sif` image. 
 
@@ -61,6 +62,9 @@ Last, we run the Jax Mnist classifier example from the Jax Github repository.
 This is a simple test to check if the GPUs are available.
 
 #### Open Source Container
+
+**Note: You may have to set the LD_LIBRARY_PATH**
+
 For the open source container:
 ```commandline
  srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:01:00 --mem=20G --cpus-per-task=1 --partition=dev-g --mpi=pmi2 --gpus-per-node=8 singularity exec -B /project/$PROJECT_NUM/ libcxi_libfabric2000_mpich423_jax_pytorch.sif  python3 -c "import jax; print(jax.devices())"
@@ -73,6 +77,9 @@ The output should be:
 ```
 
 #### Lumi Base Container
+
+**Note: You may have to set the LD_LIBRARY_PATH and adjust the ROCM_PATH**
+
 For the container based on Samuels image:
 ```commandline
 srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:01:00 --mem=20G --cpus-per-task=1 --partition=dev-g --mpi=pmi2 --gpus-per-node=8 singularity exec -B /project/$PROJECT_NUM/ jax_torch_rocm6.2.4.sif  python3 -c "import jax; print(jax.devices())"
@@ -93,6 +100,7 @@ The following command clones the Jax repository and runs a numpy test.
  mkdir jax 
  cd jax
  git clone https://github.com/jax-ml/jax.git
+ git switch --detach jax-v0.4.35
 ```
 
 #### Open Source Container
@@ -101,16 +109,19 @@ The following command clones the Jax repository and runs a numpy test.
  srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:15:00 --mem=120G --nodes=1 --ntasks-per-node=1 --cpus-per-task=16 --partition=dev-g --mpi=pmi2 --gpus-per-node=2 singularity exec -B /project/$PROJECT_NUM/$USER/jax/jax libcxi_libfabric2000_mpich423_jax_pytorch.sif  bash -c 'cd jax; python tests/lax_numpy_test.py --test_targets="testPad"'
 ```
 
-Not all tests pass. 
+Tests should all pass.
 
 ####  Lumi Base Container
+
+```commandline
+git switch --detach jax-v0.5.0
+```
 
 ```commandline
  srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:15:00 --mem=120G --nodes=1 --ntasks-per-node=1 --cpus-per-task=16 --partition=dev-g --mpi=pmi2 --gpus-per-node=2 singularity exec -B /project/$PROJECT_NUM/$USER/jax/jax jax_torch_rocm6.2.4.sif  bash -c 'cd jax; python tests/lax_numpy_test.py --test_targets="testPad"'
 ```
 
-Not all tests pass. 
-
+Tests should all pass.
 
 ### Running Jax example
 
@@ -141,7 +152,9 @@ Test set accuracy 0.09799999743700027
 ....
 ```
 
-Error:
+**These errors are gone when using the right tag for the mnist classifier!**
+
+_Error:
 
 The following errors are generated:
 
@@ -168,9 +181,9 @@ Apparently this is fixed in jax 0.6.2:
 https://github.com/jax-ml/jax/issues/27188
 
 There is also this one:
-https://github.com/jax-ml/jax/issues/24909
+https://github.com/jax-ml/jax/issues/24909 _
 
-**Note: Running the same test with the prebuilt Jax container on Lumi does not result in the error!** 
+**Note: Running the same test with the prebuilt Jax container on Lumi does not result in the error!**
 
 #### Lumi Base Container
 
@@ -179,9 +192,12 @@ We can run the classifier using the following command:
  srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:15:00 --mem=60G --nodes=1 --ntasks-per-node=1 --cpus-per-task=8 --partition=dev-g --mpi=pmi2 --gpus-per-node=1 singularity exec -B /project/$PROJECT_NUM/$USER/jax/jax jax_torch_rocm6.2.4.sif  bash -c 'cd jax/examples; python mnist_classifier.py'
 ```
 
-This results in similar errors with respect to `external/xla/xla/service/gpu/autotuning/gemm_fusion_autotuner.cc:1080` as the open source container. 
+**The errors are fixed.**
+_This results in similar errors with respect to `external/xla/xla/service/gpu/autotuning/gemm_fusion_autotuner.cc:1080` as the open source container._ 
 
 # Build Jax from source
+
+**Note: The below isn't really necessary anymore as I managed to fix the errors for the previous packages. It may still be required if newer features of jax are needed.**
 
 Due to the errors in the open source container I decided to try to build Jax from source. 
 To enable this I added a functionality to cotainr that allows us to run a bash script after the conda environment setup. 
@@ -225,10 +241,7 @@ We could try again after updating Raxos and installing a newer clang version.
 
 # Results summary
 
-The pip installation of Jax sort of works. I am not sure if the performance loss in the gemm_fusion_autotuner is a big issue, 
-but I expect that the precision loss could result in poorly trained and non converging neural networks.
-It is worrying that this behaviour is even present in the regular Lumi containers and that users are reliant on the images that come with Jax. 
-Additionally, the complete Jax for ROCm seems to behind by quite a few versions. Pip installs Jax v0.5.0 whereas v0.7.0 is already available. 
+The pip installation of Jax works. However, one needs to make sure that ROCm and Jax are compatible; for example, the prebuild jax v0.5.0 wheels don't seem to work with ROCm v6.0.3 but only v6.2.4 (and possibly above).  
 
 The compilation process for Jax is not very transparent. 
 It seems to ignore the clang path and still downloads its own clang. `Ld.gold` is the default linker in a container and switching to for example `ld.ldd` is a hassle. 

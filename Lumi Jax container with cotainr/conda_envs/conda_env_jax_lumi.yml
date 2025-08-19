@@ -18,10 +18,7 @@ dependencies:
     - torch==2.3.1+rocm6.0
     - torchaudio==2.3.1+rocm6.0
     - torchvision==0.18.1+rocm6.0
-    - jax[rocm]==0.4.35
-    - jax-rocm60-pjrt==0.4.35
-    - jax-rocm60-plugin==0.4.35
-    - jaxlib==0.4.35
+    - jax[rocm]
     - absl-py
     - cloudpickle
     - flatbuffers
