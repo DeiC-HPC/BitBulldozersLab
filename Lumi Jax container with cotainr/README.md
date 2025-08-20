@@ -154,7 +154,7 @@ Test set accuracy 0.09799999743700027
 
 **These errors are gone when using the right tag for the mnist classifier!**
 
-_Error:
+Error:
 
 The following errors are generated:
 
@@ -181,9 +181,8 @@ Apparently this is fixed in jax 0.6.2:
 https://github.com/jax-ml/jax/issues/27188
 
 There is also this one:
-https://github.com/jax-ml/jax/issues/24909 _
+https://github.com/jax-ml/jax/issues/24909 
 
-**Note: Running the same test with the prebuilt Jax container on Lumi does not result in the error!**
 
 #### Lumi Base Container
 
@@ -191,9 +190,6 @@ We can run the classifier using the following command:
 ```commandline
  srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:15:00 --mem=60G --nodes=1 --ntasks-per-node=1 --cpus-per-task=8 --partition=dev-g --mpi=pmi2 --gpus-per-node=1 singularity exec -B /project/$PROJECT_NUM/$USER/jax/jax jax_torch_rocm6.2.4.sif  bash -c 'cd jax/examples; python mnist_classifier.py'
 ```
-
-**The errors are fixed.**
-_This results in similar errors with respect to `external/xla/xla/service/gpu/autotuning/gemm_fusion_autotuner.cc:1080` as the open source container._ 
 
 # Build Jax from source
 
@@ -241,10 +237,10 @@ We could try again after updating Raxos and installing a newer clang version.
 
 # Results summary
 
-The pip installation of Jax works. However, one needs to make sure that ROCm and Jax are compatible; for example, the prebuild jax v0.5.0 wheels don't seem to work with ROCm v6.0.3 but only v6.2.4 (and possibly above).  
+The pip installation of Jax works. However, one may need to make sure that ROCm and Jax are compatible; for example, the prebuild jax v0.5.0 wheels may not work with ROCm v6.0.3 but only v6.2.4 (and possibly above). This is because ROCm v6.0.3 is missing the `librocprofiler-register.so.0` library, however, the tests and MNIST classifier still run.  
 
 The compilation process for Jax is not very transparent. 
 It seems to ignore the clang path and still downloads its own clang. `Ld.gold` is the default linker in a container and switching to for example `ld.ldd` is a hassle. 
-Furthermore, setting the ROCm path seems to be ignored and the linker does not find the right libraries.
+Furthermore, setting the ROCm path seems to be ignored and the linker does not find the right libraries. For future reference we could look into the compilation setup by Samuel: https://github.com/sfantao/lumi-containers-unofficial/blob/main/jax/build-rocm-5.6.1-python-3.10-jax-0.4.13.docker
 
 Lastly, the Lumi images may be missing parts required by Jax, so even the `pip install` method may fail. 
