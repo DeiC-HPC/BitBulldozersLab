@@ -1,9 +1,16 @@
 name: pytorch-success
 channels:
   - conda-forge
+#  - nvidia
 dependencies:
   - pip
-#  - nvidia-apex --> doesnt work
+#  - cuda==12.9.0
+#  - cuda-cudart
+#  - cuda-version=12.9.0
+#  - pytorch==2.7.1=cuda129_mkl_py39_h77df7df_302 #--> does not manage to find cuda
+#  - torchaudio==2.7.1
+#  - torchvision==0.22.0
+#  - conda-forge::nvidia-apex #--> works however, only with python 3.10, does not install CUDA & CPP extensions and seems to have a version missmatch to torch
   - pip:
     - apex @ git+https://github.com/NVIDIA/apex
     - flash-attn --global-option "--config-settings=--no-build-isolation=True"

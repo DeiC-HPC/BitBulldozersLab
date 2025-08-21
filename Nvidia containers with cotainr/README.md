@@ -91,8 +91,7 @@ Furthermore, it also requires the `--no-build-isolation` flag in the conda env y
   - AMP and DataDistributedParallel seem to have been removed from Apex.
 - I cannot get the examples to run at all. The examples have last been updated 6 years ago.
 
-Apex on [conda](https://anaconda.org/conda-forge/nvidia-apex/files) doesnt work, either in the primary or secondary conda environment file. 
-Only the pip installation is somewhat successful. However, even with the secondary step, the nvidia-apex installation is painful.
+The pip installation is somewhat successful. However, even with the secondary step, the nvidia-apex installation is painful.
 Providing the `--no-build-isolation` flag does not work via pip requirements.txt or the conda environment yml. For all conda environment approaches that do not work see lines 22 to 38 (here)['Nvidia containers with cotainr/conda_envs/extensions.yml')
 
 For the secondary to properly work we need to set a conda environment wide flag in the variables section of the `pytorch_success.yml` (`PIP_NO_BUILD_ISOLATION: 0`).
@@ -104,11 +103,23 @@ For compiling all C++/CUDA extensions, the CPATH has to be modified to identify 
 
 Apex requires the system cuda (container cuda) and Pytorch cuda to be the same.
 
+Apex on [conda](https://anaconda.org/conda-forge/nvidia-apex/files):
+- Python 3.12 are no compatible versions unless setting `CONDA_OVERRIDE_CUDA`. 
+  - Setting `CONDA_OVERRIDE_CUDA=12.8` in the primary and installing from the primary does not work. 
+  - Setting `CONDA_OVERRIDE_CUDA=12.8` in the primary and installing from the secondary does not work. 
+- Python 3.10 does work.
+- Python 3.11 does work.
+    - Setting `CONDA_OVERRIDE_CUDA=12.8` in the primary and installing from the secondary does work. However, it seems like conda just brings its own cpu only torch version anyways (torch 2.0.0).
+
+I have been trying to fix some of these issues by installing pytorch from conda-forge. 
+However, I have not managed to make it pick up CUDA (`nothing provides __cuda needed by pytorch-2.7.1-cuda129_mkl_py39_h77df7df_302`). Neither setting `CUDA_HOME` nor installing cuda via conda works.  
+
 ## Test
 
 Importing `torch`, `transformers`, `accelerator`, `BitsandBytes` all report that the GPU is available.
 Moving a transformers model to the GPU works (`tests/transformers_gpu_test.py`).
 
+### Deepspeed
 The following deepspeed training example works as well: 
 https://github.com/deepspeedai/DeepSpeedExamples/tree/master/training/imagenet 
 Run:
@@ -116,7 +127,8 @@ Run:
 2. `APPTAINERENV_NVIDIA_VISIBLE_DEVICES=0 apptainer exec -B ~/nvidia_container/conda/DeepSpeedExamples/ --nv $FINAL_IMAGE_NAME deepspeed --num_nodes=1 --num_gpus=1 ~/nvidia_container/conda/DeepSpeedExamples/training/imagenet/main.py -a resnet18 --deepspeed --deepspeed_config ~/nvidia_container/conda/DeepSpeedExamples/training/imagenet/config/ds_config.json --dummy`
 
 
-**DOES NOT WORK DUE TO REMOVAL OF DDP, AMP and FP16_utils from Apex**
+### Apex
+
 Run:
 1. `git clone https://github.com/NVIDIA/apex/`
 2. `nano apex/examples/imagenet/`
@@ -134,6 +146,40 @@ Run:
 6. `cd apex/examples/imagenet/`
 7. `python main_amp.py --dummy -a resnet18 --b 224 --workers 1 --opt-level O0 .`
 
+#### With the pip installation:
+DOES NOT WORK DUE TO REMOVAL OF DDP, AMP and FP16_utils from Apex
+Other more modern examples and applications of Apex MAY still work!
+
+#### With the conda installed Apex:
+CUDA and C++ extensions are missing from the installation. 
+
+Python 3.10:
+
+**Normal:**
+Running the test above results in the following error:
+```
+ModuleNotFoundError: No module named 'torch._custom_ops'
+```
+--> This seems to indicate a Pytorch and Apex version incompatibility.
+
+Just importing Apex in python results in:
+```
+>>> import apex
+`fused_weight_gradient_mlp_cuda` module not found. gradient accumulation fusion with weight gradient computation disabled.
+```
+--> Indicates that required CUDA and C++ extensions are missing from the installation. 
+
+Python 3.11:
+**Normal:**
+- module 'torch.cuda.amp' has no attribute 'initialize'
+- --> The example is too old. Same issues as with the pip installation method.
+
+**CONDA_OVERRIDE_CUDA: 12.8**
+- `No module named 'torch._custom_ops'` 
+
+
+
+### flash-attention
 Many of the flash-attention tests pass. However, currently 5 fail due to additional packages that are not installed or found. 
 The tests also seem to be outdated - it relies on Python 3.8.
 Run:
@@ -145,16 +191,22 @@ Run:
 
 ## Problems & concerns
 - Multi conda installation is required to get some of the packages working at appropriate speed.
-- The `--no-build-isolation` flag is poorly documented and supported as its mostly applicable to niche applications (like AI).
+- The `--no-build-isolation` flag is poorly documented and supported as it's mostly applicable to niche applications (like AI).
   - The UV solution is nice https://github.com/astral-sh/uv/issues/1715
 - Setting `PIP_NO_BUILD_ISOLATION: 0` could lead to unintended consequences as dependencies need to be installed manually. 
   - Triple build may be possible & required for both deepspeed with precompiled ops and apex. 
-- Linker doesnt work for all apex extensions, as libraries and headers are installed by conda into the site-packages folder. 
+- Not all apex extensions are currently installed via the pip method. 
+  - Linker doesn't work for all apex extensions, as libraries and headers are installed by conda into the site-packages folder. 
   - Might have to add additional config files for linker to run and run `ldconfig`.
   - Might also be a problem for the `deepspeed` compilations. I am not sure about the JIT compilation.  
+- The apex conda package has dependency issues. 
+  - Python 3.12 cannot be resolved. 
+  - Python 3.11 can be resolved but there seems to be incompatibility with Torch.
+  - Python 3.10 can be resolved but there seems to be incompatibility with Torch.
+  - The package does not come with CUDA and CPP extensions (?) or at least they cannot be found. 
 
 ## Results summary
 
 Apart from Apex and flash-attn the installation process is very smooth.
-Even flash-attn is manageable, however, the apex installation is not great; especially due to the required environment variable, ldconfig etc..
+Even flash-attn is manageable, however, the apex installation is not great; especially due to dependency issues (conda) and the required environment variable, ldconfig etc. (pip).
 The large number and combination of pre-made Nvidia containers makes finding a working container easy. There are even containers with apex pre-installed, however, I am not sure how customization with cotainr would work.  

@@ -1,6 +1,7 @@
 name: pytorch-success
 channels:
   - conda-forge
+#  - nvidia
 dependencies:
   - python=3.12
   - pip
@@ -11,6 +12,14 @@ dependencies:
   - setuptools
   - wheel
   - ninja
+# tried to install cuda manually for pytorch from the conda-forge channel
+#  - cuda-version=12.9.0
+#  - cuda==12.9.0
+#  - cuda-toolkit==12.9.0
+#  - cuda-tools==12.9.0
+#  - cuda-cudart
+#  - cuda-runtime
+#  - conda-forge::nvidia-apex #--> works however, only with python 3.10 & 3.11, does not install CUDA & CPP extensions and seems to have a version missmatch to torch
   - pip:
     - --extra-index-url https://download.pytorch.org/whl/cu128
     - torch==2.7.0
@@ -26,6 +35,7 @@ variables:
   APEX_CPP_EXT: 1
   APEX_CUDA_EXT: 1
   CUDA_HOME: /opt/nvidia/hpc_sdk/Linux_x86_64/25.3/cuda/
+  CONDA_OVERRIDE_CUDA: 12.8
   # all needed for additional apex extensions. linker currently doesnt work properly. CPATH for finding header files
 #  APEX_ALL_CONTRIB_EXT: 1 #linking doesnt work.
 #  CPATH: "$CPATH:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/nccl/include:/opt/nvidia/hpc_sdk/Linux_x86_64/25.3/cuda/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cudnn/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cusolver/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuparser/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cufile/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cufft/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuparser/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cusparse/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cublas/include/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuda_cupti/include/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuda_nvrtc/include/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/curand/include/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuda_runtime/include/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/nvjitlink/include/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/nvtx/include/"
