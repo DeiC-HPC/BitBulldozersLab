@@ -1,12 +1,8 @@
 name: pytorch-success
 channels:
   - conda-forge
-#  - nvidia
 dependencies:
   - pip
-#  - cuda==12.9.0
-#  - cuda-cudart
-#  - cuda-version=12.9.0
 #  - pytorch==2.7.1=cuda129_mkl_py39_h77df7df_302 #--> does not manage to find cuda
 #  - torchaudio==2.7.1
 #  - torchvision==0.22.0

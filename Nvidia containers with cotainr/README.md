@@ -110,6 +110,11 @@ Apex on [conda](https://anaconda.org/conda-forge/nvidia-apex/files):
 - Python 3.10 does work.
 - Python 3.11 does work.
     - Setting `CONDA_OVERRIDE_CUDA=12.8` in the primary and installing from the secondary does work. However, it seems like conda just brings its own cpu only torch version anyways (torch 2.0.0).
+- Python 3.9 does not work.
+  - Too many dependency conflicts
+
+Trying to fix the dependency conflicts between Apex and Pytorch by installing Pytorch (cuda etc.) via conda did not work well for me. 
+I always ended up with dependency conflicts that could not be resolved (unless I install the CPU Pytorch version only).
 
 I have been trying to fix some of these issues by installing pytorch from conda-forge. 
 However, I have not managed to make it pick up CUDA (`nothing provides __cuda needed by pytorch-2.7.1-cuda129_mkl_py39_h77df7df_302`). Neither setting `CUDA_HOME` nor installing cuda via conda works.  
