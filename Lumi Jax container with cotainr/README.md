@@ -64,6 +64,10 @@ This is a simple test to check if the GPUs are available.
 #### Open Source Container
 
 **Note: You may have to set the LD_LIBRARY_PATH**
+```commandline
+ export SINGULARITYENV_LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/rocm-6.0.2/lib
+ export SINGULARITYENV_ROCM_PATH=/opt/rocm-6.0.3/
+```
 
 For the open source container:
 ```commandline
@@ -79,6 +83,11 @@ The output should be:
 #### Lumi Base Container
 
 **Note: You may have to set the LD_LIBRARY_PATH and adjust the ROCM_PATH**
+```commandline
+ export SINGULARITYENV_LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/rocm-6.2.4/lib
+ export SINGULARITYENV_ROCM_PATH=/opt/rocm-6.2.4/
+```
+
 
 For the container based on Samuels image:
 ```commandline
@@ -133,6 +142,7 @@ In the Jax Github repository you first need to change line 33 in `examples/mnist
 
 We can run the classifier using the following command:
 ```commandline
+ git switch --detach jax-v0.4.35
  srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:15:00 --mem=60G --nodes=1 --ntasks-per-node=1 --cpus-per-task=8 --partition=dev-g --mpi=pmi2 --gpus-per-node=1 singularity exec -B /project/$PROJECT_NUM/$USER/jax/jax libcxi_libfabric2000_mpich423_jax_pytorch.sif  bash -c 'cd jax/examples; python mnist_classifier.py'
 ```
 
@@ -152,42 +162,12 @@ Test set accuracy 0.09799999743700027
 ....
 ```
 
-**These errors are gone when using the right tag for the mnist classifier!**
-
-Error:
-
-The following errors are generated:
-
-```commandline
-E0728 15:50:04.390109   34963 buffer_comparator.cc:156] Difference at 32: -nan, expected 200.448
-E0728 15:50:04.390131   34963 buffer_comparator.cc:156] Difference at 33: -nan, expected 196.919
-E0728 15:50:04.390135   34963 buffer_comparator.cc:156] Difference at 34: -nan, expected 197.874
-E0728 15:50:04.390138   34963 buffer_comparator.cc:156] Difference at 35: -nan, expected 196.177
-E0728 15:50:04.390140   34963 buffer_comparator.cc:156] Difference at 36: -nan, expected 199.391
-E0728 15:50:04.390143   34963 buffer_comparator.cc:156] Difference at 37: -nan, expected 192.441
-E0728 15:50:04.390145   34963 buffer_comparator.cc:156] Difference at 38: -nan, expected 194.484
-E0728 15:50:04.390148   34963 buffer_comparator.cc:156] Difference at 39: -nan, expected 200.298
-E0728 15:50:04.390150   34963 buffer_comparator.cc:156] Difference at 40: -nan, expected 197.816
-E0728 15:50:04.390152   34963 buffer_comparator.cc:156] Difference at 41: -nan, expected 196.744
-2025-07-28 15:50:04.390159: E external/xla/xla/service/gpu/autotuning/gemm_fusion_autotuner.cc:1080] Results do not match the reference. This is likely a bug/unexpected loss of precision.
-....
-```
-
-There is a bug report for this:
-https://github.com/jax-ml/jax/issues/26846
-Seems to work fine on RX6950XT but not on MI250X
-
-Apparently this is fixed in jax 0.6.2:
-https://github.com/jax-ml/jax/issues/27188
-
-There is also this one:
-https://github.com/jax-ml/jax/issues/24909 
-
 
 #### Lumi Base Container
 
 We can run the classifier using the following command:
 ```commandline
+ git switch --detach jax-v0.5.0
  srun --output=results.out --error=results.err --account=$PROJECT_NUM --time=00:15:00 --mem=60G --nodes=1 --ntasks-per-node=1 --cpus-per-task=8 --partition=dev-g --mpi=pmi2 --gpus-per-node=1 singularity exec -B /project/$PROJECT_NUM/$USER/jax/jax jax_torch_rocm6.2.4.sif  bash -c 'cd jax/examples; python mnist_classifier.py'
 ```
 
