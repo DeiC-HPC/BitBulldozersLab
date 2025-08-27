@@ -128,6 +128,7 @@ Run:
 ## Problems & concerns
 - Installation of pip only packages may be challenging.
 - Apex tests and documentation are out of date. 
+- Not sure if all Apex extensions are present in the conda apex installation. 
 - Flash-attention tests may be out of date - or the installation does not work 100% correctly. 
 
 ## Results summary
@@ -179,7 +180,7 @@ Furthermore, it also requires the `--no-build-isolation` flag in the conda env y
 The pip installation is somewhat successful. However, even with the secondary step, the apex installation is painful.
 Providing the `--no-build-isolation` flag does not work via pip requirements.txt or the conda environment yml. For all conda environment approaches that do not work see lines 22 to 38 (here)['Nvidia containers with cotainr/conda_envs/extensions.yml')
 
-For the secondary to properly work we need to set a conda environment wide flag in the variables section of the `pytorch_success.yml` (`PIP_NO_BUILD_ISOLATION: 0`).
+For the secondary to properly work we need to set a conda environment wide flag in the variables section of the `pytorch_success_pip.yml` (`PIP_NO_BUILD_ISOLATION: 0`).
 This flag is baked into the conda environment and needs to be set in the primary conda environment creation step. Enabling this means, that dependencies need to be installed manually.
 
 Furthermore, we need to set an additional 4 environment variables to build the Cuda and C++ extensions. To speed up the compilation we set a further 2 environment variables. 
