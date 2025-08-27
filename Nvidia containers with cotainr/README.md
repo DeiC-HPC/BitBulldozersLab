@@ -127,6 +127,7 @@ Run:
 
 ## Problems & concerns
 - Installation of pip only packages may be challenging.
+- Deepspeed extensions are JIT compiled. 
 - Apex tests and documentation are out of date. 
 - Not sure if all Apex extensions are present in the conda apex installation. 
 - Flash-attention tests may be out of date - or the installation does not work 100% correctly. 
