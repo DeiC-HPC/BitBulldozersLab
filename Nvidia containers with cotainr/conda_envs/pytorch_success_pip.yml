@@ -1,0 +1,35 @@
+name: pytorch-success
+channels:
+  - conda-forge
+dependencies:
+  - python
+  - pip
+  - transformers
+  - accelerate
+  - mpi4py
+  - packaging
+  - setuptools
+  - wheel
+  - ninja
+  - pip:
+    - --extra-index-url https://download.pytorch.org/whl/cu128
+    - torch==2.7.0
+    - torchaudio==2.7.0
+    - torchvision==0.22.0
+    - bitsandbytes
+    - deepspeed
+    - sentencepiece
+    - pytest
+variables:
+  PIP_NO_BUILD_ISOLATION: 0
+  DS_BUILD_OPS: 1
+  APEX_CPP_EXT: 1
+  APEX_CUDA_EXT: 1
+  CUDA_HOME: /opt/nvidia/hpc_sdk/Linux_x86_64/25.3/cuda/
+  # all needed for additional apex extensions. linker currently doesnt work properly. CPATH for finding header files
+#  APEX_ALL_CONTRIB_EXT: 1 #linking doesnt work.
+#  CPATH: "$CPATH:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/nccl/include:/opt/nvidia/hpc_sdk/Linux_x86_64/25.3/cuda/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cudnn/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cusolver/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuparser/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cufile/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cufft/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuparser/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cusparse/include:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cublas/include/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuda_cupti/include/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuda_nvrtc/include/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/curand/include/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuda_runtime/include/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/nvjitlink/include/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/nvtx/include/"
+#  LD_LIBRARY_PATH: "$LD_LIBRARY_PATH:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/nccl/lib:/opt/nvidia/hpc_sdk/Linux_x86_64/25.3/cuda/lib:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cudnn/lib:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cusolver/lib:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuparser/lib:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cufile/lib:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cufft/lib:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuparser/lib:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cusparse/lib:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cublas/lib/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuda_cupti/lib/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuda_nvrtc/lib/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/curand/lib/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/cuda_runtime/lib/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/nvjitlink/lib/:/opt/cotainr/conda/envs/conda_container_env/lib/python3.12/site-packages/nvidia/nvtx/lib/"
+
+  NVCC_APPEND_FLAGS: "--threads 1"
+  APEX_PARALLEL_BUILD: 1

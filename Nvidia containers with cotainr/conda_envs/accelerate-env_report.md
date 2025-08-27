@@ -1,30 +1,29 @@
 Copy-and-paste the text below in your GitHub issue
 
-- `Accelerate` version: 1.9.0
+- `Accelerate` version: 1.10.0
 - Platform: Linux-6.5.0-41-generic-x86_64-with-glibc2.39
 - `accelerate` bash location: /opt/cotainr/conda/envs/conda_container_env/bin/accelerate
 - Python version: 3.12.11
-- Numpy version: 2.3.1
-- PyTorch version: 2.7.0+cu128
+- Numpy version: 2.3.2
+- PyTorch version: 2.7.1
 - PyTorch accelerator: CUDA
 - System RAM: 30.49 GB
 - GPU type: NVIDIA GeForce RTX 4070
 - `Accelerate` default config:
 	- compute_environment: LOCAL_MACHINE
-	- distributed_type: DEEPSPEED
-	- mixed_precision: fp16
+	- distributed_type: NO
+	- mixed_precision: bf16
 	- use_cpu: False
 	- debug: False
 	- num_processes: 1
 	- machine_rank: 0
 	- num_machines: 1
+	- gpu_ids: all
 	- rdzv_backend: static
 	- same_network: True
 	- main_training_function: main
 	- enable_cpu_affinity: False
-	- deepspeed_config: {'gradient_accumulation_steps': 1, 'offload_optimizer_device': 'none', 'offload_param_device': 'none', 'zero3_init_flag': False, 'zero_stage': 2}
 	- downcast_bf16: no
 	- tpu_use_cluster: False
 	- tpu_use_sudo: False
 	- tpu_env: []
-	- dynamo_config: {'dynamo_backend': 'ONNXRT', 'dynamo_mode': 'default', 'dynamo_use_dynamic': False, 'dynamo_use_fullgraph': False, 'dynamo_use_regional_compilation': False}
