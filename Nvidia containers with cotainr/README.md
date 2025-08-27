@@ -132,9 +132,12 @@ Run:
 - Not sure if all Apex extensions are present in the conda apex installation. 
 - Flash-attention tests may be out of date - or the installation does not work 100% correctly. 
 
+- Compatibility between packages may still be an issue as one relies on whatever packages + libraries the conda community provides (e.g., If one needs a certain library + cuda version, that may not be provided by the community). 
+
 ## Results summary
 
-Installation is easy and `just works`, however, users may run into trouble when trying to add pip packages. Furthermore, there may be issues with apex and flash-attention as I simply cannot run the tests & examples without errors due to out of date repositories. 
+Installation is easy and `just works`, however, users may run into trouble when trying to add pip packages. 
+Furthermore, there may be issues with apex and flash-attention as I simply cannot run the tests & examples without errors due to out of date repositories. 
 
 -----------------------------------------------------------
 
