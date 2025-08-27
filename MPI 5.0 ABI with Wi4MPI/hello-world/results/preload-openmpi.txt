@@ -1,0 +1,57 @@
+OpenMPI compiled binary run with MPICH
+You are using Wi4MPI-3.6.4 with the mode preload From OMPI To MPICH
+Hello world from processor joaso-laptop, rank 0 out of 4 processors with MPI library MPICH Version:      4.3.0
+MPICH Release date: Mon Feb  3 09:09:47 AM CST 2025
+MPICH ABI:          17:0:5
+MPICH Device:       ch4:ofi
+MPICH configure:    --prefix=/home/joaso/spack/opt/spack/linux-skylake/mpich-4.3.0-5hur46n6pqwejryza7ztcuxvvvdtkj2i --disable-maintainer-mode --disable-silent-rules --enable-shared --with-pm=hydra --enable-romio --without-ibverbs --enable-wrapper-rpath=yes --with-yaksa=/home/joaso/spack/opt/spack/linux-skylake/yaksa-0.3-txlk6m4zw2wmunizi34vx43wwyeasixc --without-ze --with-hwloc=/home/joaso/spack/opt/spack/linux-skylake/hwloc-2.11.1-2wp6shwn6swcvqysjk3t7xy43lvwn2vi --enable-fortran --with-slurm=no --without-cuda --without-hip --with-device=ch4:ofi --with-libfabric=/home/joaso/spack/opt/spack/linux-skylake/libfabric-2.2.0-hq73vaxultohwcwdcyldwsfjckwbl2g5 --enable-libxml2 --with-datatype-engine=auto
+MPICH CC:           /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/gcc     -O2
+MPICH CXX:          /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/g++   -O2
+MPICH F77:          /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/gfortran   -O2
+MPICH FC:           /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/gfortran   -O2
+MPICH features:     threadcomm
+
+Hello world from processor joaso-laptop, rank 1 out of 4 processors with MPI library MPICH Version:      4.3.0
+MPICH Release date: Mon Feb  3 09:09:47 AM CST 2025
+MPICH ABI:          17:0:5
+MPICH Device:       ch4:ofi
+MPICH configure:    --prefix=/home/joaso/spack/opt/spack/linux-skylake/mpich-4.3.0-5hur46n6pqwejryza7ztcuxvvvdtkj2i --disable-maintainer-mode --disable-silent-rules --enable-shared --with-pm=hydra --enable-romio --without-ibverbs --enable-wrapper-rpath=yes --with-yaksa=/home/joaso/spack/opt/spack/linux-skylake/yaksa-0.3-txlk6m4zw2wmunizi34vx43wwyeasixc --without-ze --with-hwloc=/home/joaso/spack/opt/spack/linux-skylake/hwloc-2.11.1-2wp6shwn6swcvqysjk3t7xy43lvwn2vi --enable-fortran --with-slurm=no --without-cuda --without-hip --with-device=ch4:ofi --with-libfabric=/home/joaso/spack/opt/spack/linux-skylake/libfabric-2.2.0-hq73vaxultohwcwdcyldwsfjckwbl2g5 --enable-libxml2 --with-datatype-engine=auto
+MPICH CC:           /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/gcc     -O2
+MPICH CXX:          /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/g++   -O2
+MPICH F77:          /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/gfortran   -O2
+MPICH FC:           /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/gfortran   -O2
+MPICH features:     threadcomm
+
+Hello world from processor joaso-laptop, rank 2 out of 4 processors with MPI library MPICH Version:      4.3.0
+MPICH Release date: Mon Feb  3 09:09:47 AM CST 2025
+MPICH ABI:          17:0:5
+MPICH Device:       ch4:ofi
+MPICH configure:    --prefix=/home/joaso/spack/opt/spack/linux-skylake/mpich-4.3.0-5hur46n6pqwejryza7ztcuxvvvdtkj2i --disable-maintainer-mode --disable-silent-rules --enable-shared --with-pm=hydra --enable-romio --without-ibverbs --enable-wrapper-rpath=yes --with-yaksa=/home/joaso/spack/opt/spack/linux-skylake/yaksa-0.3-txlk6m4zw2wmunizi34vx43wwyeasixc --without-ze --with-hwloc=/home/joaso/spack/opt/spack/linux-skylake/hwloc-2.11.1-2wp6shwn6swcvqysjk3t7xy43lvwn2vi --enable-fortran --with-slurm=no --without-cuda --without-hip --with-device=ch4:ofi --with-libfabric=/home/joaso/spack/opt/spack/linux-skylake/libfabric-2.2.0-hq73vaxultohwcwdcyldwsfjckwbl2g5 --enable-libxml2 --with-datatype-engine=auto
+MPICH CC:           /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/gcc     -O2
+MPICH CXX:          /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/g++   -O2
+MPICH F77:          /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/gfortran   -O2
+MPICH FC:           /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/gfortran   -O2
+MPICH features:     threadcomm
+
+Hello world from processor joaso-laptop, rank 3 out of 4 processors with MPI library MPICH Version:      4.3.0
+MPICH Release date: Mon Feb  3 09:09:47 AM CST 2025
+MPICH ABI:          17:0:5
+MPICH Device:       ch4:ofi
+MPICH configure:    --prefix=/home/joaso/spack/opt/spack/linux-skylake/mpich-4.3.0-5hur46n6pqwejryza7ztcuxvvvdtkj2i --disable-maintainer-mode --disable-silent-rules --enable-shared --with-pm=hydra --enable-romio --without-ibverbs --enable-wrapper-rpath=yes --with-yaksa=/home/joaso/spack/opt/spack/linux-skylake/yaksa-0.3-txlk6m4zw2wmunizi34vx43wwyeasixc --without-ze --with-hwloc=/home/joaso/spack/opt/spack/linux-skylake/hwloc-2.11.1-2wp6shwn6swcvqysjk3t7xy43lvwn2vi --enable-fortran --with-slurm=no --without-cuda --without-hip --with-device=ch4:ofi --with-libfabric=/home/joaso/spack/opt/spack/linux-skylake/libfabric-2.2.0-hq73vaxultohwcwdcyldwsfjckwbl2g5 --enable-libxml2 --with-datatype-engine=auto
+MPICH CC:           /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/gcc     -O2
+MPICH CXX:          /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/g++   -O2
+MPICH F77:          /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/gfortran   -O2
+MPICH FC:           /home/joaso/spack/opt/spack/linux-skylake/compiler-wrapper-1.0-a3cgkalxtnop3dqomktqxl2ewvvjiifu/libexec/spack/gcc/gfortran   -O2
+MPICH features:     threadcomm
+
+
+===================================================================================
+=   BAD TERMINATION OF ONE OF YOUR APPLICATION PROCESSES
+=   PID 773335 RUNNING AT joaso-laptop
+=   EXIT CODE: 9
+=   CLEANING UP REMAINING PROCESSES
+=   YOU CAN IGNORE THE BELOW CLEANUP MESSAGES
+===================================================================================
+YOUR APPLICATION TERMINATED WITH THE EXIT STRING: Terminated (signal 15)
+This typically refers to a problem with your application.
+Please see the FAQ page for debugging suggestions

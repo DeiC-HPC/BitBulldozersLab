@@ -1,0 +1,12 @@
+[project]
+name = "VisualizeResults"
+version = "0.1"
+requires-python = "==3.12.4"
+maintainers = [{name = "DeiC HPC"}]
+readme = "README.md"
+license = "EUPL-1.2"
+dependencies = [
+   "jupyter",
+   "pandas",
+   "seaborn",
+]

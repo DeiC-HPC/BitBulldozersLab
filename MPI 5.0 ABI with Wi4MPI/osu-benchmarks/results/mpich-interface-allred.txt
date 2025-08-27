@@ -1,0 +1,22 @@
+You are using Wi4MPI-3.6.4 with the mode interface From Interface To MPICH
+# OSU MPI Allreduce Latency Test v5.9
+# Size       Avg Latency(us)
+4                       1.12
+8                       0.79
+16                      0.71
+32                      0.70
+64                      0.68
+128                     0.74
+256                     0.96
+512                     1.20
+1024                    1.81
+2048                    2.49
+4096                    4.26
+8192                    7.51
+16384                  15.28
+32768                  29.60
+65536                  47.57
+131072                101.41
+262144                190.77
+524288                379.10
+1048576               766.03

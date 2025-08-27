@@ -1,0 +1,9 @@
+name: mpich
+channels:
+  - conda-forge
+dependencies:
+  - mpi=*=mpich
+  - mpich=4.2.3
+  - numpy
+  - python=3.12
+  - mpi4py
