@@ -1,0 +1,23 @@
+# Download and install libfabric. CXI provider doesnt get installed atm.
+# CXI provider has to be available.
+
+# libfabric environment
+ENV LIBFABRIC_PATH=/opt/libfabric
+
+# need version higher than 1.15.2. 1.15 does not have a cxi provider
+# sed is needed to delete the CXI_MAP_IOVA_ALLOC as it was removed. https://github.com/search?q=repo%3AHewlettPackard%2Fshs-libcxi+CXI_MAP_IOVA_ALLOC&type=commits
+RUN set -eux ; \
+    wget https://github.com/ofiwg/libfabric/releases/download/v$LIBFABRIC_VERSION/libfabric-$LIBFABRIC_VERSION.tar.bz2 ; \
+    tar -xf libfabric-$LIBFABRIC_VERSION.tar.bz2; \
+    rm libfabric-$LIBFABRIC_VERSION.tar.bz2; \
+    cd libfabric-$LIBFABRIC_VERSION; \
+    CC=gcc-$GCC_RELEASE ./configure --enable-cxi=$LIBCXI_PATH --prefix=$LIBFABRIC_PATH CFLAGS='-I /include' --with-rocr=$ROCM_PATH --enable-rocr-dlopen; \
+    make -j;\
+    make install;\
+    ldconfig ;\
+    cd /; \
+    rm -rf libfabric-$LIBFABRIC_VERSION
+
+
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBFABRIC_PATH/lib
+ENV LD_RUN_PATH=$LD_RUN_PATH:$LIBFABRIC_PATH/lib

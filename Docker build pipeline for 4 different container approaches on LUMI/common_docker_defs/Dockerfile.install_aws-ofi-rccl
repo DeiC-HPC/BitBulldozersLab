@@ -1,0 +1,56 @@
+
+
+#// This is a heavily modified version of a file provided by Samuel F Antao
+#// Original License and code from https://github.com/sfantao/lumi-containers/tree/lumi-sep2024
+#//
+#//MIT License
+#//
+#//Copyright (c) 2023 Advanced Micro Devices, Inc.
+#//
+#//Permission is hereby granted, free of charge, to any person obtaining a copy
+#//of this software and associated documentation files (the "Software"), to deal
+#//in the Software without restriction, including without limitation the rights
+#//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+#//copies of the Software, and to permit persons to whom the Software is
+#//furnished to do so, subject to the following conditions:
+#//
+#//The above copyright notice and this permission notice shall be included in all
+#//copies or substantial portions of the Software.
+#//
+#//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+#//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+#//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+#//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+#//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+#//SOFTWARE.
+
+
+#
+# Mark RCCL as non-debug - this can me overriden by RCCL debug build.
+#
+ENV RCCL_DEBUG=0
+
+#Seems to be incompatible with latest libfabric version 2.0.0
+RUN set -eux ; \
+  git clone -b cxi https://github.com/ROCmSoftwarePlatform/aws-ofi-rccl /opt/mybuild ; \
+  cd /opt/mybuild ; \
+  ./autogen.sh ; \
+  \
+  cd /opt/mybuild ; \
+  export CPATH=$LIBFABRIC_PATH/include ; \
+  export LIBRARY_PATH=$LD_LIBRARY_PATH ; \
+  CC=gcc-$GCC_RELEASE ./configure --with-libfabric=$LIBFABRIC_PATH --enable-trace --with-hip=$ROCM_PATH --with-rccl=$ROCM_PATH/rccl --disable-tests ; \
+  CC=gcc-$GCC_RELEASE nice make -j ; \
+  \
+  mkdir /opt/aws-ofi-rccl ; \
+  mv src/.libs/librccl-net.so* /opt/aws-ofi-rccl ; \
+  rm -rf /opt/mybuild
+
+#
+# Add relevant libs to execution environment
+#
+ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/aws-ofi-rccl
+ENV CXI_FORK_SAFE=1
+ENV CXI_FORK_SAFE_HP=1
+ENV FI_CXI_DISABLE_CQ_HUGETLB=1

@@ -1,0 +1,54 @@
+
+ENV HWLOC_TAR=https://download.open-mpi.org/release/hwloc/v2.12/hwloc-2.12.0.tar.gz
+
+RUN set -eux ; \
+    cd / ;\
+    wget $HWLOC_TAR; \
+    tar -xzf hwloc-2.12.0.tar.gz ;\
+    cd hwloc-2.12.0 ;\
+    CC=gcc-$GCC_RELEASE ./configure --prefix=/opt/hwloc  --localstatedir=/var ;\
+    make install ;\
+    ldconfig
+
+ENV PATH=/opt/hwloc/bin:$PATH
+ENV LD_LIBRARY_PATH=/opt/hwloc/lib:$LD_LIBRARY_PATH
+
+ENV MPICH_PATH=/opt/mpich
+ENV MPICH_TAR=http://www.mpich.org/static/downloads/${MPICH_VERSION}/mpich-${MPICH_VERSION}.tar.gz
+
+#
+# Add MPICH
+RUN set -eux ; \
+    cd / ;\
+    wget $MPICH_TAR ; \
+    tar -xzf mpich-$MPICH_VERSION.tar.gz; \
+    rm mpich-$MPICH_VERSION.tar.gz;\
+    cd mpich-$MPICH_VERSION ;\
+    CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE  \
+        ./configure --prefix=$MPICH_PATH  \
+            --with-hip-lib=$ROCM_PATH/lib/  \
+            --with-hip-include=$ROCM_PATH/include/  \
+            --with-libfabric=/opt/libfabric  \
+            --disable-fortran  \
+            --enable-fast=all,O3  \
+            --with-device=ch4:ofi \
+             --with-pm=none \
+            --disable-silent-rules \
+            --enable-debuginfo \
+            --with-hwloc=/opt/hwloc \
+            --enable-shared ;\
+    make -j 12;\
+    make install;\
+    ldconfig
+
+
+ENV PATH=$MPICH_PATH/bin:$PATH
+ENV LD_LIBRARY_PATH=$MPICH_PATH/lib:$LD_LIBRARY_PATH
+
+#RUN set -eux ;\
+#    unset MPIR_CVAR_OFI_USE_PROVIDER ;
+#
+#ENV FI_PROVIDER=cxi
+#ENV MPIR_CVAR_ENABLE_GPU=1
+#ENV FI_MR_HMEM=1
+
