@@ -1,4 +1,12 @@
-#!/bin/bash
+#!/bin/bash -e
+#SBATCH --job-name=build_containers
+#SBATCH --ntasks=1
+#SBATCH --output=output_%x_%j.txt
+#SBATCH --partition=small
+#SBATCH --time=03:00:00
+#SBATCH --account=project_465001699
+
+
 module load CrayEnv cotainr
 
 cotainr build mpi4py_libfabric2000_pip.sif --base-image=base_images/opensource_base_image_libcxi_libfabric2000_mpich423.sif --conda-env mpi4py_mpich4_pip.yml --accept-licenses

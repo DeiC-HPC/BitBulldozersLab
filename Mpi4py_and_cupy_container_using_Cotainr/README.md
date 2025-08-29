@@ -20,9 +20,9 @@ In this BitBulldozer they are put in
 - `containers/base_images/opensource_base_image_libcxi_libfabric2000_mpich423.sif`
 - `containers/base_images/opensource_base_image_libcxi_libfabric1220_mpich423.sif`
 
-With these containers in place, the complete environment containing test method containers and the OSU benchmark can be setup using the `reproduce-environment.sh` script (On Lumi only). This script calls `containers/build_container.sh` to build the 8 test method containers which takes approximately 80 minutes.
+With these containers in place, the complete environment containing test method containers and the OSU benchmark can be setup using the `reproduce-environment.sh` script (on LUMI only). This script submits a batch job `containers/build_container.sh` to build the 8 test method containers which takes approximately 80 minutes.
 
-The benchmark tests can then be submitted via Slurm on LUMI using the run scripts found in `run-scripts/` which dumps the output results in `results/`. Note that some of the data requires cleaning before processing. This is done by running `sed -i '/source/d' results/*.txt` which deletes in-place all lines containing the string 'source' from the output files.
+The benchmark tests can then be submitted via Slurm on LUMI using the run scripts found in `run-scripts/` (NOTE: `run-cray-python.sh is NOT part of the benchmark, it can be used to compare single-node performance). They will dump the output results in `results/`. Note that some of the data requires cleaning before processing. This is done by running `sed -i '/source/d' results/*.txt` which deletes in-place all lines containing the string 'source' from the output files. 
 
 ## Discussion
 The CPU container using the external MPICH displays superior inter-node performance as it has been compiled in the container with cxi support, and thus displays numbers closer to slingshot performance. In terms of intra-node performance it is seen to be generally equal or slightly worse than the pip/conda pre-compiled binaries for some message sizes.
