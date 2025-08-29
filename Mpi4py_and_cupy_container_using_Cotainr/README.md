@@ -44,7 +44,7 @@ In order to use CuPy we required the very newest version for compatibility with 
 
 The docker to singularity conversion of the base container must be done with `--fix-perms` in order to properly build the containers in this BitBulldozersLab. [5]
 
-The CuPy recipe requires environment variables in order to compile CuPy correctly, even though the variable are added to the conda environment file (.yml), they are not use and has to be defined manually as cotainr works currently.
+The CuPy recipe requires environment variables in order to compile CuPy correctly, even though the variables are added to the conda environment file (containers/cupy_mpi4py.yml), they are not used and has to be defined manually (as done in containers/build_containers.sh) for cotainr works currently. 
 # Summary
 
 - CuPy + mpi4py open source container achieve:
