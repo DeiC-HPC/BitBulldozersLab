@@ -1,0 +1,59 @@
+easyblock = "PythonPackage"
+
+name = "MyQueue"
+version = "25.4.0"
+homepage = "https://myqueue.readthedocs.io/"
+description = "MyQueue is a frontend for SLURM/PBS/LSF that makes handling of tasks easy"
+
+toolchain = {'name': 'cpeGNU', 'version': '24.03'}
+
+sources = [{
+     'filename': SOURCELOWER_TAR_GZ,
+     'source_urls': [PYPI_LOWER_SOURCE],
+}]
+patches = [
+   {'name': '%(namelower)s-%(version)s-siteconfig.patch', 'level': 1},
+]
+checksums = [
+    {'myqueue-25.4.0.tar.gz': '48b851573c60a9f9cd864dae6414097687e2b86b22771f5e5449e06bc6ea0570'},
+    {'myqueue-25.4.0-siteconfig.patch': '027c8c0c18c67e7a8667eed28a45ad11e8b9287dc65e8dc0634c8b145c4289aa'},
+]
+
+builddependencies = [
+    ('buildtools-python', '%(toolchain_version)s', '-cray-python%(pyshortver)s', True),
+]
+
+dependencies = [
+    ('cray-python', EXTERNAL_MODULE),
+]
+
+
+use_pip = True
+use_pip_for_deps = True
+
+local_systems = """config = {
+    'scheduler': 'slurm',
+    'mpiexec': 'srun',
+    'nodes': [
+        ('standard', {'cores': 128}),
+        ('small', {'cores': 128}),
+        ('debug', {'cores': 128}),
+        ('largemem', {'cores': 128}),
+        ('standard-g', {'cores': 56}),
+        ('small-g', {'cores': 56}),
+        ('dev-g', {'cores': 56})]}
+"""
+
+postinstallcmds = ['cd %(installdir)s/lib/python%(pyshortver)s/site-packages/%(namelower)s ; cat >site-config.py <<EOF\n' + local_systems + '\nEOF\n']
+
+sanity_check_paths = {
+    'files': ['bin/mq'],
+    'dirs': ['bin', 'lib/python%(pyshortver)s/site-packages/%(namelower)s']
+}
+
+sanity_check_commands = [
+    ('mq', '--version'),
+    ('mq', '--help'),
+]
+
+moduleclass = 'tools'

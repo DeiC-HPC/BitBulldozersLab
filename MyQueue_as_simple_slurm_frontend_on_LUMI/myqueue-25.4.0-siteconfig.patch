@@ -1,0 +1,45 @@
+# Patch to create config file from site-config default
+# author: Joachim Sødequist (DeiC)
+# diff -ruN myqueue-25.4.0.orig/myqueue/cli.py myqueue-25.4.0/myqueue/cli.py > myqueue-25.4.0-siteconfig.patch
+--- myqueue-25.4.0.orig/myqueue/cli.py	2025-08-13 12:47:16.000000000 +0300
++++ myqueue-25.4.0/myqueue/cli.py	2025-08-13 15:12:28.000000000 +0300
+@@ -356,6 +356,11 @@
+               help='Show information for queues in this folder and its '
+               'subfolders.  Defaults to current folder.')
+ 
++        if cmd == 'init':
++            a('-A', '--account',
++              help='Choose an account for job submittion. '
++              'Defaults to current project folder.')
++
+     args = parser.parse_args(
+         fix_option_order(arguments if arguments is not None else sys.argv[1:],
+                          short_options,
+@@ -448,7 +453,27 @@
+             print(f'Creating {mq}')
+             mq.mkdir()
+         path = mqhome() / '.myqueue'
++        cfg0 = Path(__file__).parent / 'site-config.py'
+         cfg1 = path / 'config.py'
++        if cfg0.is_file() and not cfg1.is_file():
++            siteconfig = cfg0.read_text()
++            if args.account is None:
++                from grp import getgrgid
++                projects = [
++                    getgrgid(a).gr_name
++                    for a in os.getgroups()
++                    if getgrgid(a).gr_name.startswith("project_")
++                ]
++                account = projects[-1]
++            else:
++                account = args.account
++            splitconfig = siteconfig.split(',\n', maxsplit=1)
++            s = f",\n    'extra_args': ['--account={account}'],\n"
++            siteconfig = s.join(splitconfig)
++            print(f'Copying {cfg0} to {cfg1}')
++            print(f"Adding {account} to local {cfg1}")
++            cfg1.write_text(siteconfig)
++
+         cfg2 = mq / 'config.py'
+         if cfg1.is_file() and not cfg2.is_file():
+             print(f'Copying {cfg1} to {cfg2}')
