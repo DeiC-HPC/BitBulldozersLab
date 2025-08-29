@@ -21,7 +21,7 @@ export SINGULARITYENV_MPIR_CVAR_ENABLE_GPU=0
 # export SINGULARITYENV_MPIR_CVAR_DEBUG_SUMMARY=1
 # export SINGULARITYENV_FI_LOG_LEVEL=debug
 
-PROJECT_DIR="/scratch/project_465001699/joachimsode/summer/BitBulldozersLab/mpi4py and cupy container using Cotainr"
+PROJECT_DIR=$(pwd)
 OSU_PY_BENCHMARK_DIR="$PROJECT_DIR/osu-micro-benchmarks-7.5.1/python"
 CONTAINERS=("mpi4py_libfabric1220_extmpich.sif" \
 	    "mpi4py_libfabric2000_extmpich.sif" \

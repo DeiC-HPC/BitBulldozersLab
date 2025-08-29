@@ -26,7 +26,7 @@ hmem="hmem"
 # export SINGULARITYENV_MPIR_CVAR_DEBUG_SUMMARY=1
 # export SINGULARITYENV_FI_LOG_LEVEL=debug
 
-PROJECT_DIR="/scratch/project_465001699/joachimsode/summer/BitBulldozersLab/mpi4py and cupy container using Cotainr"
+PROJECT_DIR=$(pwd)
 OSU_PY_BENCHMARK_DIR="$PROJECT_DIR/osu-micro-benchmarks-7.5.1/python"
 CONTAINERS=("cupy_mpi4py_libfabric2000.sif" \
 	    "cupy_mpi4py_libfabric1220.sif")

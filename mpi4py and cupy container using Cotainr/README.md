@@ -10,17 +10,17 @@ This BitBullDozer is a continuation of the [LUMI-C OSU mpi4py benchmarks](https:
 - Perform intra-node GPU-to-GPU Benchmark and analyse performance of CuPy.
 - Discussion of the settings, tunings, etc. needed for building a container for GPU-GPU MPI communication on LUMI.
 - A Jupyter notebook presenting an analysis of the test and benchmark results
-The builds and discussions are found in this README and the benchmark performance are shown in the `lumi_mpi4py_osu_results.ipynb` notebook.
+The builds and discussions are found in this README and the benchmark performance are shown in the `lumi-g_mpi4py_osu_results.ipynb`  and `lumi-c_mpi4py_osu_results.ipynb` notebooks.
 
 ## Reproduction
 This BitBulldozersLab requires the two following **open source** base containers created in the docker build [BitBullDozer](https://github.com/DeiC-HPC/BitBulldozersLab/tree/explore/docker_builds/Docker%20build%20pipeline%20for%204%20different%20container%20approaches%20on%20LUMI)
 - `base_image_libcxi_libfabric2000_mpich423.sif`
 - `base_image_libcxi_libfabric1220_mpich423.sif`
 In this BitBulldozer they are put in
-- `base_images/opensource_base_image_libcxi_libfabric2000_mpich423.sif`
-- `base_images/opensource_base_image_libcxi_libfabric1220_mpich423.sif`
+- `containers/base_images/opensource_base_image_libcxi_libfabric2000_mpich423.sif`
+- `containers/base_images/opensource_base_image_libcxi_libfabric1220_mpich423.sif`
 
-With these containers in place, the complete environment containing test method containers and the OSU benchmark can be setup using the `reproduce-environment.sh` script. This script calls `containers/build_container.sh` to build the 8 test method containers which takes approximately 80 minutes.
+With these containers in place, the complete environment containing test method containers and the OSU benchmark can be setup using the `reproduce-environment.sh` script (On Lumi only). This script calls `containers/build_container.sh` to build the 8 test method containers which takes approximately 80 minutes.
 
 The benchmark tests can then be submitted via Slurm on LUMI using the run scripts found in `run-scripts/` which dumps the output results in `results/`. Note that some of the data requires cleaning before processing. This is done by running `sed -i '/source/d' results/*.txt` which deletes in-place all lines containing the string 'source' from the output files.
 
@@ -38,7 +38,7 @@ The GPU intra-node bandwidth performance of the OSU Python benchmark is very fas
 ## Issues
 When using the `MPIR_CVAR_CH4_OFI_ENABLE_HMEM` flag, we do get an error in using "DMABUF" memory translation
 `libfabric:65622:1753693496::core:core:rocr_is_dmabuf_supported():1134<info> DMABUF support: could not open kernel conf file /boot/config-5.14.21-150500.55.49_13.0.56-cray_shasta_c error`
-This can be fixed this by either bind-mounting this kernel file from /boot/ or we can disable dmabuf using `FI_HMEM_ROCR_USE_DMABUF=0`, however it affects performance very little.
+This can be fixed by either bind-mounting this kernel file from /boot/ or we can disable dmabuf using `FI_HMEM_ROCR_USE_DMABUF=0`, however it affects performance very little.
 
 In order to use CuPy we required the very newest version for compatibility with Cython 3.1 [4]
 

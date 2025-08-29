@@ -28,7 +28,7 @@ export MPIR_CVAR_DEBUG_SUMMARY=1
 export FI_LOG_LEVEL=debug
 
 
-PROJECT_DIR="/scratch/project_465001699/joachimsode/summer/BitBulldozersLab/mpi4py and cupy container using Cotainr"
+PROJECT_DIR=$(pwd)
 OSU_PY_BENCHMARK_DIR="$PROJECT_DIR/osu-micro-benchmarks-7.5.1/python"
 RESULTS_DIR="$PROJECT_DIR/results"
 
