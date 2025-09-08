@@ -1,0 +1,7 @@
+
+# Remove mpich
+RUN set -eux ; \
+    rm -rf /opt/mpich
+
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV LD_LIBRARY_PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

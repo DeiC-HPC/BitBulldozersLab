@@ -1,0 +1,4 @@
+
+# Remove libfabric
+RUN set -eux ; \
+    rm -rf /opt/libfabric

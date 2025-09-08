@@ -1,0 +1,27 @@
+
+ENV MPICH_PATH=/opt/mpich
+ENV MPICH_TAR=http://www.mpich.org/static/downloads/${MPICH_VERSION}/mpich-${MPICH_VERSION}.tar.gz
+
+
+# Add MPICH
+#
+RUN set -eux ; \
+    cd / ;\
+    wget $MPICH_TAR ; \
+    tar -xzf mpich-$MPICH_VERSION.tar.gz; \
+    rm mpich-$MPICH_VERSION.tar.gz;\
+    cd mpich-$MPICH_VERSION ;\
+    CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE  \
+        ./configure --prefix=$MPICH_PATH  \
+            --with-libfabric=/opt/libfabric  \
+            --with-hip-lib=$ROCM_PATH/lib/  \
+            --with-hip-include=$ROCM_PATH/include/  \
+            --disable-fortran  \
+            --without-ucx;\
+    make -j 12;\
+    make install ;\
+    cd /;\
+    rm -rf mpich-$MPICH_VERSION
+
+ENV PATH=$MPICH_PATH/bin:$PATH
+ENV LD_LIBRARY_PATH=$MPICH_PATH/lib:$LD_LIBRARY_PATH

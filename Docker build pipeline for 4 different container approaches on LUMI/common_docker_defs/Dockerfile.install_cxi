@@ -1,0 +1,39 @@
+
+# --> latest commit on main
+RUN set -eux ; \
+    cd /opt/ ;\
+    git clone https://github.com/HewlettPackard/shs-cassini-headers;\
+    mkdir -p /share/cassini-headers/;\
+    mkdir -p /include;\
+    cp shs-cassini-headers/share/cassini-headers/csr_defs.json /share/cassini-headers/;\
+    cp -r shs-cassini-headers/include/* /include/
+
+#Future: actually build the drivers??
+#RUN #set -eux ; \
+#    cd /opt/ ;\
+#    wget https://github.com/HewlettPackard/ss-sbl ;\
+#    cd ss-sbl ;\
+#    SBL_EXTERNAL_BUILD=1 PLATFORM_CASSINI_SIM=1 make
+
+# --> latest commit on main
+RUN set -eux ; \
+    cd /opt/ ;\
+    git clone https://github.com/HewlettPackard/shs-cxi-driver ;\
+    cp -r shs-cxi-driver/include/* /include/
+#    make
+
+#0f3609b5e224636abffc7ceffe6f4e9c83244c08 --> latest commit on main
+ENV LIBCXI_PATH=/opt/libcxi
+RUN set -eux ; \
+    cd /opt/ ;\
+    git clone http://github.com/HewlettPackard/shs-libcxi ;\
+    cd shs-libcxi;\
+    git checkout 0f3609b5e224636abffc7ceffe6f4e9c83244c08;\
+    sed -i 's+/usr/share/cassini-headers/csr_defs.json+/share/cassini-headers/csr_defs.json+g' utils/cxi_dump_csrs.py ;\
+    ./autogen.sh;\
+    CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE  ./configure --disable-static --with-udevrulesdir=$LIBCXI_PATH/lib/udev/rules.d --prefix=$LIBCXI_PATH CFLAGS='-I /include' --with-rocm=$ROCM_PATH;\
+    make -j install;\
+    ldconfig
+
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBCXI_PATH/lib
+ENV LD_RUN_PATH=$LD_RUN_PATH:$LIBCXI_PATH/lib

@@ -1,0 +1,8 @@
+# install additional dependencies for the full opensource version. may be partially required for the libfabric hybrid approach as well. 
+RUN zypper refresh
+RUN zypper update -y
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install -y --force-resolution \
+    libconfig-devel libuv-devel libfuse2 libyaml-devel fuse-devel libnl3-devel libnuma-devel bison flex libcurl-devel libsensors4-devel gzip; \
+  zypper clean
+

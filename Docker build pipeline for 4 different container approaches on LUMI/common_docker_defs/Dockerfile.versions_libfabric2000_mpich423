@@ -1,0 +1,4 @@
+
+ENV LIBFABRIC_VERSION=2.0.0
+# Channel 4 only works on v >= 3.4.3
+ENV MPICH_VERSION=4.2.3
