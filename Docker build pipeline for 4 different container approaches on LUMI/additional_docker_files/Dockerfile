@@ -4,12 +4,6 @@ LABEL authors="julius"
 ENTRYPOINT ["top", "-b"]
 
 # Versions
-#ENV ROCM_RELEASE=6.0.2
-#ENV AMDGPU_INSTALLER_RELEASE=6.0.60002-1
-
-ENV ROCM_RELEASE=6.2.4
-ENV AMDGPU_INSTALLER_RELEASE=6.2.60204-1
-
 ENV GCC_RELEASE=12
 ENV OSU_VERSION=7.5
 ENV SLE_RELEASE=15.5
@@ -79,14 +73,14 @@ RUN set -eux ; \
 #//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #//SOFTWARE.
 
-
-
-
-ENV ROCM_RPM=https://repo.radeon.com/amdgpu-install/$ROCM_RELEASE/sle/$SLE_RELEASE/amdgpu-install-$AMDGPU_INSTALLER_RELEASE.noarch.rpm
-
 # Try to remove GPG key check
 RUN set -eux ; \
   sed -i 's#gpgcheck=1#gpgcheck=0#g' /etc/zypp/repos.d/*.repo
+
+
+ENV ROCM_RELEASE=6.2.4
+ENV AMDGPU_INSTALLER_RELEASE=6.2.60204-1
+ENV ROCM_RPM=https://repo.radeon.com/amdgpu-install/$ROCM_RELEASE/sle/$SLE_RELEASE/amdgpu-install-$AMDGPU_INSTALLER_RELEASE.noarch.rpm
 
 # Add AMD key
 RUN set -eux ; \
@@ -97,6 +91,9 @@ RUN set -eux ; \
 # Install amdgpu-install
 RUN set -eux ; \
   zypper --no-gpg-checks -n install $ROCM_RPM
+
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install --oldpackage libsystemd0-249.16 libudev1-249.16
 
 # Use amdgpu-install to install rocm et al. Should also install rccl.
 RUN set -eux ; \
@@ -205,14 +202,24 @@ RUN set -eux ; \
 
 
 #ENV LIBFABRIC_VERSION=2.3.0
-# Channel 4 only works on v >= 3.4.3
-ENV MPICH_VERSION=4.2.3
+
 # install additional dependencies for the full opensource version. may be partially required for the libfabric hybrid approach as well. 
 RUN zypper refresh
 RUN zypper update -y
 RUN set -eux ; \
   zypper --no-gpg-checks -n install -y --force-resolution \
-    libconfig-devel libuv-devel libfuse2 libyaml-devel fuse-devel libnl3-devel libnuma-devel bison flex libcurl-devel libsensors4-devel gzip; \
+    libconfig-devel  \
+    libuv-devel  \
+    libfuse2  \
+    libyaml-devel  \
+    fuse-devel  \
+    libnl3-devel  \
+    libnuma-devel  \
+    bison  \
+    flex  \
+    libcurl-devel  \
+    libsensors4-devel  \
+    gzip; \
   zypper clean
 
 # From Samuel
@@ -362,17 +369,19 @@ RUN set -eux ; \
 ENV PATH=/opt/hwloc/bin:$PATH
 ENV LD_LIBRARY_PATH=/opt/hwloc/lib:$LD_LIBRARY_PATH
 
-ARG SLURM_VERSION=23-02-7-1
-RUN wget https://github.com/SchedMD/slurm/archive/slurm-${SLURM_VERSION}.tar.gz \
- && tar -xf slurm-${SLURM_VERSION}.tar.gz \
- && cd slurm-slurm-${SLURM_VERSION} \
- && ./configure --prefix=/opt/slurm \
- && cd contribs/pmi2 \
- && make -j$(getconf _NPROCESSORS_ONLN) install \
- && rm -Rf ../../../slurm*
+#ARG SLURM_VERSION=23-02-7-1
+#RUN wget https://github.com/SchedMD/slurm/archive/slurm-${SLURM_VERSION}.tar.gz \
+# && tar -xf slurm-${SLURM_VERSION}.tar.gz \
+# && cd slurm-slurm-${SLURM_VERSION} \
+# && ./configure --prefix=/opt/slurm \
+# && cd contribs/pmi2 \
+# && make -j$(getconf _NPROCESSORS_ONLN) install \
+# && rm -Rf ../../../slurm*
+#ENV LD_LIBRARY_PATH=/opt/slurm/lib:$LD_LIBRARY_PATH
+#ENV LD_RUN_PATH=/opt/slurm/lib:$LD_RUN_PATH
 
-ENV LD_LIBRARY_PATH=/opt/slurm/lib:$LD_LIBRARY_PATH
-ENV LD_RUN_PATH=/opt/slurm/lib:$LD_RUN_PATH
+# Channel 4 only works on v >= 3.4.3
+ENV MPICH_VERSION=4.2.3
 
 ENV MPICH_PATH=/opt/mpich
 ENV MPICH_TAR=http://www.mpich.org/static/downloads/${MPICH_VERSION}/mpich-${MPICH_VERSION}.tar.gz
@@ -394,9 +403,9 @@ RUN set -eux ; \
             --enable-fast=all,O3  \
 #            --disable-fast \
             --with-device=ch4:ofi:cxi \
-            --with-pmi=pmi2 \
-            --with-pmi-include==/opt/slurm/include/slurm/ \
-            --with-pmi-lib==/opt/slurm/lib/ \
+#            --with-pmi=pmi2 \
+#            --with-pmi-include==/opt/slurm/include/slurm/ \
+#            --with-pmi-lib==/opt/slurm/lib/ \
 #            --with-pmilib=install \
             --with-pm=no \
             --disable-silent-rules \
