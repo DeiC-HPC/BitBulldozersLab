@@ -13,101 +13,37 @@ RUN set -eux ; \
   zypper -n addrepo https://download.opensuse.org/repositories/devel:/languages:/perl/SLE_15_SP5 myrepo4 ; \
   echo 'gpgcheck=0' >> /etc/zypp/repos.d/myrepo4.repo
 
-# Versions
-ENV GCC_RELEASE=12
-ENV OSU_VERSION=7.5
-ENV SLE_RELEASE=15.5
-
-#// This is a heavily modified version of a file provided by Samuel F Antao
-#// Original License and code from https://github.com/sfantao/lumi-containers/tree/lumi-sep2024
-#//
-#//MIT License
-#//
-#//Copyright (c) 2023 Advanced Micro Devices, Inc.
-#//
-#//Permission is hereby granted, free of charge, to any person obtaining a copy
-#//of this software and associated documentation files (the "Software"), to deal
-#//in the Software without restriction, including without limitation the rights
-#//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#//copies of the Software, and to permit persons to whom the Software is
-#//furnished to do so, subject to the following conditions:
-#//
-#//The above copyright notice and this permission notice shall be included in all
-#//copies or substantial portions of the Software.
-#//
-#//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#//SOFTWARE.
-
-
-# update & upgrade image and install some base packages
-# Repo contains perl libraries (?) that are needed for the rocm install. If the repos arent added the amdgpu-installer cannot resolve the dependencies.
-#RUN #set -eux ; \
-#   zypper -n addrepo https://download.opensuse.org/repositories/devel:/languages:/perl/SLE_15_SP5 myrepo5 ; \
-#   echo 'gpgcheck=0' >> /etc/zypp/repos.d/myrepo5.repo
-
-RUN zypper refresh
-RUN zypper update -y
-RUN set -eux ; \
-  zypper --no-gpg-checks -n install -y --force-resolution \
-    git cmake gcc${GCC_RELEASE} gcc${GCC_RELEASE}-c++ gcc${GCC_RELEASE}-fortran zlib-devel numactl awk patch tar autoconf automake libtool libjson-c-devel graphviz ncurses-devel nano which perl wget lbzip2  libjansson4 libnl3-200 perl-File-Which; \
-  zypper clean
-
-
-#// This is a heavily modified version of a file provided by Samuel F Antao
-#// Original License and code from https://github.com/sfantao/lumi-containers/tree/lumi-sep2024
-#//
-#//MIT License
-#//
-#//Copyright (c) 2023 Advanced Micro Devices, Inc.
-#//
-#//Permission is hereby granted, free of charge, to any person obtaining a copy
-#//of this software and associated documentation files (the "Software"), to deal
-#//in the Software without restriction, including without limitation the rights
-#//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#//copies of the Software, and to permit persons to whom the Software is
-#//furnished to do so, subject to the following conditions:
-#//
-#//The above copyright notice and this permission notice shall be included in all
-#//copies or substantial portions of the Software.
-#//
-#//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#//SOFTWARE.
-
-# Try to remove GPG key check
 RUN set -eux ; \
   sed -i 's#gpgcheck=1#gpgcheck=0#g' /etc/zypp/repos.d/*.repo
 
+#
+# Install build dependencies
+#
+RUN set -eux; \
+  zypper -n refresh ; \
+  zypper --no-gpg-checks -n install -y --force-resolution \
+    git cmake gcc12 gcc12-c++ gcc12-fortran zlib-devel numactl awk patch tar autoconf automake libtool libjson-c-devel graphviz ncurses-devel nano which libjansson4 libnl3-200 wget; \
+  zypper clean
 
-ENV ROCM_RELEASE=6.2.4
-ENV AMDGPU_INSTALLER_RELEASE=6.2.60204-1
-ENV ROCM_RPM=https://repo.radeon.com/amdgpu-install/$ROCM_RELEASE/sle/$SLE_RELEASE/amdgpu-install-$AMDGPU_INSTALLER_RELEASE.noarch.rpm
 
-# Add AMD key
-RUN set -eux ; \
-    wget -O rocm.gpg.key https://repo.radeon.com/rocm/rocm.gpg.key ; \
-    rpm --import rocm.gpg.key ; \
-    rm rocm.gpg.key
+ENV ROCM_RPM https://repo.radeon.com/amdgpu-install/6.2.4/sle/15.5/amdgpu-install-6.2.60204-1.noarch.rpm
+ENV ROCM_RELEASE 6.2.4
 
-# Install amdgpu-install
+COPY rocminfo rocm_agent_enumerator amdgpu-arch.cpp aws.patch /
+
 RUN set -eux ; \
   zypper --no-gpg-checks -n install $ROCM_RPM
 
 RUN set -eux ; \
+  sed -i 's#gpgcheck=1#gpgcheck=0#g' /etc/zypp/repos.d/*.repo
+
+RUN set -eux ; \
   zypper --no-gpg-checks -n install --oldpackage libsystemd0-249.16 libudev1-249.16
 
-# Use amdgpu-install to install rocm et al. Should also install rccl.
 RUN set -eux ; \
-  amdgpu-install -y --no-dkms --usecase=rocm --rocmrelease=$ROCM_RELEASE
+  zypper refresh ; \
+  amdgpu-install -y --no-dkms --usecase=rocm --rocmrelease=$ROCM_RELEASE ; \
+  zypper cc -a
 
 RUN set -eux ; \
   zypper --no-gpg-checks -n install -y --force miopen-hip-gfx90akdb
@@ -120,37 +56,13 @@ RUN set -eux ; \
 #
 ENV ROCM_PATH /opt/rocm-$ROCM_RELEASE
 ENV PATH $ROCM_PATH/bin:$ROCM_PATH/llvm/bin:$PATH
-ENV LD_LIBRARY_PATH $ROCM_PATH/lib
+ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$ROCM_PATH/lib
 
-#// This is a heavily modified version of a file provided by Samuel F Antao
-#// Original License and code from https://github.com/sfantao/lumi-containers/tree/lumi-sep2024
-#//
-#//MIT License
-#//
-#//Copyright (c) 2023 Advanced Micro Devices, Inc.
-#//
-#//Permission is hereby granted, free of charge, to any person obtaining a copy
-#//of this software and associated documentation files (the "Software"), to deal
-#//in the Software without restriction, including without limitation the rights
-#//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#//copies of the Software, and to permit persons to whom the Software is
-#//furnished to do so, subject to the following conditions:
-#//
-#//The above copyright notice and this permission notice shall be included in all
-#//copies or substantial portions of the Software.
-#//
-#//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#//SOFTWARE.
+#
+# Mark RCCL as non-debug - this can me overriden by RCCL debug build.
+#
+ENV RCCL_DEBUG 0
 
-#we need to copy files needed to DOCKER
-COPY rocminfo rocm_agent_enumerator amdgpu-arch.cpp aws.patch /
-
-# Fake having the amd gpus? so that aws-ofi-rccl installs properly?
 RUN set -eux ; \
   cd $ROCM_PATH/bin ; \
   for i in rocm_agent_enumerator rocminfo ; do \
@@ -161,32 +73,23 @@ RUN set -eux ; \
 
 RUN set -eux ; \
   cd $ROCM_PATH/llvm/bin ; \
-  cp /amdgpu-arch.cpp . ;\
   rm amdgpu-arch offload-arch ; \
-  g++-$GCC_RELEASE amdgpu-arch.cpp -DNUM_TARGETS=8 -o amdgpu-arch ; \
-  g++-$GCC_RELEASE amdgpu-arch.cpp -DNUM_TARGETS=1 -o offload-arch ; \
-  rm -rf amdgpu-arch.cpp ; \
+  g++-12 /amdgpu-arch.cpp -DNUM_TARGETS=8 -o amdgpu-arch ; \
+  g++-12 /amdgpu-arch.cpp -DNUM_TARGETS=1 -o offload-arch ; \
   ./amdgpu-arch ; \
-  ./offload-arch ; \
-  true ; \
-  cd;
+  ./offload-arch
 
-
-
-# RCCL version --> 2.24.3-1 --> 6aae379
-#ARG RCCL_VERSION=612add2 #--> 2.20 for ROCm 6.2.4
-#--> From Samuel
 ARG RCCL_VERSION=85eb1f1
 
-RUN set -eux ; \
-#  rm -rf /opt/mybuild ; \
-  git clone https://github.com/rocm/rccl /opt/mybuild_rccl ; \
-  cd /opt/mybuild_rccl ; \
+RUN $WITH_CONDA ; set -eux ; \
+  rm -rf /opt/mybuild ; \
+  git clone https://github.com/rocm/rccl /opt/mybuild ; \
+  cd /opt/mybuild ; \
   git checkout -b mydev $RCCL_VERSION ; \
   git submodule sync ; \
   git submodule update --init --recursive --jobs 0 ; \
-  mkdir /opt/mybuild_rccl/build ; \
-  cd  /opt/mybuild_rccl/build ; \
+  mkdir /opt/mybuild/build ; \
+  cd  /opt/mybuild/build ; \
   CXX=$ROCM_PATH/bin/hipcc \
   cmake \
     -DBUILD_LOCAL_GPU_TARGET_ONLY=ON \
@@ -197,8 +100,7 @@ RUN set -eux ; \
     .. ; \
   nice make -j V=1 VERBOSE=1 ; \
   nice make -j install ; \
-  cd /; \
-  rm -rf /opt/mybuild_rccl
+  cd / ; rm -rf /opt/mybuild
 
 RUN set -eux ; \
   rm -rf $ROCM_PATH/lib/librccl.so* ; \
@@ -210,32 +112,23 @@ RUN set -eux ; \
   find -iname '*.cmake' -o -iname '*.txt' | xargs sed -E -i 's#librccl.[0-9,a-z,\.]+#librccl.so.1.0#g' ; \
   find -iname '*.cmake' -o -iname '*.txt' | xargs grep -i librccl.so
 
-
-#ENV LIBFABRIC_VERSION=2.3.0
-
-# install additional dependencies for the full opensource version. may be partially required for the libfabric hybrid approach as well. 
-RUN zypper refresh
-RUN zypper update -y
-RUN set -eux ; \
-  zypper --no-gpg-checks -n install -y --force-resolution \
-    libconfig-devel  \
-    libuv-devel  \
-    libfuse2  \
-    libyaml-devel  \
-    fuse-devel  \
-    libnl3-devel  \
-    libnuma-devel  \
-    bison  \
-    flex  \
-    libcurl-devel  \
-    libsensors4-devel  \
-    gzip; \
-  zypper clean
-
-# From Samuel
+# Latest libfabric build
 ARG CASSINI_HEADERS_VERSION=9a8a738a879f007849fbc69be8e3487a4abf0952
 ARG CXI_DRIVER_VERSION=c284516fa8d0027b8f84e8ca818e8c6bbe320bd8
 ARG LIBCXI_VERSION=0f3609b5e224636abffc7ceffe6f4e9c83244c08
+
+RUN set -eux; \
+  zypper -n refresh ; \
+  zypper --no-gpg-checks -n install -y --force-resolution \
+    libconfig-devel \
+    libuv-devel \
+    fuse-devel  \
+    libyaml-devel \
+    libnl3-devel \
+    libnuma-devel \
+    libsensors4-devel \
+    libcurl-devel \
+    ; zypper clean
 
 RUN set -eux ; \
   git clone --recursive https://github.com/HewlettPackard/shs-cassini-headers /opt/cassini-headers ; \
@@ -267,94 +160,38 @@ RUN set -eux ; \
   mv /opt/shs-libcxi-src/include /opt/shs-libcxi/include ; \
   cd / ; rm -rf /opt/shs-libcxi-src
 
-ENV LIBCXI_PATH=/opt/shs-libcxi/
-
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBCXI_PATH/lib
-ENV LD_RUN_PATH=$LD_RUN_PATH:$LIBCXI_PATH/lib
-# Download and install libfabric. CXI provider doesnt get installed atm.
-# CXI provider has to be available.
-
-# libfabric environment
-ENV LIBFABRIC_PATH /opt/libfabric
-
-# From Samuel
+ENV LD_LIBRARY_PATH=/opt/shs-libcxi/lib:$LD_LIBRARY_PATH
 ENV LIBFABRIC_VERSION "e08d3161b8038ebfa50a4eb5bf76132e4eaeb137"
 
-# need version higher than 1.15.2. 1.15 does not have a cxi provider
-# sed is needed to delete the CXI_MAP_IOVA_ALLOC as it was removed. https://github.com/search?q=repo%3AHewlettPackard%2Fshs-libcxi+CXI_MAP_IOVA_ALLOC&type=commits
 RUN set -eux ; \
-    export CPATH=/opt/shs-libcxi/include:/opt/cassini-headers/include:/opt/cxi-driver/include ; \
-    export LIBRARY_PATH=/opt/shs-libcxi/lib ; \
-#    wget https://github.com/ofiwg/libfabric/releases/download/v$LIBFABRIC_VERSION/libfabric-$LIBFABRIC_VERSION.tar.bz2 ; \
-#    tar -xf libfabric-$LIBFABRIC_VERSION.tar.bz2; \
-#    rm libfabric-$LIBFABRIC_VERSION.tar.bz2; \
-#    cd libfabric-$LIBFABRIC_VERSION; \
-    git clone --recursive https://github.com/ofiwg/libfabric /opt/libfabric-src ; \
-    git -C /opt/libfabric-src checkout -b mydev $LIBFABRIC_VERSION ; \
-#    sed -i 's/| CXI_MAP_IOVA_ALLOC//g' prov/cxi/include/cxip.h ; \
-    cd /opt/libfabric-src ; \
-    ./autogen.sh ; \
-#    mkdir /opt/libfabric-src/build ; \
-    mkdir build ; \
-    cd build;\
-    CC=gcc-$GCC_RELEASE  ../configure  \
-          LDFLAGS=-Wl,--build-id  --enable-only \
-          --enable-cxi=$LIBCXI_PATH  \
-          --prefix=$LIBFABRIC_PATH  \
-          --with-rocr=$ROCM_PATH  \
-          --enable-udp  \
-          --disable-rxm \
-          --enable-rxd  \
-          --enable-hook_debug  \
-          --enable-hook_hmem  \
-          --enable-dmabuf_peer_mem  \
-          --enable-gdrcopy-dlopen; \
-#          --disable-opx \
-#          --disable-psm2 \
-#          --disable-efa \
-#          --disable-sockets \
-#          --enable-rocr-dlopen  \
-#          --enable-restricted-dl  \
-#          --enable-tcp  \
-#          --enable-shm  \
-    make -j;\
-    make install;\
-    ldconfig ;\
-    cd /; \
-    rm -rf /opt/libfabric-src
-#    rm -rf libfabric-$LIBFABRIC_VERSION
+  export CPATH=/opt/shs-libcxi/include:/opt/cassini-headers/include:/opt/cxi-driver/include ; \
+  export LIBRARY_PATH=/opt/shs-libcxi/lib ; \
+  \
+  git clone --recursive https://github.com/ofiwg/libfabric /opt/libfabric-src ; \
+  git -C /opt/libfabric-src checkout -b mydev $LIBFABRIC_VERSION ; \
+  \
+  cd /opt/libfabric-src ; \
+  ./autogen.sh ; \
+  \
+  mkdir /opt/libfabric-src/build ; \
+  \
+  cd /opt/libfabric-src/build ; \
+  ../configure CC=gcc-12 --prefix=/opt/libfabric \
+    LDFLAGS=-Wl,--build-id --enable-only \
+    --enable-restricted-dl --enable-tcp --enable-udp --enable-rxm --enable-rxd --enable-hook_debug \
+    --enable-hook_hmem --enable-dmabuf_peer_mem --enable-cxi=/opt/shs-libcxi --enable-gdrcopy-dlopen --with-rocr=$ROCM_PATH ; \
+  \
+  cd /opt/libfabric-src/build ; \
+  nice make V=1 VERBOSE=1 -j  ; \
+  nice make V=1 VERBOSE=1 -j install ; \
+  \
+  cd / ; rm -rf /opt/libfabric-src
+
+ENV LIBFABRIC_PATH=/opt/libfabric
+ENV LD_LIBRARY_PATH=$LIBFABRIC_PATH/lib:$LD_LIBRARY_PATH
 
 
-ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$LIBFABRIC_PATH/lib
-ENV LD_RUN_PATH $LD_RUN_PATH:$LIBFABRIC_PATH/lib
-
-
-#// This is a heavily modified version of a file provided by Samuel F Antao
-#// Original License and code from https://github.com/sfantao/lumi-containers/tree/lumi-sep2024
-#//
-#//MIT License
-#//
-#//Copyright (c) 2023 Advanced Micro Devices, Inc.
-#//
-#//Permission is hereby granted, free of charge, to any person obtaining a copy
-#//of this software and associated documentation files (the "Software"), to deal
-#//in the Software without restriction, including without limitation the rights
-#//to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#//copies of the Software, and to permit persons to whom the Software is
-#//furnished to do so, subject to the following conditions:
-#//
-#//The above copyright notice and this permission notice shall be included in all
-#//copies or substantial portions of the Software.
-#//
-#//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#//SOFTWARE.
-
-
+ENV GCC_RELEASE=12
 
 ENV HWLOC_TAR=https://download.open-mpi.org/release/hwloc/v2.12/hwloc-2.12.2.tar.gz
 
@@ -383,7 +220,6 @@ ENV LD_LIBRARY_PATH=/opt/hwloc/lib:$LD_LIBRARY_PATH
 
 # Channel 4 only works on v >= 3.4.3
 ENV MPICH_VERSION=4.2.3
-
 ENV MPICH_PATH=/opt/mpich
 ENV MPICH_TAR=http://www.mpich.org/static/downloads/${MPICH_VERSION}/mpich-${MPICH_VERSION}.tar.gz
 
@@ -391,11 +227,11 @@ ENV MPICH_TAR=http://www.mpich.org/static/downloads/${MPICH_VERSION}/mpich-${MPI
 # Add MPICH
 RUN set -eux ; \
     cd / ;\
-    wget $MPICH_TAR ; \
+    curl -LO $MPICH_TAR ; \
     tar -xzf mpich-$MPICH_VERSION.tar.gz; \
     rm mpich-$MPICH_VERSION.tar.gz;\
     cd mpich-$MPICH_VERSION ;\
-    CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE  \
+    CC=gcc-12 CXX=g++-12  \
         ./configure --prefix=$MPICH_PATH  \
             --with-hip-lib=$ROCM_PATH/lib/  \
             --with-hip-include=$ROCM_PATH/include/  \
@@ -432,25 +268,25 @@ ENV FI_MRwM_ROCM=1
 # Mark RCCL as non-debug - this can me overriden by RCCL debug build.
 #
 #ENV RCCL_DEBUG=0
-#ARG AWS_PLUGIN_VERSION=17d41cb
+ARG AWS_PLUGIN_VERSION=17d41cb
 #ARG AWS_PLUGIN_VERSION=6dae1b0
 # Latest ROCm v1.14.x-xccl
-ARG XCCL_PLUGIN_VERSION=1ea938a
+#ARG XCCL_PLUGIN_VERSION=1ea938a
 #Seems to be incompatible with latest libfabric version 2.0.0
 RUN set -eux ; \
-#  git clone -b cxi https://github.com/ROCmSoftwarePlatform/aws-ofi-rccl /opt/mybuild_aws_ofi ; \
-  git clone https://github.com/HewlettPackard/open-ofi-xccl /opt/mybuild_aws_ofi ; \
+  git clone -b cxi https://github.com/ROCmSoftwarePlatform/aws-ofi-rccl /opt/mybuild_aws_ofi ; \
+#  git clone https://github.com/HewlettPackard/open-ofi-xccl /opt/mybuild_aws_ofi ; \
   cd /opt/mybuild_aws_ofi ; \
-#  git checkout -b mydev $AWS_PLUGIN_VERSION; \
-  git checkout -b mydev $XCCL_PLUGIN_VERSION; \
-#  git apply < /aws.patch ; \
+  git checkout -b mydev $AWS_PLUGIN_VERSION; \
+#  git checkout -b mydev $XCCL_PLUGIN_VERSION; \
+  git apply < /aws.patch ; \
 #  cd /opt/mybuild_aws_ofi ; \
-  rm -r .git ; \
+#  rm -r .git ; \
   export CPATH=$LIBFABRIC_PATH/include ; \
   export LIBRARY_PATH=$LD_LIBRARY_PATH ; \
   ./autogen.sh ; \
-#  LDFLAGS='-L/opt/shs-libcxi/lib -lcxi' CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE ./configure --with-libfabric=$LIBFABRIC_PATH --enable-trace --with-hip=$ROCM_PATH --with-rccl=$ROCM_PATH --with-mpi=$MPICH_PATH --disable-tests; \
-  LDFLAGS='-L/opt/shs-libcxi/lib -lcxi' CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE ./configure --with-libfabric=$LIBFABRIC_PATH --with-mpi=$MPICH_PATH --with-hwloc=/opt/hwloc/ --enable-trace --with-rocm=$ROCM_PATH --disable-tests; \
+  LDFLAGS='-L/opt/shs-libcxi/lib -lcxi' CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE ./configure --with-libfabric=$LIBFABRIC_PATH --enable-trace --with-hip=$ROCM_PATH --with-rccl=$ROCM_PATH --with-mpi=$MPICH_PATH --disable-tests; \
+#  LDFLAGS='-L/opt/shs-libcxi/lib -lcxi' CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE ./configure --with-libfabric=$LIBFABRIC_PATH --with-mpi=$MPICH_PATH --with-hwloc=/opt/hwloc/ --enable-trace --with-rocm=$ROCM_PATH --disable-tests; \
   LDFLAGS='-L/opt/shs-libcxi/lib -lcxi' CC=gcc-$GCC_RELEASE nice make -j ; \
   \
   mkdir /opt/aws-ofi-rccl ; \
@@ -587,6 +423,7 @@ RUN set -eux ; \
 #    git checkout -b mydev a1c8ab3;\
 #    cd ../..;\
 
+ENV OSU_VERSION=7.5
 ENV OSU_PATH="/opt/osu"
 
 RUN set -eux ; \
