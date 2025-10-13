@@ -1,7 +1,17 @@
-FROM opensuse/leap:15.5
-LABEL authors="julius"
+FROM registry.suse.com/bci/bci-base:15.5.36.14.13
 
-ENTRYPOINT ["top", "-b"]
+#
+# Disable BCI repros
+#
+
+RUN set -eux ; \
+  sed -i 's#enabled=1#enabled=0#g' /etc/zypp/repos.d/SLE_BCI.repo
+
+RUN set -eux ; \
+  zypper -n addrepo http://download.opensuse.org/distribution/leap/15.5/repo/oss/ myrepo3 ; \
+  echo 'gpgcheck=0' >> /etc/zypp/repos.d/myrepo3.repo ; \
+  zypper -n addrepo https://download.opensuse.org/repositories/devel:/languages:/perl/SLE_15_SP5 myrepo4 ; \
+  echo 'gpgcheck=0' >> /etc/zypp/repos.d/myrepo4.repo
 
 # Versions
 ENV GCC_RELEASE=12
@@ -36,9 +46,9 @@ ENV SLE_RELEASE=15.5
 
 # update & upgrade image and install some base packages
 # Repo contains perl libraries (?) that are needed for the rocm install. If the repos arent added the amdgpu-installer cannot resolve the dependencies.
-RUN set -eux ; \
-   zypper -n addrepo https://download.opensuse.org/repositories/devel:/languages:/perl/SLE_15_SP5 myrepo5 ; \
-   echo 'gpgcheck=0' >> /etc/zypp/repos.d/myrepo5.repo
+#RUN #set -eux ; \
+#   zypper -n addrepo https://download.opensuse.org/repositories/devel:/languages:/perl/SLE_15_SP5 myrepo5 ; \
+#   echo 'gpgcheck=0' >> /etc/zypp/repos.d/myrepo5.repo
 
 RUN zypper refresh
 RUN zypper update -y
@@ -227,46 +237,37 @@ ARG CASSINI_HEADERS_VERSION=9a8a738a879f007849fbc69be8e3487a4abf0952
 ARG CXI_DRIVER_VERSION=c284516fa8d0027b8f84e8ca818e8c6bbe320bd8
 ARG LIBCXI_VERSION=0f3609b5e224636abffc7ceffe6f4e9c83244c08
 
-# --> latest commit on main
 RUN set -eux ; \
-    cd /opt/ ;\
-    git clone https://github.com/HewlettPackard/shs-cassini-headers ;\
-    git -C /opt/shs-cassini-headers checkout -b mydev $CASSINI_HEADERS_VERSION ; \
-    mkdir -p /share/cassini-headers/;\
-    mkdir -p /include;\
-    cp shs-cassini-headers/share/cassini-headers/csr_defs.json /share/cassini-headers/;\
-    cp -r shs-cassini-headers/include/* /include/
-
-#Future: actually build the drivers??
-#RUN #set -eux ; \
-#    cd /opt/ ;\
-#    wget https://github.com/HewlettPackard/ss-sbl ;\
-#    cd ss-sbl ;\
-#    SBL_EXTERNAL_BUILD=1 PLATFORM_CASSINI_SIM=1 make
-
-# --> latest commit on main
-RUN set -eux ; \
-    cd /opt/ ;\
-    git clone https://github.com/HewlettPackard/shs-cxi-driver ;\
-    git -C /opt/shs-cxi-driver  checkout -b mydev $CXI_DRIVER_VERSION ; \
-    cp -r shs-cxi-driver/include/* /include/
-#    make
-
-#0f3609b5e224636abffc7ceffe6f4e9c83244c08 --> latest commit on main
-ENV LIBCXI_PATH=/opt/libcxi
-RUN set -eux ; \
-    cd /opt/ ;\
-    git clone http://github.com/HewlettPackard/shs-libcxi ;\
-    git -C /opt/shs-libcxi checkout -b mydev $LIBCXI_VERSION ; \
-    cd shs-libcxi;\
-    sed -i 's+/usr/share/cassini-headers/csr_defs.json+/share/cassini-headers/csr_defs.json+g' utils/cxi_dump_csrs.py ;\
-    ./autogen.sh;\
-    CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE  CFLAGS='-Wno-unused-but-set-variable'  \
-    ./configure --prefix=$LIBCXI_PATH CFLAGS='-I /include' --with-rocm=$ROCM_PATH         --without-systemd \
+  git clone --recursive https://github.com/HewlettPackard/shs-cassini-headers /opt/cassini-headers ; \
+  git -C /opt/cassini-headers checkout -b mydev $CASSINI_HEADERS_VERSION ; \
+  git clone --recursive https://github.com/HewlettPackard/shs-cxi-driver /opt/cxi-driver ; \
+  git -C /opt/cxi-driver  checkout -b mydev $CXI_DRIVER_VERSION ; \
+  git clone --recursive https://github.com/HewlettPackard/shs-libcxi /opt/shs-libcxi-src ; \
+  git -C /opt/shs-libcxi-src checkout -b mydev $LIBCXI_VERSION ; \
+  export CPATH=/opt/cassini-headers/include:/opt/cxi-driver/include ; \
+  \
+  cd /opt/shs-libcxi-src ; \
+  ./autogen.sh ; \
+  \
+  cd /opt/shs-libcxi-src ; \
+  CC=gcc-12 \
+    CXX=g++-12 \
+    CFLAGS='-Wno-unused-but-set-variable' \
+      ./configure --prefix=/opt/shs-libcxi --with-rocm=$ROCM_PATH \
+        --without-systemd \
         --with-systemdsystemunitdir=/opt/shs-libcxi/systemdsystemunitdir \
         --with-udevrulesdir=/opt/shs-libcxi/udevrulesdir ; \
-    make VERBOSE=1 V=1 -j install;\
-    ldconfig
+  \
+  sed -i "s#/usr/share/cassini-headers#/opt/cassini-headers/share/cassini-headers#g" /opt/shs-libcxi-src/utils/cxi_dump_csrs.py ; \
+  \
+  cd /opt/shs-libcxi-src ; \
+  make VERBOSE=1 V=1 -j ; \
+  make VERBOSE=1 V=1 -j install ; \
+  \
+  mv /opt/shs-libcxi-src/include /opt/shs-libcxi/include ; \
+  cd / ; rm -rf /opt/shs-libcxi-src
+
+ENV LIBCXI_PATH=/opt/shs-libcxi/
 
 ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$LIBCXI_PATH/lib
 ENV LD_RUN_PATH=$LD_RUN_PATH:$LIBCXI_PATH/lib
@@ -282,6 +283,8 @@ ENV LIBFABRIC_VERSION "e08d3161b8038ebfa50a4eb5bf76132e4eaeb137"
 # need version higher than 1.15.2. 1.15 does not have a cxi provider
 # sed is needed to delete the CXI_MAP_IOVA_ALLOC as it was removed. https://github.com/search?q=repo%3AHewlettPackard%2Fshs-libcxi+CXI_MAP_IOVA_ALLOC&type=commits
 RUN set -eux ; \
+    export CPATH=/opt/shs-libcxi/include:/opt/cassini-headers/include:/opt/cxi-driver/include ; \
+    export LIBRARY_PATH=/opt/shs-libcxi/lib ; \
 #    wget https://github.com/ofiwg/libfabric/releases/download/v$LIBFABRIC_VERSION/libfabric-$LIBFABRIC_VERSION.tar.bz2 ; \
 #    tar -xf libfabric-$LIBFABRIC_VERSION.tar.bz2; \
 #    rm libfabric-$LIBFABRIC_VERSION.tar.bz2; \
@@ -295,27 +298,25 @@ RUN set -eux ; \
     mkdir build ; \
     cd build;\
     CC=gcc-$GCC_RELEASE  ../configure  \
-          LDFLAGS=-Wl,--build-id  \
+          LDFLAGS=-Wl,--build-id  --enable-only \
           --enable-cxi=$LIBCXI_PATH  \
-          --prefix=$LIBFABRIC_PATH CFLAGS='-I /include'  \
+          --prefix=$LIBFABRIC_PATH  \
           --with-rocr=$ROCM_PATH  \
-          --disable-opx \
-          --disable-psm2 \
-          --disable-efa \
-          --disable-rxm \
-          --disable-sockets \
-          --enable-only  \
-          --enable-rocr-dlopen  \
-          --enable-restricted-dl  \
-          --enable-tcp  \
           --enable-udp  \
-          --enable-rxm  \
-          --enable-shm  \
+          --disable-rxm \
           --enable-rxd  \
           --enable-hook_debug  \
           --enable-hook_hmem  \
           --enable-dmabuf_peer_mem  \
           --enable-gdrcopy-dlopen; \
+#          --disable-opx \
+#          --disable-psm2 \
+#          --disable-efa \
+#          --disable-sockets \
+#          --enable-rocr-dlopen  \
+#          --enable-restricted-dl  \
+#          --enable-tcp  \
+#          --enable-shm  \
     make -j;\
     make install;\
     ldconfig ;\
