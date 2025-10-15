@@ -1,0 +1,14 @@
+
+#ENV HWLOC_TAR=https://download.open-mpi.org/release/hwloc/v2.12/hwloc-2.12.0.tar.gz
+#
+#RUN set -eux ; \
+#    cd / ;\
+#    wget $HWLOC_TAR; \
+#    tar -xzf hwloc-2.12.0.tar.gz ;\
+#    cd hwloc-2.12.0 ;\
+#    CC=gcc-$GCC_RELEASE ./configure --prefix=/opt/hwloc  --localstatedir=/var ;\
+#    make install ;\
+#    ldconfig
+#
+#ENV PATH=/opt/hwloc/bin:$PATH
+#ENV LD_LIBRARY_PATH=/opt/hwloc/lib:$LD_LIBRARY_PATH

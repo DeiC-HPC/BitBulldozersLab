@@ -1,0 +1,420 @@
+FROM registry.suse.com/bci/bci-base:15.5.36.14.13
+
+#
+# Disable BCI repros
+#
+
+RUN set -eux ; \
+  sed -i 's#enabled=1#enabled=0#g' /etc/zypp/repos.d/SLE_BCI.repo
+
+RUN set -eux ; \
+  zypper -n addrepo http://download.opensuse.org/distribution/leap/15.5/repo/oss/ myrepo3 ; \
+  echo 'gpgcheck=0' >> /etc/zypp/repos.d/myrepo3.repo ; \
+  zypper -n addrepo https://download.opensuse.org/repositories/devel:/languages:/perl/SLE_15_SP5 myrepo4 ; \
+  echo 'gpgcheck=0' >> /etc/zypp/repos.d/myrepo4.repo
+
+RUN set -eux ; \
+  sed -i 's#gpgcheck=1#gpgcheck=0#g' /etc/zypp/repos.d/*.repo
+
+#
+# Install build dependencies
+#
+RUN set -eux; \
+  zypper -n refresh ; \
+  zypper --no-gpg-checks -n install -y --force-resolution \
+    git cmake gcc12 gcc12-c++ gcc12-fortran zlib-devel numactl awk patch tar autoconf automake libtool libjson-c-devel graphviz ncurses-devel nano which libjansson4 libnl3-200 wget; \
+  zypper clean
+
+
+ENV ROCM_RPM https://repo.radeon.com/amdgpu-install/6.2.4/sle/15.5/amdgpu-install-6.2.60204-1.noarch.rpm
+ENV ROCM_RELEASE 6.2.4
+
+COPY rocminfo rocm_agent_enumerator amdgpu-arch.cpp aws.patch /
+
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install $ROCM_RPM
+
+RUN set -eux ; \
+  sed -i 's#gpgcheck=1#gpgcheck=0#g' /etc/zypp/repos.d/*.repo
+
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install --oldpackage libsystemd0-249.16 libudev1-249.16
+
+RUN set -eux ; \
+  zypper refresh ; \
+  amdgpu-install -y --no-dkms --usecase=rocm --rocmrelease=$ROCM_RELEASE ; \
+  zypper cc -a
+
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install -y --force miopen-hip-gfx90akdb
+
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install -y --force omniperf omnitrace
+
+#
+# ROCm environment
+#
+ENV ROCM_PATH /opt/rocm-$ROCM_RELEASE
+ENV PATH $ROCM_PATH/bin:$ROCM_PATH/llvm/bin:$PATH
+ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$ROCM_PATH/lib
+
+#
+# Mark RCCL as non-debug - this can me overriden by RCCL debug build.
+#
+ENV RCCL_DEBUG 0
+
+RUN set -eux ; \
+  cd $ROCM_PATH/bin ; \
+  for i in rocm_agent_enumerator rocminfo ; do \
+    rm -rf $i ; \
+    cp /$i . ; \
+    chmod +x $i ; \
+  done
+
+RUN set -eux ; \
+  cd $ROCM_PATH/llvm/bin ; \
+  rm amdgpu-arch offload-arch ; \
+  g++-12 /amdgpu-arch.cpp -DNUM_TARGETS=8 -o amdgpu-arch ; \
+  g++-12 /amdgpu-arch.cpp -DNUM_TARGETS=1 -o offload-arch ; \
+  ./amdgpu-arch ; \
+  ./offload-arch
+
+ARG RCCL_VERSION=85eb1f1
+
+RUN $WITH_CONDA ; set -eux ; \
+  rm -rf /opt/mybuild ; \
+  git clone https://github.com/rocm/rccl /opt/mybuild ; \
+  cd /opt/mybuild ; \
+  git checkout -b mydev $RCCL_VERSION ; \
+  git submodule sync ; \
+  git submodule update --init --recursive --jobs 0 ; \
+  mkdir /opt/mybuild/build ; \
+  cd  /opt/mybuild/build ; \
+  CXX=$ROCM_PATH/bin/hipcc \
+  cmake \
+    -DBUILD_LOCAL_GPU_TARGET_ONLY=ON \
+    -DCOMPILING_TARGETS=gfx90a \
+    -DENABLE_MSCCLPP=OFF \
+    -DCMAKE_INSTALL_PREFIX=/opt/rccl \
+    -DCMAKE_BUILD_TYPE=Release \
+    .. ; \
+  nice make -j V=1 VERBOSE=1 ; \
+  nice make -j install ; \
+  cd / ; rm -rf /opt/mybuild
+
+RUN set -eux ; \
+  rm -rf $ROCM_PATH/lib/librccl.so* ; \
+  ln -s /opt/rccl/lib/librccl.so* $ROCM_PATH/lib
+
+RUN set -eux ; \
+  cd $ROCM_PATH ; \
+  find -iname '*.cmake' -o -iname '*.txt' | xargs grep -i librccl.so ; \
+  find -iname '*.cmake' -o -iname '*.txt' | xargs sed -E -i 's#librccl.[0-9,a-z,\.]+#librccl.so.1.0#g' ; \
+  find -iname '*.cmake' -o -iname '*.txt' | xargs grep -i librccl.so
+
+# Latest libfabric build
+ARG CASSINI_HEADERS_VERSION=9a8a738a879f007849fbc69be8e3487a4abf0952
+ARG CXI_DRIVER_VERSION=c284516fa8d0027b8f84e8ca818e8c6bbe320bd8
+ARG LIBCXI_VERSION=0f3609b5e224636abffc7ceffe6f4e9c83244c08
+
+RUN set -eux; \
+  zypper -n refresh ; \
+  zypper --no-gpg-checks -n install -y --force-resolution \
+    libconfig-devel \
+    libuv-devel \
+    fuse-devel  \
+    libyaml-devel \
+    libnl3-devel \
+    libnuma-devel \
+    libsensors4-devel \
+    libcurl-devel \
+    ; zypper clean
+
+RUN set -eux ; \
+  git clone --recursive https://github.com/HewlettPackard/shs-cassini-headers /opt/cassini-headers ; \
+  git -C /opt/cassini-headers checkout -b mydev $CASSINI_HEADERS_VERSION ; \
+  git clone --recursive https://github.com/HewlettPackard/shs-cxi-driver /opt/cxi-driver ; \
+  git -C /opt/cxi-driver  checkout -b mydev $CXI_DRIVER_VERSION ; \
+  git clone --recursive https://github.com/HewlettPackard/shs-libcxi /opt/shs-libcxi-src ; \
+  git -C /opt/shs-libcxi-src checkout -b mydev $LIBCXI_VERSION ; \
+  export CPATH=/opt/cassini-headers/include:/opt/cxi-driver/include ; \
+  \
+  cd /opt/shs-libcxi-src ; \
+  ./autogen.sh ; \
+  \
+  cd /opt/shs-libcxi-src ; \
+  CC=gcc-12 \
+    CXX=g++-12 \
+    CFLAGS='-Wno-unused-but-set-variable' \
+      ./configure --prefix=/opt/shs-libcxi --with-rocm=$ROCM_PATH \
+        --without-systemd \
+        --with-systemdsystemunitdir=/opt/shs-libcxi/systemdsystemunitdir \
+        --with-udevrulesdir=/opt/shs-libcxi/udevrulesdir ; \
+  \
+  sed -i "s#/usr/share/cassini-headers#/opt/cassini-headers/share/cassini-headers#g" /opt/shs-libcxi-src/utils/cxi_dump_csrs.py ; \
+  \
+  cd /opt/shs-libcxi-src ; \
+  make VERBOSE=1 V=1 -j ; \
+  make VERBOSE=1 V=1 -j install ; \
+  \
+  mv /opt/shs-libcxi-src/include /opt/shs-libcxi/include ; \
+  cd / ; rm -rf /opt/shs-libcxi-src
+
+ENV LD_LIBRARY_PATH=/opt/shs-libcxi/lib:$LD_LIBRARY_PATH
+ENV LIBFABRIC_VERSION "e08d3161b8038ebfa50a4eb5bf76132e4eaeb137"
+
+RUN set -eux ; \
+  export CPATH=/opt/shs-libcxi/include:/opt/cassini-headers/include:/opt/cxi-driver/include ; \
+  export LIBRARY_PATH=/opt/shs-libcxi/lib ; \
+  \
+  git clone --recursive https://github.com/ofiwg/libfabric /opt/libfabric-src ; \
+  git -C /opt/libfabric-src checkout -b mydev $LIBFABRIC_VERSION ; \
+  \
+  cd /opt/libfabric-src ; \
+  ./autogen.sh ; \
+  \
+  mkdir /opt/libfabric-src/build ; \
+  \
+  cd /opt/libfabric-src/build ; \
+  ../configure CC=gcc-12 --prefix=/opt/libfabric \
+    LDFLAGS=-Wl,--build-id --enable-only \
+    --enable-restricted-dl --enable-tcp --enable-udp --enable-rxm --enable-rxd --enable-hook_debug \
+    --enable-hook_hmem --enable-dmabuf_peer_mem --enable-cxi=/opt/shs-libcxi --enable-gdrcopy-dlopen --with-rocr=$ROCM_PATH ; \
+  \
+  cd /opt/libfabric-src/build ; \
+  nice make V=1 VERBOSE=1 -j  ; \
+  nice make V=1 VERBOSE=1 -j install ; \
+  \
+  cd / ; rm -rf /opt/libfabric-src
+
+ENV LIBFABRIC_PATH=/opt/libfabric
+ENV LD_LIBRARY_PATH=$LIBFABRIC_PATH/lib:$LD_LIBRARY_PATH
+
+
+#ENV GCC_RELEASE=12
+
+#ENV HWLOC_TAR=https://download.open-mpi.org/release/hwloc/v2.12/hwloc-2.12.2.tar.gz
+#
+#RUN set -eux ; \
+#    cd / ;\
+#    wget $HWLOC_TAR; \
+#    tar -xzf hwloc-2.12.2.tar.gz ;\
+#    cd hwloc-2.12.2 ;\
+#    CC=gcc-$GCC_RELEASE ./configure --with-rocm=$ROCM_PATH --disable-rsmi --prefix=/opt/hwloc  --localstatedir=/var ;\
+#    make install ;\
+#    ldconfig
+
+#ENV PATH=/opt/hwloc/bin:$PATH
+#ENV LD_LIBRARY_PATH=/opt/hwloc/lib:$LD_LIBRARY_PATH
+
+#ARG SLURM_VERSION=23-02-7-1
+#RUN wget https://github.com/SchedMD/slurm/archive/slurm-${SLURM_VERSION}.tar.gz \
+# && tar -xf slurm-${SLURM_VERSION}.tar.gz \
+# && cd slurm-slurm-${SLURM_VERSION} \
+# && ./configure --prefix=/opt/slurm \
+# && cd contribs/pmi2 \
+# && make -j$(getconf _NPROCESSORS_ONLN) install \
+# && rm -Rf ../../../slurm*
+#ENV LD_LIBRARY_PATH=/opt/slurm/lib:$LD_LIBRARY_PATH
+#ENV LD_RUN_PATH=/opt/slurm/lib:$LD_RUN_PATH
+
+# Channel 4 only works on v >= 3.4.3
+ENV MPICH_VERSION=4.2.3
+ENV MPICH_PATH=/opt/mpich
+ENV MPICH_TAR=http://www.mpich.org/static/downloads/${MPICH_VERSION}/mpich-${MPICH_VERSION}.tar.gz
+
+#
+# Add MPICH
+RUN set -eux ; \
+    cd / ;\
+    curl -LO $MPICH_TAR ; \
+    tar -xzf mpich-$MPICH_VERSION.tar.gz; \
+    rm mpich-$MPICH_VERSION.tar.gz;\
+    cd mpich-$MPICH_VERSION ;\
+    CC=gcc-12 CXX=g++-12  \
+        ./configure --prefix=$MPICH_PATH  \
+            --with-hip-lib=$ROCM_PATH/lib/  \
+            --with-hip-include=$ROCM_PATH/include/  \
+            --with-libfabric=/opt/libfabric  \
+            --disable-fortran \
+            --enable-fast=all,O3  \
+#            --disable-fast \
+            --with-device=ch4:ofi:cxi \
+#            --with-pmi=pmi2 \
+#            --with-pmi-include==/opt/slurm/include/slurm/ \
+#            --with-pmi-lib==/opt/slurm/lib/ \
+#            --with-pmilib=install \
+            --with-pm=no \
+            --disable-silent-rules \
+            --enable-debuginfo \
+#            --with-hwloc=/opt/hwloc \
+            --enable-shared ;\
+    make -j 12;\
+    make install;\
+    ldconfig
+
+ARG AWS_PLUGIN_VERSION=17d41cb
+
+RUN set -eux ; \
+  git clone -b cxi https://github.com/rocm/aws-ofi-rccl /opt/mybuild ; \
+  cd /opt/mybuild ; \
+  git checkout -b mydev $AWS_PLUGIN_VERSION ; \
+  git apply < /aws.patch ; \
+  ./autogen.sh ; \
+  \
+  cd /opt/mybuild ; \
+  export CPATH=$LIBFABRIC_PATH/include ; \
+  export LIBRARY_PATH=$LD_LIBRARY_PATH ; \
+  LDFLAGS='-L/opt/shs-libcxi/lib -lcxi' CC=gcc-12 ./configure --with-libfabric=$LIBFABRIC_PATH --enable-trace --with-hip=$ROCM_PATH --with-rccl=$ROCM_PATH --disable-tests ; \
+  LDFLAGS='-L/opt/shs-libcxi/lib -lcxi' CC=gcc-12 nice make -j ; \
+  mkdir /opt/aws-ofi-rccl ; \
+  mv src/.libs/librccl-net.so* /opt/aws-ofi-rccl ; \
+  rm -rf /opt/mybuild
+
+
+#
+# Add relevant libs to execution environment
+#
+ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/aws-ofi-rccl
+#ENV CXI_FORK_SAFE=1
+#ENV CXI_FORK_SAFE_HP=1
+#ENV FI_CXI_DISABLE_CQ_HUGETLB=1
+
+
+
+#COPY run_script.sh /singularity/
+#
+#RUN set -eux ; \
+#    chmod +x /singularity/run_script.sh;\
+
+#ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/rccl/lib/
+
+ENV PYTORCH_ROCM_ARCH gfx90a
+ARG PYTORCH_VERSION=2.7.1+rocm6.2.4
+ARG PYTORCH_DEBUG
+ARG PYTORCH_RELWITHDEBINFO
+
+
+#
+# Install miniconda
+#
+RUN set -eux ; \
+  curl -LO https://repo.anaconda.com/miniconda/Miniconda3-py312_24.5.0-0-Linux-x86_64.sh ; \
+  bash ./Miniconda3-* -b -p /opt/miniconda3 -s ; \
+  rm -rf ./Miniconda3-*
+
+ENV WITH_CONDA "source /opt/miniconda3/bin/activate base"
+#
+# Install conda environment
+#
+ENV PYTHON_VERSION=3.12
+RUN $WITH_CONDA; set -eux ; \
+  conda create -n pytorch python=$PYTHON_VERSION ; \
+  conda activate pytorch ; \
+  conda install -y ninja pillow cmake pyyaml pip; \
+  conda install -c conda-forge typing-extensions; \
+  pip install mkl-static mkl-include
+ENV WITH_CONDA "source /opt/miniconda3/bin/activate pytorch"
+
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install -y --force-resolution \
+    libgomp1 ; \
+  zypper clean
+
+ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/usr/lib64/
+ENV LD_RUN_PATH $LD_RUN_PATH:/usr/lib64/
+
+RUN $WITH_CONDA; set -eux ; \
+    conda install filelock fsspec jinja2 markupsafe mpmath networkx numpy pillow pip sympy typing-extensions psutil
+#    pip install torchaudio==2.7.1+rocm6.2.4 --extra-index-url https://download.pytorch.org/whl/rocm6.2.4/ ;\
+#    pip install torchvision==0.22.1+rocm6.2.4 --extra-index-url https://download.pytorch.org/whl/rocm6.2.4/;\
+#    pip install /opt/my_pytorch_build/dist/torch-2.7.1a0+gite2d141d-cp312-cp312-linux_x86_64.whl
+
+#RUN #$WITH_CONDA; set -eux ; \
+#    git clone https://github.com/pytorch/pytorch /opt/my_pytorch_build;\
+#    cd /opt/my_pytorch_build;\
+#    git checkout -b mydev e2d141d;\
+#    git submodule sync;\
+#    git submodule update --init --recursive;\
+#    sed -i '205i string(APPEND CMAKE_CXX_FLAGS " -Wno-vla-cxx-extension")' third_party/fbgemm/CMakeLists.txt;\
+#    pip install -r requirements.txt;\
+#    python3 tools/amd_build/build_amd.py;\
+#    CC=gcc-12 CXX=g++-12 RCCL_DIR=/opt/rccl/lib/cmake/rccl/ PYTORCH_ROCM_ARCH=$PYTORCH_ROCM_ARCH USE_CUDA=OFF python3 setup.py bdist_wheel
+
+RUN $WITH_CONDA; set -eux ; \
+  pip3 install --pre torch==${PYTORCH_VERSION} --index-url https://download.pytorch.org/whl/ ; \
+  cp /opt/rocm/lib/librccl.so $(dirname $(python -c 'import torch; print(torch.__file__)'))/lib
+
+ARG TORCHVISION_VERSION=0.22.1+rocm6.2.4
+RUN $WITH_CONDA; set -eux ; \
+  pip3 install --pre torchvision==$TORCHVISION_VERSION --index-url https://download.pytorch.org/whl/
+
+
+ARG TORCHAUDIO_VERSION
+RUN $WITH_CONDA; set -eux ; \
+  pip3 install --pre torchaudio==${PYTORCH_VERSION} --index-url https://download.pytorch.org/whl/
+
+
+ENV CONDA_DEFAULT_ENV=pytorch
+ENV CONDA_SHLVL=1
+ENV CONDA_EXE="/opt/miniconda3/bin/conda"
+ENV CONDA_PREFIX="/opt/miniconda3/envs/$CONDA_DEFAULT_ENV"
+ENV _CE_M=''
+ENV CONDA_PYTHON_EXE="/opt/miniconda3/bin/python"
+ENV _CE_CONDA=''
+ENV CONDA_PROMPT_MODIFIER="($CONDA_DEFAULT_ENV)"
+ENV PATH="/opt/miniconda3/envs/$CONDA_DEFAULT_ENV/bin:/opt/miniconda3/condabin:$PATH"
+
+# Disable the WITH_CONDA helper
+ENV WITH_CONDA=true
+
+
+RUN set -eux ; \
+  git clone https://github.com/rocm/rccl-tests /opt/mybuild ; \
+  cd /opt/mybuild ; \
+  git checkout -b mydev ae3e635 ; \
+  sed -i 's/-std=c++14/-std=c++14 --amdgpu-target=gfx90a:xnack- --amdgpu-target=gfx90a:xnack+/g' /opt/mybuild/src/Makefile ; \
+  \
+  cd /opt/mybuild ; \
+  CC=gcc-12 \
+    DEBUG=1 \
+    CXX=g++-12 \
+    MPI_HOME=$MPICH_PATH \
+    ROCM_PATH=$ROCM_PATH \
+    MPI=1 \
+    NCCL_HOME=$ROCM_PATH/rccl \
+    nice make -j ; \
+  mkdir /opt/rccltests ; \
+  mv /opt/mybuild/build/* /opt/rccltests ; \
+  rm -rf /opt/mybuild
+
+
+#RUN #set -eux; \
+#    /opt/miniconda3/uninstall.sh
+
+# patch needed for Clang compilation but the lines in the pathch
+#    wget https://github.com/pytorch/pytorch/files/13932860/caffe2-2.1.2-rocm-fix-std-cpp17.patch;\
+#    git apply caffe2-2.1.2-rocm-fix-std-cpp17.patch;\
+
+# this is the commit for the additional -Wno-vla-cxx-extension flag
+#    cd third_party/fbgemm;\
+#    git checkout -b mydev a1c8ab3;\
+#    cd ../..;\
+
+ENV OSU_VERSION=7.5
+ENV OSU_PATH="/opt/osu"
+
+RUN set -eux ; \
+  mkdir /opt/builds ; \
+  cd /opt/builds ; \
+  curl -LO  https://mvapich.cse.ohio-state.edu/download/mvapich/osu-micro-benchmarks-$OSU_VERSION.tar.gz ; \
+  tar -xf osu-*.tar.gz ; \
+  rm -rf osu-*.tar.gz ; \
+  \
+  cd /opt/builds/osu-*/ ; \
+  CC=/opt/mpich/bin/mpicc  CXX=/opt/mpich/bin/mpic++  \
+  CFLAGS="-I$MPICH_PATH/include -D__HIP_PLATFORM_AMD__=1" \
+  ./configure --enable-rocm --with-rocm=$ROCM_PATH --enable-rcclomb --with-rccl=$ROCM_PATH --prefix=$OSU_PATH ; \
+  make -j install; \
+  cd / ;  \
+  rm -rf /opt/builds

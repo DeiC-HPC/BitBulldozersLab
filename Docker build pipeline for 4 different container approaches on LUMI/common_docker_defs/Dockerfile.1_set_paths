@@ -1,0 +1,6 @@
+
+ENV MPICH_PATH=/opt/mpich
+ENV LIBFABRIC_PATH=/opt/libfabric
+ENV LIBCXI_PATH=/opt/libcxi
+ENV ROCM_PATH=/opt/rocm-$ROCM_RELEASE
+ENV XCCL_PLUGIN_PATH=/opt/xccl_plugin

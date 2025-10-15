@@ -1,0 +1,23 @@
+
+
+#Seems to be incompatible with latest libfabric version 2.0.0
+RUN set -eux ; \
+    git clone https://github.com/HewlettPackard/open-ofi-xccl /opt/mybuild_open-ofi-xccl ; \
+  cd /opt/mybuild_open-ofi-xccl ; \
+  git checkout -b mydev $XCCL_PLUGIN_VERSION; \
+  ./autogen.sh ; \
+  export CPATH=$LIBFABRIC_PATH/include ; \
+  export LIBRARY_PATH=$LD_LIBRARY_PATH ; \
+  LDFLAGS='-L/opt/libcxi/lib -lcxi' CC=gcc-12  \
+    ./configure --with-libfabric=$LIBFABRIC_PATH --enable-trace  \
+                --with-hip=$ROCM_PATH --with-rccl=$ROCM_PATH --with-mpi=$MPICH_PATH --disable-tests ; \
+  LDFLAGS='-L/opt/libcxi/lib -lcxi' CC=gcc-12 nice make -j ; \
+  mkdir $XCCL_PLUGIN_PATH ; \
+  mv src/.libs/librccl-net.so* $XCCL_PLUGIN_PATH ; \
+  rm -rf /opt/mybuild_open-ofi-xccl
+
+#
+# Add relevant libs to execution environment
+#
+ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$XCCL_PLUGIN_PATH
+

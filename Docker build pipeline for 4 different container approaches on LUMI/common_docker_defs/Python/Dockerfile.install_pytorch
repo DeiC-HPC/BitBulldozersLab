@@ -1,0 +1,16 @@
+
+#ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/rccl/lib/
+#
+#ENV PYTORCH_ROCM_ARCH gfx90a
+#ARG PYTORCH_VERSION
+#ARG PYTORCH_DEBUG
+#ARG PYTORCH_RELWITHDEBINFO
+#
+#RUN set -eux ; \
+#    git clone https://github.com/pytorch/pytorch /opt/my_pytorch_build;\
+#    cd /opt/my_pytorch_build;\
+#    git checkout -b mydev e2d141d;\
+#    git submodule sync;\
+#    git submodule update --init --recursive;\
+#    python3 tools/amd_build/build_amd.py;\
+#    RCCL_DIR=/opt/rccl/lib/cmake/rccl/ PYTORCH_ROCM_ARCH=$PYTORCH_ROCM_ARCH python3 setup.py bdist_wheel

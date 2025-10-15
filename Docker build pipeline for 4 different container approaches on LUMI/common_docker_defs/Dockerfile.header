@@ -1,4 +1,0 @@
-FROM opensuse/leap:15.5
-LABEL authors="julius"
-
-ENTRYPOINT ["top", "-b"]

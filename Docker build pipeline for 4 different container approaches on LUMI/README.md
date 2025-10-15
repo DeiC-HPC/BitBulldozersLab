@@ -3,6 +3,41 @@
 - **Keywords:** MPI, MPICH, libfabric, libcxi, container, open source, RCCL, docker, apptainer, OSU
 - **Date:** 2025-03-07
 
+--------------------------------------------------------------------------------
+Update:
+- **Keywords:** MPI, MPICH, libfabric, libcxi, container, open source, RCCL, docker, apptainer, OSU, pytorch, distributed data parallel
+- **Date:** 2025-09-16
+--------------------------------------------------------------------------------
+
+# Description 
+
+In conjunction with the upcoming LUMI update I have been testing additional open source images. 
+The following images are tested:
+
+
+
+base_image_rocm624_libcxi_libfabric2100_mpich423.sif
+
+- using cotainr and conda env files to create 6 images.
+
+
+Simple Test:
+- check devices & HIP version
+- allocate memory 
+
+Run test_ddp:
+
+## Results:
+
+|                                                 | Test DDP | Simply Python | MPICH Bandwidth | RCCL Bandwidth |
+|-------------------------------------------------|----------|---------------|-----------------|----------------|
+| pytorch2.7.1_rocm624_libfabric2100_mpich423.sif |          | Pass          |                 |                |
+
+
+
+
+
+--------------------------------------------------------------------------------
 # Description
 
 In this section of the repository we explore the different options for building a docker image without proprietary libraries. 
@@ -59,7 +94,7 @@ For approaches 2) to 4) we achieve similar performance to a native approach.
    - `lumi_images:base_image_libfabric1152_mpich423`
    - `lumi_images:base_image_libcxi_libfabric1220_mpich423`
    - `lumi_images:base_image_libcxi_libfabric2000_mpich423`
-3) Each container has to be converted to an apptainer container via `sudo apptainer build $TARGET $SOURCE`
+3) Each container has to be converted to an apptainer container via `sudo apptainer build --fix-perms $TARGET $SOURCE`
    - where $TARGET and $SOURCE have to be:
      - `base_image_libfabric1152_mpich314.sif` & `docker-daemon:lumi_images:base_image_libfabric1152_mpich314`
      - `base_image_mpich423_libfabric1152.sif` & `docker-daemon:lumi_images:base_image_libfabric1152_mpich423`

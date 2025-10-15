@@ -22,6 +22,7 @@ def show_progress(line, console):
 
 
 BUILD_ALL = False
+BUILD_OLD = False
 
 
 docker_files_path_prefix = "common_docker_defs"
@@ -39,11 +40,17 @@ docker_versions_libfabric1152_mpich423 = "Dockerfile.versions_libfabric1152_mpic
 docker_versions_libfabric1211_mpich423 = "Dockerfile.versions_libfabric1211_mpich423"
 docker_versions_libfabric1220_mpich423 = "Dockerfile.versions_libfabric1220_mpich423"
 docker_versions_libfabric2000_mpich423 = "Dockerfile.versions_libfabric2000_mpich423"
+docker_versions_libfabric2100_mpich423 = "Dockerfile.versions_libfabric2100_mpich423"
+docker_versions_libfabric2200_mpich423 = "Dockerfile.versions_libfabric2200_mpich423"
+docker_versions_libfabric2000_mpich431 = "Dockerfile.versions_libfabric2000_mpich431"
+docker_versions_libfabric2100_mpich431 = "Dockerfile.versions_libfabric2100_mpich431"
+docker_versions_libfabric2200_mpich431 = "Dockerfile.versions_libfabric2200_mpich431"
 
 docker_install_basic_dependencies = "Dockerfile.install_basic_dependencies"
 docker_install_additional_dependencies = "Dockerfile.install_additional_dependencies"
 docker_install_rocm = "Dockerfile.install_rocm"
 docker_fake_rocm_gpu_info = "Dockerfile.fake_rocm_gpu_info"
+docker_install_rccl = "Dockerfile.install_rccl"
 docker_install_cxi = "Dockerfile.install_cxi"
 docker_install_libfabric = "Dockerfile.install_libfabric"
 docker_install_libfabric_cxi = "Dockerfile.install_libfabric_cxi"
@@ -59,24 +66,32 @@ docker_remove_mpich = "Dockerfile.remove_mpich"
 docker_run_script = "Dockerfile.run_script"
 
 # For building multiple images
-images_to_build = {"base_image_libfabric1152_mpich314" : [], #base, lumi bind mount
-                   "base_image_libfabric1152_mpich343" : [], #base, lumi bind mount
-                   "base_image_libfabric1211_mpich343" : [], #???
-                   "base_image_libfabric1220_mpich343" : [], #???
-                   "base_image_libfabric1152_mpich423": [],  #base, libfabric_hybrid ??
-                   "base_image_libfabric1211_mpich423": [],  #base, libfabric_hybrid ??
-                   "base_image_libfabric1220_mpich423": [],  #base, libfabric_hybrid ??
-                   "base_image_libcxi_libfabric1152_mpich423": [], #opensource
-                   "base_image_libcxi_libfabric1152_mpich343": [], #opensource
-                   "base_image_libcxi_libfabric1211_mpich423": [], #opensource
-                   "base_image_libcxi_libfabric2000_mpich423": [], #opensource
-                   "base_image_libcxi_libfabric1220_mpich423": []} #opensource
+images_to_build = {
+                   # "base_image_libfabric1152_mpich314" : [], #base, lumi bind mount
+                   # "base_image_libfabric1152_mpich343" : [], #base, lumi bind mount
+                   # "base_image_libfabric1211_mpich343" : [], #???
+                   # "base_image_libfabric1220_mpich343" : [], #???
+                   # "base_image_libfabric1152_mpich423": [],  #base, libfabric_hybrid ??
+                   # "base_image_libfabric1211_mpich423": [],  #base, libfabric_hybrid ??
+                   # "base_image_libfabric1220_mpich423": [],  #base, libfabric_hybrid ??
+                   # "base_image_libcxi_libfabric1152_mpich423": [], #opensource
+                   # "base_image_libcxi_libfabric1152_mpich343": [], #opensource
+                   # "base_image_libcxi_libfabric1211_mpich423": [], #opensource
+                   # "base_image_libcxi_libfabric2000_mpich423": [], #opensource
+                   # "base_image_libcxi_libfabric2000_mpich431": [], #opensource
+                   "base_image_libcxi_libfabric2100_mpich423": [], #opensource
+                   # "base_image_libcxi_libfabric2100_mpich431": [], #opensource
+                   # "base_image_libcxi_libfabric2200_mpich423": [], #opensource
+                   # "base_image_libcxi_libfabric2200_mpich431": [], #opensource
+                   # "base_image_libcxi_libfabric1220_mpich423": []
+    } #opensource
 
 base_install = [docker_header,
                 docker_define_versions,
                 docker_install_basic_dependencies,
                 docker_install_rocm,
-                docker_fake_rocm_gpu_info]
+                docker_fake_rocm_gpu_info,
+                docker_install_rccl]
 
 tail_install = [docker_install_libfabric,
                 docker_install_aws_ofi_rccl,
@@ -88,8 +103,8 @@ tail_install = [docker_install_libfabric,
 tail_install_cxi = [docker_install_additional_dependencies,
                     docker_install_cxi,
                     docker_install_libfabric_cxi,
-                    docker_install_aws_ofi_rccl,
                     docker_install_mpich_ch4ofi,
+                    docker_install_aws_ofi_rccl,
                     # docker_install_rccl_tests,
                     docker_install_osu,
                     docker_run_script]
@@ -105,22 +120,24 @@ tail_install_cxi_libfabric1152 = [docker_install_additional_dependencies,
 
 
 # ------------------------------------------------------------------------------------------
-# defaults to build
+# build older containers.
 # ------------------------------------------------------------------------------------------
-# BUILDS
-# Recommended: Full Container or Full Bind Mount
-# Works: Full Container; Full Bind Mount, libfabric hybrid (TCP/IP)
-images_to_build["base_image_libfabric1152_mpich314"] = (base_install
-                                                        + [docker_versions_libfabric1152_mpich314]
-                                                        + tail_install)
 
-# BUILDS
-# Recommended: could use for full bind mount or libfabric hybrid
-# Works: Full Container; Full Bind Mount; libfabric hybrid
-# Doesnt work: Opensource
-images_to_build["base_image_libfabric1152_mpich423"] = (base_install
-                                                        + [docker_versions_libfabric1152_mpich423]
-                                                        + tail_install)
+if BUILD_OLD:
+    # BUILDS
+    # Recommended: Full Container or Full Bind Mount
+    # Works: Full Container; Full Bind Mount, libfabric hybrid (TCP/IP)
+    images_to_build["base_image_libfabric1152_mpich314"] = (base_install
+                                                            + [docker_versions_libfabric1152_mpich314]
+                                                            + tail_install)
+
+    # BUILDS
+    # Recommended: could use for full bind mount or libfabric hybrid
+    # Works: Full Container; Full Bind Mount; libfabric hybrid
+    # Doesnt work: Opensource
+    images_to_build["base_image_libfabric1152_mpich423"] = (base_install
+                                                            + [docker_versions_libfabric1152_mpich423]
+                                                            + tail_install)
 
 # ------------------------------------------------------------------------------------------
 # Not worth building
@@ -202,24 +219,28 @@ if BUILD_ALL:
 # # Recommended: Opensource
 # Works: Opensource
 # Doesnt work: libfabric hybrid, Full Bind Mount
-images_to_build["base_image_libcxi_libfabric2000_mpich423"] = (base_install
-                                                        + [docker_versions_libfabric2000_mpich423]
-                                                        + tail_install_cxi)
+# images_to_build["base_image_libcxi_libfabric2000_mpich431"] = (base_install
+#                                                         + [docker_versions_libfabric2000_mpich423]
+#                                                         + tail_install_cxi)
 
 # ------------------------------------------------------------------------------------------
 # defaults to build
 # ------------------------------------------------------------------------------------------
-
-
-# BUILDS
-# # Recommended: Opensource
-# Works:  Opensource, Full Bind Mount
-# Doesnt work: libfabric hybrid
-images_to_build["base_image_libcxi_libfabric1220_mpich423"] = (base_install
-                                                        + [docker_versions_libfabric1220_mpich423]
+images_to_build["base_image_libcxi_libfabric2100_mpich423"] = (base_install
+                                                        + [docker_versions_libfabric2100_mpich423]
                                                         + tail_install_cxi)
 
-
+# images_to_build["base_image_libcxi_libfabric2200_mpich423"] = (base_install
+#                                                         + [docker_versions_libfabric2200_mpich423]
+#                                                         + tail_install_cxi)
+#
+# images_to_build["base_image_libcxi_libfabric2100_mpich431"] = (base_install
+#                                                         + [docker_versions_libfabric2100_mpich423]
+#                                                         + tail_install_cxi)
+#
+# images_to_build["base_image_libcxi_libfabric2200_mpich431"] = (base_install
+#                                                         + [docker_versions_libfabric2200_mpich423]
+#                                                         + tail_install_cxi)
 
 # Build all images one go
 for current_image_name, current_image_files in images_to_build.items():
@@ -237,15 +258,15 @@ for current_image_name, current_image_files in images_to_build.items():
     old_dir = os.getcwd()
     path = os.path.join(old_dir, 'additional_docker_files')
 
-    console = Console()
-    with console.status("[bold green]Working on tasks...") as status:
-        client = docker.from_env()
-        try:
-            resp = client.api.build(rm=True, quiet=False, tag="lumi_images:" + current_image_name, path=path) #fileobj=f, , nocache=True
-            for line in resp:
-                line_dict = json.loads(line.decode('utf-8'))
-                show_progress(line_dict, console)
-        except DockerException as e:
-            print(f"An error occurred: {e}")
+    # console = Console()
+    # with console.status("[bold green]Working on tasks...") as status:
+    #     client = docker.from_env()
+    #     try:
+    #         resp = client.api.build(rm=True, quiet=False, tag="lumi_images:" + current_image_name, path=path) #fileobj=f, , nocache=True
+    #         for line in resp:
+    #             line_dict = json.loads(line.decode('utf-8'))
+    #             show_progress(line_dict, console)
+    #     except DockerException as e:
+    #         print(f"An error occurred: {e}")
 
-    os.remove(dockerfile_path)
+    # os.remove(dockerfile_path)

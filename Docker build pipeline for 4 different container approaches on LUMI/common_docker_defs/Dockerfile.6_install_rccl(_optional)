@@ -1,0 +1,34 @@
+
+RUN set -eux ; \
+#  rm -rf /opt/mybuild ; \
+  git clone https://github.com/rocm/rccl /opt/mybuild_rccl ; \
+  cd /opt/mybuild_rccl ; \
+  git checkout -b mydev $RCCL_VERSION ; \
+  git submodule sync ; \
+  git submodule update --init --recursive --jobs 0 ; \
+  mkdir /opt/mybuild_rccl/build ; \
+  cd  /opt/mybuild_rccl/build ; \
+  CXX=$ROCM_PATH/bin/hipcc \
+  cmake \
+    -DBUILD_LOCAL_GPU_TARGET_ONLY=ON \
+    -DCOMPILING_TARGETS=gfx90a \
+    -DENABLE_MSCCLPP=OFF \
+    -DCMAKE_INSTALL_PREFIX=/opt/rccl \
+    -DCMAKE_BUILD_TYPE=Release \
+    .. ; \
+  nice make -j V=1 VERBOSE=1 ; \
+  nice make -j install ; \
+  cd /; \
+  rm -rf /opt/mybuild_rccl
+
+RUN set -eux ; \
+  rm -rf $ROCM_PATH/lib/librccl.so* ; \
+  ln -s /opt/rccl/lib/librccl.so* $ROCM_PATH/lib
+
+RUN set -eux ; \
+  cd $ROCM_PATH ; \
+  find -iname '*.cmake' -o -iname '*.txt' | xargs grep -i librccl.so ; \
+  find -iname '*.cmake' -o -iname '*.txt' | xargs sed -E -i 's#librccl.[0-9,a-z,\.]+#librccl.so.1.0#g' ; \
+  find -iname '*.cmake' -o -iname '*.txt' | xargs grep -i librccl.so
+
+ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/rccl/lib/

@@ -1,0 +1,7 @@
+FROM opensuse/leap:15.5
+LABEL authors="julius"
+
+ENTRYPOINT ["top", "-b"]
+
+#we need to copy files needed to DOCKER
+COPY rocminfo rocm_agent_enumerator amdgpu-arch.cpp aws.patch /

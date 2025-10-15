@@ -46,13 +46,24 @@ RUN set -eux ; \
 RUN set -eux ; \
   zypper --no-gpg-checks -n install $ROCM_RPM
 
+#What are these for?
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install --oldpackage libsystemd0-249.16 libudev1-249.16
+
+
 # Use amdgpu-install to install rocm et al. Should also install rccl.
 RUN set -eux ; \
-  amdgpu-install -y --no-dkms --usecase=hiplibsdk,rocm,rocmdev,mllib --rocmrelease=$ROCM_RELEASE
+  amdgpu-install -y --no-dkms --usecase=rocm --rocmrelease=$ROCM_RELEASE
+
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install -y --force miopen-hip-gfx90akdb
+
+RUN set -eux ; \
+  zypper --no-gpg-checks -n install -y --force omniperf omnitrace
 
 #
 # ROCm environment
 #
-ENV ROCM_PATH=/opt/rocm-$ROCM_RELEASE
-ENV PATH=$ROCM_PATH/bin:$ROCM_PATH/llvm/bin:$PATH
-ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$ROCM_PATH/lib
+ENV PATH $ROCM_PATH/bin:$ROCM_PATH/llvm/bin:$PATH
+ENV LD_LIBRARY_PATH $ROCM_PATH/lib
+# latest RCCL version --> maybe try

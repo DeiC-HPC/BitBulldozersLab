@@ -1,0 +1,24 @@
+
+# need version higher than 1.15.2. 1.15 does not have a cxi provider
+# sed is needed to delete the CXI_MAP_IOVA_ALLOC as it was removed. https://github.com/search?q=repo%3AHewlettPackard%2Fshs-libcxi+CXI_MAP_IOVA_ALLOC&type=commits
+
+RUN set -eux ; \
+  export CPATH=/include:$LIBCXI_PATH/lib ; \
+  export LIBRARY_PATH=$LIBCXI_PATH/lib ; \
+  git clone --recursive https://github.com/ofiwg/libfabric /opt/libfabric-src ; \
+  git -C /opt/libfabric-src checkout -b mydev $LIBFABRIC_VERSION ; \
+  cd /opt/libfabric-src ; \
+  ./autogen.sh ; \
+  mkdir /opt/libfabric-src/build ; \
+  cd /opt/libfabric-src/build ; \
+  ../configure CC=gcc-$GCC_RELEASE --prefix=$LIBFABRIC_PATH \
+    LDFLAGS=-Wl,--build-id --enable-only \
+    --enable-restricted-dl --enable-tcp --enable-udp --enable-rxm --enable-rxd --enable-hook_debug \
+    --enable-hook_hmem --enable-dmabuf_peer_mem --enable-cxi=$LIBCXI_PATH --enable-gdrcopy-dlopen --with-rocr=$ROCM_PATH ; \
+  cd /opt/libfabric-src/build ; \
+  nice make V=1 VERBOSE=1 -j  ; \
+  nice make V=1 VERBOSE=1 -j install ; \
+  cd / ; rm -rf /opt/libfabric-src
+
+ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$LIBFABRIC_PATH/lib
+ENV LD_RUN_PATH $LD_RUN_PATH:$LIBFABRIC_PATH/lib

@@ -1,4 +1,5 @@
 
+
 #// This is a heavily modified version of a file provided by Samuel F Antao
 #// Original License and code from https://github.com/sfantao/lumi-containers/tree/lumi-sep2024
 #//
@@ -24,27 +25,29 @@
 #//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #//SOFTWARE.
 
-#we need to copy files needed to DOCKER
-COPY rocminfo rocm_agent_enumerator amdgpu-arch.cpp /
 
-# Fake having the amd gpus? so that aws-ofi-rccl installs properly?
-RUN set -eux ; \
-  cd $ROCM_PATH/bin ; \
-  for i in rocm_agent_enumerator rocminfo ; do \
-    rm -rf $i ; \
-    cp /$i . ; \
-    chmod +x $i ; \
-  done
+#
+# Mark RCCL as non-debug - this can me overriden by RCCL debug build.
+#
 
+#Seems to be incompatible with latest libfabric version 2.0.0
 RUN set -eux ; \
-  cd $ROCM_PATH/llvm/bin ; \
-  cp /amdgpu-arch.cpp . ;\
-  rm amdgpu-arch offload-arch ; \
-  g++-$GCC_RELEASE amdgpu-arch.cpp -DNUM_TARGETS=8 -o amdgpu-arch ; \
-  g++-$GCC_RELEASE amdgpu-arch.cpp -DNUM_TARGETS=1 -o offload-arch ; \
-  rm -rf amdgpu-arch.cpp ; \
-  ./amdgpu-arch ; \
-  ./offload-arch ; \
-  true ; \
-  cd;
+  git clone -b cxi https://github.com/ROCmSoftwarePlatform/aws-ofi-rccl /opt/mybuild_aws_ofi ; \
+  cd /opt/mybuild_aws_ofi ; \
+  git checkout -b mydev $AWS_PLUGIN_VERSION ; \
+#  git apply < /aws.patch ; \
+  ./autogen.sh ; \
+  cd /opt/mybuild_aws_ofi ; \
+  export CPATH=$LIBFABRIC_PATH/include ; \
+  export LIBRARY_PATH=$LD_LIBRARY_PATH ; \
+  LDFLAGS='-L/opt/libcxi/lib -lcxi' CC=gcc-12 ./configure --with-libfabric=$LIBFABRIC_PATH --enable-trace --with-hip=$ROCM_PATH --with-rccl=$ROCM_PATH --disable-tests ; \
+  LDFLAGS='-L/opt/libcxi/lib -lcxi' CC=gcc-12 nice make -j ; \
+  mkdir $XCCL_PLUGIN_PATH ; \
+  mv src/.libs/librccl-net.so* $XCCL_PLUGIN_PATH ; \
+  rm -rf /opt/mybuild_aws_ofi
+
+#
+# Add relevant libs to execution environment
+#
+ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:$XCCL_PLUGIN_PATH
 
