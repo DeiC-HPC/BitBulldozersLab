@@ -1,0 +1,12 @@
+versions:
+  - spec: 1.0
+variables:
+  - name: OSU_VERSION
+    value: 7.5
+  - name: RCCL_DEBUG
+    value: 0
+dependencies:
+  - spec: rocm
+    scope: build
+  - spec: mpich
+    scope: build

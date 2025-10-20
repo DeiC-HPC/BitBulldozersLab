@@ -1,0 +1,15 @@
+versions:
+  - spec: 1.0
+dependencies:
+  - spec: rocm
+    scope: build
+templates:
+  - name: opensuse
+    when: distro=opensuse
+files:
+  - name:
+    - hipcc-flash-attention
+    - hipcc-xformers
+    - rocm_agent_enumerator
+    - rocminfo
+    - amdgpu-arch.cpp

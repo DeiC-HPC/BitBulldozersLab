@@ -1,0 +1,10 @@
+versions:
+  - spec:
+    - 4.2.3
+    - 4.3.1
+dependencies:
+  - spec: libfabric
+    scope: build
+templates:
+  - name: opensuse
+    when: distro=opensuse

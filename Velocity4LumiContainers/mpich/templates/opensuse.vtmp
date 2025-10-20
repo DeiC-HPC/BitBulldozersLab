@@ -1,0 +1,30 @@
+@from
+    {{ __base__ }}
+
+@run
+  >>> Set env variables to download mpich tar
+  !envar MPICH_VERSION {{ __version__ }}
+  !envar MPICH_TAR http://www.mpich.org/static/downloads/${MPICH_VERSION}/mpich-${MPICH_VERSION}.tar.gz
+  !envar MPICH_PATH /opt/mpich
+  >>> download
+  cd /opt
+  wget $MPICH_TAR
+  tar -xzf mpich-$MPICH_VERSION.tar.gz
+  rm mpich-$MPICH_VERSION.tar.gz
+  cd mpich-$MPICH_VERSION
+  CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE  \
+        ./configure --prefix=$MPICH_PATH  \
+            --with-hip-lib=$ROCM_PATH/lib/  \
+            --with-hip-include=$ROCM_PATH/include/  \
+            --with-libfabric=$LIBFABRIC_PATH \
+            --disable-fortran  \
+            --enable-fast=all,O3  \
+            --with-device=ch4:ofi \
+             --with-pm=none \
+            --disable-silent-rules \
+            --enable-debuginfo \
+            --enable-shared
+    make -j 12
+    make install
+    cd /
+    rm -rf /opt/mpich-$MPICH_VERSION/

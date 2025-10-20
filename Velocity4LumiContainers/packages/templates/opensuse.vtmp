@@ -1,0 +1,13 @@
+@from
+    {{ __base__ }}
+
+@run
+    zypper -n addrepo https://download.opensuse.org/repositories/devel:/languages:/perl/SLE_15_SP5 perl
+    echo 'gpgcheck=0' >> /etc/zypp/repos.d/perl.repo
+    sed -i 's#gpgcheck=1#gpgcheck=0#g' /etc/zypp/repos.d/*.repo
+    zypper --no-gpg-checks -n install -y --force-resolution git cmake gcc12 \
+      gcc12-c++ gcc12-fortran zlib-devel numactl awk patch tar autoconf automake \
+      libtool libjson-c-devel graphviz ncurses-devel nano which libjansson4 \
+      libnl3-200 wget bzip2
+    zypper clean
+    !envar GCC_RELEASE 12

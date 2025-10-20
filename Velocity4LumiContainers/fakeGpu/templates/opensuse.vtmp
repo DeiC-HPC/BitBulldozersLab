@@ -1,0 +1,23 @@
+@from
+    {{ __base__ }}
+
+@copy
+    rocm_agent_enumerator rocm_agent_enumerator
+    rocminfo rocminfo
+    amdgpu-arch.cpp amdgpu-arch.cpp
+
+@run
+    >>> Replace rocm information
+    cd $ROCM_PATH/bin
+    for i in rocm_agent_enumerator rocminfo ; do \
+      rm -rf $i ; \
+      cp /$i . ; \
+      chmod +x $i ; \
+    done
+    >>> Replace amdgpu-arch and offload-arch
+    cd $ROCM_PATH/llvm/bin
+    rm amdgpu-arch offload-arch
+    g++-12 /amdgpu-arch.cpp -DNUM_TARGETS=8 -o amdgpu-arch
+    g++-12 /amdgpu-arch.cpp -DNUM_TARGETS=1 -o offload-arch
+    ./amdgpu-arch
+    ./offload-arch

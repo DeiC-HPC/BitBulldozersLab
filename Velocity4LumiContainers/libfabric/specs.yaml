@@ -1,0 +1,23 @@
+versions:
+  - spec:
+    - 1.9.0
+    - 2.0.0
+    - 2.1.0
+variables:
+  - name: libfabric_version
+    value: e08d3161b8038ebfa50a4eb5bf76132e4eaeb137
+    when: libfabric@1.9.0
+  - name: libfabric_version
+    value: "2.0.0"
+    when: libfabric@2.0.0
+  - name: libfabric_version
+    value: "2.1.0"
+    when: libfabric@2.1.0
+dependencies:
+  - spec: libcxi
+    scope: build
+templates:
+  - name: opensuse_git
+    when: distro=opensuse libfabric@1.9.0
+  - name: opensuse_release
+    when: distro=opensuse libfabric@2.0.0:2.1.0

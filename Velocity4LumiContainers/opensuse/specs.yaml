@@ -1,0 +1,3 @@
+versions:
+  - spec: 15.5
+    when: distro=opensuse

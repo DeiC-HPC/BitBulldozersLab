@@ -1,0 +1,5 @@
+versions:
+  - spec: 85eb1f1
+dependencies:
+  - spec: rocm
+    when: rocm
