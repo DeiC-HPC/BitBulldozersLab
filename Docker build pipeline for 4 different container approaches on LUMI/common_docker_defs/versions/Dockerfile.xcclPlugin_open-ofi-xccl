@@ -1,0 +1,3 @@
+
+# this is the first commit of open-ofi-xccl that supports RCCL (i.e., AMD GPUs)
+ENV XCCL_PLUGIN_VERSION=1ea938a

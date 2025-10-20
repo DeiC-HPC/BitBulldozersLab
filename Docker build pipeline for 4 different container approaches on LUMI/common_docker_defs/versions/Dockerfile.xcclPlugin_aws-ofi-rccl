@@ -1,0 +1,6 @@
+
+# this is being replaced by open-ofi-xccl. This is the last commit to aws-ofi-rccl.
+ENV AWS_PLUGIN_VERSION=6dae1b0
+# this is an older aws-ofi-rccl commit that is being used in the current Lumi containers.
+# If you want this one you need to uncomment the patch application line in Dockerfile.10a_install_aws-ofi-rccl
+#ENV AWS_PLUGIN_VERSION=17d41cb

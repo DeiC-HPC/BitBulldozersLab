@@ -276,23 +276,6 @@ RUN set -eux ; \
 # Add relevant libs to execution environment
 #
 ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/aws-ofi-rccl
-#ENV CXI_FORK_SAFE=1
-#ENV CXI_FORK_SAFE_HP=1
-#ENV FI_CXI_DISABLE_CQ_HUGETLB=1
-
-
-
-#COPY run_script.sh /singularity/
-#
-#RUN set -eux ; \
-#    chmod +x /singularity/run_script.sh;\
-
-#ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/rccl/lib/
-
-ENV PYTORCH_ROCM_ARCH gfx90a
-ARG PYTORCH_VERSION=2.7.1+rocm6.2.4
-ARG PYTORCH_DEBUG
-ARG PYTORCH_RELWITHDEBINFO
 
 
 #
@@ -307,54 +290,419 @@ ENV WITH_CONDA "source /opt/miniconda3/bin/activate base"
 #
 # Install conda environment
 #
-ENV PYTHON_VERSION=3.12
+ARG PYTHON_VERSION=3.12.0
 RUN $WITH_CONDA; set -eux ; \
   conda create -n pytorch python=$PYTHON_VERSION ; \
   conda activate pytorch ; \
-  conda install -y ninja pillow cmake pyyaml pip; \
-  conda install -c conda-forge typing-extensions; \
-  pip install mkl-static mkl-include
+  conda install -y ninja pillow cmake pyyaml
 ENV WITH_CONDA "source /opt/miniconda3/bin/activate pytorch"
 
+# Repository for the wheel files
 RUN set -eux ; \
-  zypper --no-gpg-checks -n install -y --force-resolution \
-    libgomp1 ; \
-  zypper clean
+  mkdir /opt/wheels
 
-ENV LD_LIBRARY_PATH $LD_LIBRARY_PATH:/usr/lib64/
-ENV LD_RUN_PATH $LD_RUN_PATH:/usr/lib64/
+#
+# Install pytorch
+#
 
-RUN $WITH_CONDA; set -eux ; \
-    conda install filelock fsspec jinja2 markupsafe mpmath networkx numpy pillow pip sympy typing-extensions psutil
-#    pip install torchaudio==2.7.1+rocm6.2.4 --extra-index-url https://download.pytorch.org/whl/rocm6.2.4/ ;\
-#    pip install torchvision==0.22.1+rocm6.2.4 --extra-index-url https://download.pytorch.org/whl/rocm6.2.4/;\
-#    pip install /opt/my_pytorch_build/dist/torch-2.7.1a0+gite2d141d-cp312-cp312-linux_x86_64.whl
+# PyTorch comes with RCCL from ROCm 6.0.0 which cause a segmentation fault
+# in the tests. It's supspected it's related to https://github.com/ROCm/rccl/pull/1153
+# Copying the RCCL library from /opt/rocm, solve the issue.
 
-#RUN #$WITH_CONDA; set -eux ; \
-#    git clone https://github.com/pytorch/pytorch /opt/my_pytorch_build;\
-#    cd /opt/my_pytorch_build;\
-#    git checkout -b mydev e2d141d;\
-#    git submodule sync;\
-#    git submodule update --init --recursive;\
-#    sed -i '205i string(APPEND CMAKE_CXX_FLAGS " -Wno-vla-cxx-extension")' third_party/fbgemm/CMakeLists.txt;\
-#    pip install -r requirements.txt;\
-#    python3 tools/amd_build/build_amd.py;\
-#    CC=gcc-12 CXX=g++-12 RCCL_DIR=/opt/rccl/lib/cmake/rccl/ PYTORCH_ROCM_ARCH=$PYTORCH_ROCM_ARCH USE_CUDA=OFF python3 setup.py bdist_wheel
+ENV PYTORCH_ROCM_ARCH gfx90a
+ENV PYTORCH_VERSION="2.7.1+rocm6.2.4"
+ARG PYTORCH_DEBUG
+ARG PYTORCH_RELWITHDEBINFO
+ENV TORCHVISION_VERSION="0.22.1+rocm6.2.4"
 
 RUN $WITH_CONDA; set -eux ; \
-  pip3 install --pre torch==${PYTORCH_VERSION} --index-url https://download.pytorch.org/whl/ ; \
+  pip3 install --pre torch==${PYTORCH_VERSION} --index-url https://download.pytorch.org/whl/rocm6.2.4/ ; \
   cp /opt/rocm/lib/librccl.so $(dirname $(python -c 'import torch; print(torch.__file__)'))/lib
 
-ARG TORCHVISION_VERSION=0.22.1+rocm6.2.4
+#
+# Pytorch dependencies
+#
+RUN $WITH_CONDA; set -eux ; \
+  pip install packaging
+
+#ARG APEX_VERSION
+#RUN $WITH_CONDA; set -eux ; \
+#  git clone --recursive https://github.com/rocm/apex /opt/mybuild ; \
+#  cd /opt/mybuild ; \
+#  git checkout -b mydev $APEX_VERSION ; \
+#  git submodule sync ; \
+#  git submodule update --init --recursive --jobs 0 ; \
+#  CC=gcc-12, CXX=g++-12 nice python setup.py bdist_wheel --cpp_ext --cuda_ext ; \
+#  cp -rf dist/* /opt/wheels ; \
+#  rm -rf /opt/mybuild
+
+#RUN $WITH_CONDA; set -eux ; \
+#  pip install /opt/wheels/apex-*.whl
+
 RUN $WITH_CONDA; set -eux ; \
   pip3 install --pre torchvision==$TORCHVISION_VERSION --index-url https://download.pytorch.org/whl/
 
-
-ARG TORCHAUDIO_VERSION
+#
+# AMD-SMI
+#
 RUN $WITH_CONDA; set -eux ; \
-  pip3 install --pre torchaudio==${PYTORCH_VERSION} --index-url https://download.pytorch.org/whl/
+  cd $ROCM_PATH/share/amd_smi ; \
+  python3 -m pip wheel . --wheel-dir=/opt/wheels ; \
+  pip install /opt/wheels/amdsmi-*.whl
 
+#ARG TORCHDATA_VERSION
+#RUN $WITH_CONDA; set -eux ; \
+#  pip3 install --pre torchdata==$TORCHDATA_VERSION --index-url https://download.pytorch.org/whl/
+#
+#ARG TORCHTEXT_VERSION
+#RUN $WITH_CONDA; set -eux ; \
+#  pip3 install --pre torchtext==$TORCHTEXT_VERSION --index-url https://download.pytorch.org/whl/
 
+ARG TORCHAUDIO_VERSION="2.7.1+rocm6.2.4"
+RUN $WITH_CONDA; set -eux ; \
+  pip3 install --pre torchaudio==${TORCHAUDIO_VERSION} --index-url https://download.pytorch.org/whl/
+
+#
+# Deepspeed
+#
+ENV RUSTUP_HOME /opt/rust
+ENV CARGO_HOME /opt/rust
+RUN set -eux ; \
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > /opt/rust.sh ; \
+  sh /opt/rust.sh -y --no-modify-path ; \
+  rm -rf /opt/rust.sh
+
+ENV PATH $PATH:/opt/rust/bin
+
+RUN $WITH_CONDA; set -eux ; \
+  conda install -y  -c conda-forge oneccl-devel
+
+#RUN $WITH_CONDA; set -eux ; \
+#  ln -s $(which gcc-12) /opt/rust/bin/cc ; \
+#  CC=gcc-12 CXX=g++-12 \
+#  DS_BUILD_AIO=0 \
+#  DS_BUILD_CCL_COMM=1 \
+#  DS_BUILD_CPU_ADAM=1 \
+#  DS_BUILD_CPU_LION=1 \
+#  DS_BUILD_EVOFORMER_ATTN=0 \
+#  DS_BUILD_FUSED_ADAM=1 \
+#  DS_BUILD_FUSED_LION=1 \
+#  DS_BUILD_CPU_ADAGRAD=0 \
+#  DS_BUILD_FUSED_LAMB=1 \
+#  DS_BUILD_QUANTIZER=0 \
+#  DS_BUILD_RANDOM_LTD=0 \
+#  DS_BUILD_SPARSE_ATTN=0 \
+#  DS_BUILD_TRANSFORMER=0 \
+#  DS_BUILD_TRANSFORMER_INFERENCE=0 \
+#  DS_BUILD_STOCHASTIC_TRANSFORMER=1 \
+#  DS_ACCELERATOR=cuda \
+#  pip install deepspeed==0.15.1 --global-option="build_ext" --global-option="-j32" ; \
+#  ds_report ; \
+#  true
+
+#
+# flash-attention
+#
+#RUN $WITH_CONDA; set -eux ; \
+#  git clone -b v2.7.3 --recursive https://github.com/Dao-AILab/flash-attention /opt/mybuild ; \
+#  cd /opt/mybuild ; \
+#  cp -rf benchmarks /opt/wheels/flash_attn-benchmarks ; \
+#  \
+#  rm -rf build ; \
+#  MAX_JOBS=32 \
+#  CC=gcc-12 \
+#  CXX=g++-12 \
+#  GPU_ARCHS="gfx90a" \
+#    python setup.py bdist_wheel ; \
+#  cp -rf dist/* /opt/wheels ; \
+#  \
+#  rm -rf /opt/mybuild
+#
+#RUN $WITH_CONDA; set -eux ; \
+#  pip install /opt/wheels/flash_attn-*.whl
+
+#
+# xformers - tested with 06b548c
+#
+RUN $WITH_CONDA; set -eux ; \
+  git clone --recursive -b develop https://github.com/ROCm/xformers /opt/mybuild ; \
+  cd /opt/mybuild ; \
+  \
+  rm -rf build ; \
+  CC=gcc-12 \
+  CXX=g++-12 \
+  HIP_ARCHITECTURES="gfx90a" \
+  PYTORCH_ROCM_ARCH="gfx90a" \
+  python setup.py bdist_wheel ; \
+  cp -rf dist/* /opt/wheels ; \
+  \
+  rm -rf /opt/mybuild
+
+RUN $WITH_CONDA; set -eux ; \
+  pip install /opt/wheels/xformers-*.whl
+
+RUN $WITH_CONDA; set -eux ; \
+  pip install \
+    scipy==1.12.0 \
+    matplotlib==3.8.2 \
+    pandas==2.2.0 \
+    seaborn==0.13.2
+
+#
+# Bits and bytes - tested with 35266ea (was e4fe8b5)
+#
+RUN $WITH_CONDA; set -eux ; \
+  git clone https://github.com/ROCm/bitsandbytes /opt/mybuild ; \
+  cd /opt/mybuild ; \
+  git checkout -b mydev 35266ea ; \
+  pip install -r requirements-dev.txt ; \
+  cmake -DCOMPUTE_BACKEND=hip -DBNB_ROCM_ARCH="gfx90a" -S . ; \
+  nice make -j ; \
+  python setup.py bdist_wheel ; \
+  cp dist/bitsandbytes-*.whl /opt/wheels ; \
+  \
+  cd / ; \
+  rm -rf /opt/mybuild ; \
+  true
+
+RUN $WITH_CONDA; set -eux ; \
+  pip install /opt/wheels/bitsandbytes-*.whl
+
+#
+# Some other packages we may need
+#
+RUN $WITH_CONDA; set -eux ; \
+  pip install \
+    'numpy<2' \
+    transformers==4.46.3 \
+    sentencepiece==0.2.0 \
+    protobuf==5.27.1 \
+    accelerate==0.34.2 \
+    tensorboard==2.18.0 \
+    openpyxl==3.1.5
+
+#
+# VLLM
+#
+#RUN #$WITH_CONDA; set -eux ; \
+##  pip install \
+##    setuptools_scm
+
+#ARG VLLM_VERSION
+#RUN $WITH_CONDA ; set -eux ; \
+#  git clone --recursive -b $VLLM_VERSION https://github.com/rocm/vllm /opt/mybuild ; \
+#  \
+#  cd /opt/mybuild ; \
+#  CC=gcc-12 \
+#    CXX=g++-12 \
+#    python3 setup.py bdist_wheel --dist-dir=/opt/wheels ; \
+#  \
+#  rm -rf /opt/mybuild
+
+#RUN $WITH_CONDA; set -eux ; \
+#  pip install \
+#    /opt/wheels/vllm-*.whl
+
+#
+# Transformer engine - tested e7a7f6d
+#
+RUN $WITH_CONDA; set -eux ; \
+  export NVTE_FRAMEWORK=pytorch ; \
+  export NVTE_ROCM_ARCH=gfx90a ; \
+  rm -rf /opt/mybuild ; \
+  git clone --recursive https://github.com/ROCm/TransformerEngine.git /opt/mybuild ; \
+  cd /opt/mybuild ; \
+  git checkout -b mydev df12b25 ; \
+  git submodule sync ; \
+  git submodule update --init --recursive --jobs 0 ; \
+  sed -i 's/-Werror//g' /opt/mybuild/3rdparty/aotriton/third_party/triton/CMakeLists.txt ; \
+  CC=clang \
+    CXX=clang++ \
+    CFLAGS='-Wno-error -Wno-c++11-narrowing' \
+    CXXFLAGS='-Wno-error -Wno-c++11-narrowing' \
+    TORCH_DONT_CHECK_COMPILER_ABI=1 \
+    pip wheel --no-deps --verbose -e . -w /opt/wheels ; \
+  rm -rf /opt/mybuild
+
+RUN $WITH_CONDA; set -eux ; \
+  pip install \
+    /opt/wheels/transformer_engine-*.whl
+
+# force all RCCL streams to be high priority
+ENV TORCH_NCCL_HIGH_PRIORITY 1
+ENV RCCL_MSCCL_ENABLE 0
+
+RUN $WITH_CONDA; set -eux ; \
+  CC=gcc-12 \
+  CXX=g++-12 \
+  pip3 install \
+    scipy \
+    einops \
+    flask-restful \
+    nltk \
+    pytest \
+    pytest-cov \
+    pytest_mock \
+    pytest-csv \
+    pytest-random-order \
+    sentencepiece \
+    wrapt \
+    zarr \
+    wandb \
+    tensorstore==0.1.45 \
+    pytest_mock \
+    pybind11 \
+    setuptools \
+    datasets \
+    tiktoken \
+    pynvml
+
+RUN $WITH_CONDA; set -eux ; \
+  pip3 install "huggingface_hub[cli]"
+
+# Is this needed?
+# RUN $WITH_CONDA; set -eux ; \
+#   python3 -m nltk.downloader punkt_tab
+
+ENV CAUSAL_CONV1D_FORCE_BUILD=TRUE
+ENV MAMBA_FORCE_BUILD=TRUE
+ENV HIP_ARCHITECTURES=gfx90a
+
+RUN $WITH_CONDA; set -eux ; \
+  rm -rf /opt/mybuild ;\
+  git clone https://github.com/Dao-AILab/causal-conv1d /opt/mybuild ; \
+  cd /opt/mybuild ; \
+  CC=gcc-12 \
+  CXX=g++-12 \
+    python3 setup.py bdist_wheel --dist-dir=/opt/wheels ; \
+  cd / ; rm -rf /opt/mybuild
+
+RUN $WITH_CONDA; set -eux ; \
+  rm -rf /opt/mybuild ;\
+  git clone https://github.com/state-spaces/mamba /opt/mybuild ; \
+  cd /opt/mybuild ; \
+  CC=gcc-12 \
+  CXX=g++-12 \
+    python3 setup.py bdist_wheel --dist-dir=/opt/wheels ; \
+  cd / ; rm -rf /opt/mybuild
+
+# For transformer engine.
+ENV NVTE_USE_HIPBLASLT=1
+
+RUN $WITH_CONDA; set -eux ; \
+  rm -rf /opt/mybuild ;\
+  git clone https://github.com/caaatch22/grouped_gemm.git /opt/mybuild ; \
+  cd /opt/mybuild ; \
+  git checkout rocm ; \
+  git submodule sync ; \
+  git submodule update --init --recursive --jobs 0 ; \
+  CC=gcc-12 \
+  CXX=g++-12 \
+    python3 setup.py bdist_wheel --dist-dir=/opt/wheels ; \
+  cd / ; rm -rf /opt/mybuild
+
+RUN $WITH_CONDA; set -eux ; \
+  pip install /opt/wheels/causal_conv1d-*.whl ; \
+  true
+
+#ARG TRITON_VERSION
+#RUN $WITH_CONDA; set -eux ; \
+#  git clone --recursive https://github.com/triton-lang/triton /opt/mybuild ; \
+#  cd /opt/mybuild ; \
+#  git checkout -b mydev $TRITON_VERSION ; \
+#  git submodule sync ; \
+#  git submodule update --init --recursive --jobs 0 ; \
+#  CC=gcc-12 \
+#    CXX=g++-12 \
+#    pip wheel --no-deps -e python -w /opt/wheels ; \
+#    cd / ; rm -rf /opt/mybuild
+
+#RUN #$WITH_CONDA; set -eux ; \
+##    pip install /opt/wheels/triton-*.whl ; \
+##    true
+
+RUN $WITH_CONDA; set -eux ; \
+  pip install /opt/wheels/mamba_ssm-*.whl ; \
+  true
+
+RUN $WITH_CONDA; set -eux ; \
+  pip install /opt/wheels/grouped_gemm-*.whl ; \
+  true
+
+#ARG MEGATRON_VERSION
+#RUN $WITH_CONDA; set -eux ; \
+#  rm -rf /opt/mybuild ;\
+#  git clone https://github.com/ROCm/Megatron-LM.git /opt/mybuild ; \
+#  cd /opt/mybuild ; \
+#  git checkout -b mydev $MEGATRON_VERSION ; \
+#  git submodule sync ; \
+#  git submodule update --init --recursive --jobs 0 ; \
+#  CC=gcc-12 \
+#  CXX=g++-12 \
+#    python3 setup.py bdist_wheel --dist-dir=/opt/wheels ; \
+#  cd / ; rm -rf /opt/mybuild
+
+#RUN $WITH_CONDA; set -eux ; \
+#  pip install /opt/wheels/megatron_core-*.whl ; \
+#  true
+
+# Use container libstdc++.so
+RUN $WITH_CONDA; set -eux ; \
+  rm $CONDA_PREFIX/lib/libstdc++.*
+RUN $WITH_CONDA; set -eux ; \
+  cd $(dirname $(python -c "import torch; print(torch.__file__)"))/lib ; \
+  for i in * ; do if [ -f /opt/rocm/lib/$i ] ; then rm $i ; fi ; done ; \
+  for i in * ; do if [ -d /opt/rocm/lib/$i ] ; then rm -rf $i ; fi ; done
+
+RUN $WITH_CONDA; set -eux ; \
+  cd $(dirname $(python -c "import torch; print(torch.__file__)"))/lib ; \
+  for i in * ; do if [ -f /opt/amdgpu/lib64/$i ] ; then rm $i ; fi ; done
+ENV NCCL_SOCKET_IFNAME='hsn0,hsn1,hsn2,hsn3'
+ENV NCCL_NET_GDR_LEVEL=PHB
+
+#
+# Check https://support.hpe.com/hpesc/public/docDisplay?docId=dp00004854en_us&docLocale=en_US for details
+#
+# ENV FI_MR_CACHE_MONITOR=userfaultfd
+# ENV FI_CXI_DEFAULT_CQ_SIZE=131072
+# ENV FI_CXI_RX_MATCH_MODE=software
+# ENV FI_CXI_RDZV_PROTO=alt_read
+# # Increase for larger jobs
+# ENV FI_CXI_REQ_BUF_SIZE=256
+ARG TORCHAO_VERSION=0.9.0+rocm6.2.4
+RUN $WITH_CONDA; set -eux ; \
+  pip3 install --pre torchao==$TORCHAO_VERSION --index-url https://download.pytorch.org/whl/
+
+ARG TORCHTUNE_VERSION=v0.6.0
+RUN $WITH_CONDA; set -eux ; \
+  git clone -b $TORCHTUNE_VERSION --recursive https://github.com/pytorch/torchtune /opt/mybuild ; \
+  cd /opt/mybuild ; \
+  pip wheel --no-deps -e . -w /opt/wheels ; \
+  pip install /opt/wheels/torchtune-*.whl ; \
+  cd / ; rm -rf /opt/mybuild
+
+RUN $WITH_CONDA; set -eux ; \
+  CC=gcc-12 \
+  CXX=g++-12 \
+  pip install \
+    beautifulsoup4==4.13.3 \
+    lightning==2.5.1 \
+    evaluate==0.4.3 \
+    fasttext==0.9.3 \
+    scikit-learn==1.6.1 \
+    scikit-image==0.25.2 \
+    gensim==4.3.3 \
+    gradio==5.23.1 \
+    lighteval==0.8.1 \
+    numba==0.61.0 \
+    pyrsmi==0.2.0 \
+    pysqlite3==0.5.4 \
+    sentence-transformers==3.4.1 \
+    tensorboardX==2.6.2.2 \
+    torch-tb-profiler==0.4.3 \
+    tornado==6.4.2 \
+    tqdm-multiprocess==0.0.11 \
+    zstandard==0.23.0
 ENV CONDA_DEFAULT_ENV=pytorch
 ENV CONDA_SHLVL=1
 ENV CONDA_EXE="/opt/miniconda3/bin/conda"
@@ -367,54 +715,3 @@ ENV PATH="/opt/miniconda3/envs/$CONDA_DEFAULT_ENV/bin:/opt/miniconda3/condabin:$
 
 # Disable the WITH_CONDA helper
 ENV WITH_CONDA=true
-
-
-RUN set -eux ; \
-  git clone https://github.com/rocm/rccl-tests /opt/mybuild ; \
-  cd /opt/mybuild ; \
-  git checkout -b mydev ae3e635 ; \
-  sed -i 's/-std=c++14/-std=c++14 --amdgpu-target=gfx90a:xnack- --amdgpu-target=gfx90a:xnack+/g' /opt/mybuild/src/Makefile ; \
-  \
-  cd /opt/mybuild ; \
-  CC=gcc-12 \
-    DEBUG=1 \
-    CXX=g++-12 \
-    MPI_HOME=$MPICH_PATH \
-    ROCM_PATH=$ROCM_PATH \
-    MPI=1 \
-    NCCL_HOME=$ROCM_PATH/rccl \
-    nice make -j ; \
-  mkdir /opt/rccltests ; \
-  mv /opt/mybuild/build/* /opt/rccltests ; \
-  rm -rf /opt/mybuild
-
-
-#RUN #set -eux; \
-#    /opt/miniconda3/uninstall.sh
-
-# patch needed for Clang compilation but the lines in the pathch
-#    wget https://github.com/pytorch/pytorch/files/13932860/caffe2-2.1.2-rocm-fix-std-cpp17.patch;\
-#    git apply caffe2-2.1.2-rocm-fix-std-cpp17.patch;\
-
-# this is the commit for the additional -Wno-vla-cxx-extension flag
-#    cd third_party/fbgemm;\
-#    git checkout -b mydev a1c8ab3;\
-#    cd ../..;\
-
-ENV OSU_VERSION=7.5
-ENV OSU_PATH="/opt/osu"
-
-RUN set -eux ; \
-  mkdir /opt/builds ; \
-  cd /opt/builds ; \
-  curl -LO  https://mvapich.cse.ohio-state.edu/download/mvapich/osu-micro-benchmarks-$OSU_VERSION.tar.gz ; \
-  tar -xf osu-*.tar.gz ; \
-  rm -rf osu-*.tar.gz ; \
-  \
-  cd /opt/builds/osu-*/ ; \
-  CC=/opt/mpich/bin/mpicc  CXX=/opt/mpich/bin/mpic++  \
-  CFLAGS="-I$MPICH_PATH/include -D__HIP_PLATFORM_AMD__=1" \
-  ./configure --enable-rocm --with-rocm=$ROCM_PATH --enable-rcclomb --with-rccl=$ROCM_PATH --prefix=$OSU_PATH ; \
-  make -j install; \
-  cd / ;  \
-  rm -rf /opt/builds
