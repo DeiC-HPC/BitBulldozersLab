@@ -1,7 +1,8 @@
 versions:
   - spec:
-    - 0.2
     - 0.1
+    - 0.2
+    - 0.3
 variables:
   - name: git_hash
     value: 17d41cb
@@ -9,12 +10,18 @@ variables:
   - name: git_hash
     value: 6dae1b0
     when: xcclPlugin@0.2
+  - name: git_hash
+    value: 1ea938a
+    when: xcclPlugin@0.3
   - name: real_version
     value: aws_ofi_rccl_working
     when: xcclPlugin@0.1
   - name: real_version
     value: aws_ofi_rccl_latest
     when: xcclPlugin@0.2
+  - name: real_version
+    value: aws_open_ofi_1.14.x-xccl
+    when: xcclPlugin@0.3
 dependencies:
   - spec: libfabric
     scope: build
@@ -26,4 +33,6 @@ files:
   - name: aws.patch
 templates:
   - name: opensuse_aws_ofi_rccl
-    when: distro=opensuse
+    when: distro=opensuse xcclPlugin@0.1:0.2
+  - name: opensuse_open_ofi_xccl
+    when: distro=opensuse xcclPlugin@0.3:

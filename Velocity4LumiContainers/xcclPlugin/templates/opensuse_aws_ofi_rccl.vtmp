@@ -12,7 +12,7 @@
     git clone -b cxi https://github.com/ROCmSoftwarePlatform/aws-ofi-rccl /opt/mybuild_aws_ofi
     cd /opt/mybuild_aws_ofi
     git checkout -b mydev $AWS_PLUGIN_VERSION
-    if [{{ __version__ }} = "working"]; then
+    if [{{ __real_version__ }} = "aws_ofi_rccl_working"]; then
         git apply < /aws.patch
     fi
     ./autogen.sh
