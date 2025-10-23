@@ -35,4 +35,4 @@ templates:
   - name: opensuse_aws_ofi_rccl
     when: distro=opensuse xcclPlugin@0.1:0.2
   - name: opensuse_open_ofi_xccl
-    when: distro=opensuse xcclPlugin@0.3:
+    when: distro=opensuse xcclPlugin@0.3
