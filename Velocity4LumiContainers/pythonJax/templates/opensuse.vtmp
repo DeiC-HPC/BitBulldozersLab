@@ -1,0 +1,15 @@
+@from
+    {{ __base__ }}
+
+@run
+    cd /opt/
+    git clone https://github.com/ROCm/rocm-jax.git
+    cd rocm-jax
+    git checkout -b mybuild {{ git_hash }}
+    python3 build/ci_build \
+      --python-versions $PYTHON_VERSION \
+      --rocm-version $ROCM_RELEASE \
+      dist_wheels
+    ls jax_rocm_plugin/wheelhouse
+    pip install -r build/requirements.txt
+    pip install jax_rocm_plugin/wheelhouse/jax_*.whl

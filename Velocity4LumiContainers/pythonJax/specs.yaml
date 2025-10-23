@@ -1,0 +1,14 @@
+versions:
+  - spec:
+      - 0.6.2
+variables:
+  - name: git_hash
+    value: 88b54b0
+dependencies:
+  - spec: python
+    scope: build
+  - spec: rocm
+    scope: build
+templates:
+  - name: opensuse
+    when: distro=opensuse

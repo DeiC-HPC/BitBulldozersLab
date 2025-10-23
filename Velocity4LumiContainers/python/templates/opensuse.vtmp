@@ -1,0 +1,21 @@
+@from
+    {{ __base__ }}
+
+@run
+    >>> environment variables
+    !envar DEFAULT_CONDA_ENV MlConda
+    >>> create conda env
+    source "/opt/miniforge3/etc/profile.d/conda.sh"
+    conda create -n $DEFAULT_CONDA_ENV python={{ __version__ }}
+    conda activate $DEFAULT_CONDA_ENV
+    conda install -y ninja pillow cmake pip pyyaml
+    >>> activate conda
+    !envar CONDA_SHLVL 1
+    !envar CONDA_EXE "/opt/miniforge3/bin/conda"
+    !envar CONDA_PREFIX "/opt/miniforge3/envs/$DEFAULT_CONDA_ENV"
+    !envar _CE_M ''
+    !envar CONDA_PYTHON_EXE "/opt/miniforge3/bin/python"
+    !envar _CE_CONDA ''
+    !envar CONDA_PROMPT_MODIFIER "$DEFAULT_CONDA_ENV"
+    !envar PATH "/opt/miniforge3/envs/$DEFAULT_CONDA_ENV/bin:/opt/miniforge3/condabin:$PATH"
+    !envar PYTHON_VERSION {{ __version__ }}

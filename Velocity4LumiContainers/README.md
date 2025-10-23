@@ -22,6 +22,9 @@ export VELOCITY_DISTRO=opensuse
 export VELOCITY_IMAGE_PATH=/BitBulldozersLab/Velocity4LumiContainers
 ```
 
+And add the following do your `bashrc` or `.bash_aliases`:
+alias velocity="python3 -m velocity"
+
 # Usage
 To see available software:
 ```
@@ -40,3 +43,4 @@ velocity build rocm@6.2.4 fakeGpu libcxi libfabric@2.0.0 mpich@4.2.3 xcclPlugin@
 - Error message if using `=` when setting envar with `!envar` is cryptic.
 - Folders cannot contain `_`
 - Mapping values are not allowed (?) i.e. `libfabric@2.0.0:`
+- `Python 3.10` becomes `Python 3.1`
