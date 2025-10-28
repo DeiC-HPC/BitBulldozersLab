@@ -1,0 +1,64 @@
+versions:
+  - spec:
+      - 2.4.0
+      - 2.4.1
+      - 2.5.0
+      - 2.5.1
+      - 2.6.0
+      - 2.7.0
+      - 2.7.1
+variables:
+  - name: torch_version
+    value: 2.4.0+rocm6.0
+    when: pythonPytorch@2.4.0
+  - name: torch_version
+    value: 2.4.1+rocm6.0
+    when: pythonPytorch@2.4.1
+  - name: torch_version
+    value: 2.5.0+rocm6.2
+    when: pythonPytorch@2.5.0
+  - name: torch_version
+    value: 2.5.1+rocm6.2
+    when: pythonPytorch@2.5.1
+  - name: torch_version
+    value: 2.6.0+rocm6.2.4
+    when: pythonPytorch@2.6.0
+  - name: torch_version
+    value: 2.7.0+rocm6.2.4
+    when: pythonPytorch@2.7.0
+  - name: torch_version
+    value: 2.7.1+rocm6.2.4
+    when: pythonPytorch@2.7.1
+  - name: torchvision_version
+    value: 0.19.0+rocm6.0
+    when: pythonPytorch@2.4.0
+  - name: torchvision_version
+    value: 0.19.1+rocm6.0
+    when: pythonPytorch@2.4.1
+  - name: torchvision_version
+    value: 0.20.0+rocm6.2
+    when: pythonPytorch@2.5.0
+  - name: torchvision_version
+    value: 0.20.1+rocm6.2
+    when: pythonPytorch@2.5.1
+  - name: torchvision_version
+    value: 0.21.0+rocm6.2.4
+    when: pythonPytorch@2.6.0
+  - name: torchvision_version
+    value: 0.22.0+rocm6.2.4
+    when: pythonPytorch@2.7.0
+  - name: torchvision_version
+    value: 0.22.1+rocm6.2.4
+    when: pythonPytorch@2.7.1
+dependencies:
+  - spec: python
+    scope: build
+  - spec: rocm@6.0.2
+    scope: build
+    when: pythonPytorch@2.4.0:2.4.1
+  - spec: rocm@6.2.4
+    scope: build
+    when: pythonPytorch@2.5.0:2.7.1
+templates:
+  - name: opensuse_compile
+    when: distro=opensuse
