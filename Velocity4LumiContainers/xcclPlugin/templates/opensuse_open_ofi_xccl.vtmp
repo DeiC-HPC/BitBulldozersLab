@@ -18,7 +18,7 @@
     export LIBRARY_PATH=$LD_LIBRARY_PATH 
     LDFLAGS='-L/opt/libcxi/lib -lcxi' CC=gcc-12  \
       ./configure --with-libfabric=$LIBFABRIC_PATH --enable-trace  \
-                  --with-rocm=$ROCM_PATH --with-mpi=$MPICH_PATH --disable-tests
+                  --with-rocm=$ROCM_PATH --with-mpi=$MPICH_PATH --with-hwloc=/opt/hwloc --disable-tests
     LDFLAGS='-L/opt/libcxi/lib -lcxi' CC=gcc-12 nice make -j 
     mkdir $XCCL_PLUGIN_PATH 
     mv src/.libs/librccl-net.so* $XCCL_PLUGIN_PATH 
