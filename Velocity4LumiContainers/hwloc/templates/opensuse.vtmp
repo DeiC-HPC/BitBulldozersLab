@@ -4,13 +4,12 @@
 @run
     cd /
     wget https://download.open-mpi.org/release/hwloc/v2.12/hwloc-2.12.0.tar.gz
-    tar -xzf hwloc-2.12.0.tar.gz 
-    cd hwloc-2.12.0 
+    tar -xzf hwloc-2.12.0.tar.gz
+    cd hwloc-2.12.0
     CC=gcc-$GCC_RELEASE ./configure --prefix=/opt/hwloc  --localstatedir=/var 
-    make install 
-    ldconfig
+    make install
     cd /
     rm -r hwloc-2.12.0/
     rm hwloc-2.12.0.tar.gz
-    !envar PATH=/opt/hwloc/bin:$PATH
-    !envar LD_LIBRARY_PATH=/opt/hwloc/lib:$LD_LIBRARY_PATH
+    !envar PATH /opt/hwloc/bin:$PATH
+    !envar LD_LIBRARY_PATH /opt/hwloc/lib:$LD_LIBRARY_PATH
