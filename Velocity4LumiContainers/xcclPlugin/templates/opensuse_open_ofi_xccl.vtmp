@@ -8,6 +8,7 @@
     >>> set env variables
     !envar XCCL_PLUGIN_PATH /opt/xccl_plugin
     !envar XCCL_PLUGIN_VERSION {{ git_hash }}
+    ldconfig
     >>> Git clone
     git clone https://github.com/HewlettPackard/open-ofi-xccl /opt/mybuild_open-ofi-xccl 
     cd /opt/mybuild_open-ofi-xccl 
