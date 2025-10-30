@@ -13,6 +13,8 @@
     git clone https://github.com/HewlettPackard/open-ofi-xccl /opt/mybuild_open-ofi-xccl 
     cd /opt/mybuild_open-ofi-xccl 
     git checkout -b mydev $XCCL_PLUGIN_VERSION
+    >>> remove git tree so warnings arent errors
+    rm -r .git\
     ./autogen.sh 
     export CPATH=$LIBFABRIC_PATH/include 
     export LIBRARY_PATH=$LD_LIBRARY_PATH 
