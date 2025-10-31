@@ -11,13 +11,15 @@
     rm -rf osu-*.tar.gz
     cd /opt/builds/osu-*/
     CC=/opt/mpich/bin/mpicc CXX=/opt/mpich/bin/mpicxx \
-    CFLAGS="-I$MPICH_PATH/include -D__HIP_PLATFORM_AMD__=1" \
-    ./configure --enable-rocm --with-rocm=$ROCM_PATH --enable-rcclomb --with-rccl=$ROCM_PATH --prefix=$OSU_PATH
+      CFLAGS="-I$MPICH_PATH/include -D__HIP_PLATFORM_AMD__=1" \
+      ./configure --enable-rocm --with-rocm=$ROCM_PATH --enable-rcclomb --with-rccl=$ROCM_PATH --prefix=$OSU_PATH
     make -j install
     cd /
     rm -rf /opt/builds
     >>> Build RCCL tests
     git clone -b master https://github.com/rocm/rccl-tests /opt/mybuild
+    cd  /opt/mybuild
+    git checkout -b mydev {{ rccl_test_git_hash }}
     sed -i 's/-std=c++14/-std=c++14 --amdgpu-target=gfx90a:xnack- --amdgpu-target=gfx90a:xnack+/g' /opt/mybuild/src/Makefile
     cd /opt/mybuild
     CC=gcc-$GCC_RELEASE \
@@ -27,7 +29,7 @@
       ROCM_PATH=$ROCM_PATH \
       MPI=1 \
       NCCL_HOME=$ROCM_PATH/rccl \
-      nice make -j ;\
+      nice make -j
     mkdir /opt/rccltests
     mv /opt/mybuild/build/* /opt/rccltests
     rm -rf /opt/mybuild
