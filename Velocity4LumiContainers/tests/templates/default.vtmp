@@ -20,7 +20,7 @@
     git clone -b master https://github.com/rocm/rccl-tests /opt/mybuild
     cd  /opt/mybuild
     git checkout -b mydev {{ rccl_test_git_hash }}
-    sed -i 's/-std=c++14/-std=c++14 --amdgpu-target=gfx90a:xnack- --amdgpu-target=gfx90a:xnack+/g' /opt/mybuild/src/Makefile
+    sed -i 's/-std=c++14/-std=c++14 --offload-arch==gfx90a:xnack- --offload-arch==gfx90a:xnack+/g' /opt/mybuild/src/Makefile
     cd /opt/mybuild
     CC=gcc-$GCC_RELEASE \
       DEBUG=${{ RCCL_DEBUG }} \
