@@ -1,9 +1,14 @@
 versions:
   - spec:
+      - 0.6.0
       - 0.6.2
 variables:
   - name: git_hash
     value: 88b54b0
+    when: pythonJax@0.6.2
+  - name: git_hash
+    value: 53703c0
+    when: pythonJax@0.6.0
 dependencies:
   - spec: python
     scope: build
