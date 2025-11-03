@@ -12,13 +12,11 @@
     git clone https://github.com/ROCm/rocm-jax.git
     cd rocm-jax
     git checkout -b mybuild {{ git_hash }}
-#    python3 build/ci_build \
-#      --python-versions $PYTHON_VERSION \
-#      --rocm-version $ROCM_RELEASE \
-#      dist_wheels
-#    ls jax_rocm_plugin/wheelhouse
-#    pip install -r build/requirements.txt
-#    pip install jax_rocm_plugin/wheelhouse/jax_*.whl
+    >>> Make sure the compile target is ROCm 6
+    !envar JAX_VERSION {{ __version__ }}
+    if [[ $JAX_VERSION == 0.6.0 && "${ROCM_RELEASE%%.*}" == "6"]]; then
+      sed -i 's/PLUGIN_NAMESPACE_VERSION = "7"/PLUGIN_NAMESPACE_VERSION = "60"/' stack.py
+    fi
     python stack.py develop --rebuild-makefile
     cd jax_rocm_plugin/
     make dist
