@@ -60,5 +60,5 @@ dependencies:
     scope: build
     when: pythonPytorch@2.5.0:2.7.1
 templates:
-  - name: opensuse_compile
+  - name: opensuse_wheel
     when: distro=opensuse

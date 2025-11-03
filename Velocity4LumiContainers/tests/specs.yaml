@@ -5,10 +5,10 @@ variables:
     value: 7.5
   - name: RCCL_DEBUG
     value: 0
-  - name: rccl_test_git_hash
+  - name: GIT_HASH_RCCL
     value: ae3e635
     when: rocm@6.0.2
-  - name: rccl_test_git_hash
+  - name: GIT_HASH_RCCL
     value: 448c4c7
     when: rocm@6.2.4:7.0.2
 dependencies:
