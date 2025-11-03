@@ -8,7 +8,7 @@
     zypper -n addrepo  https://download.opensuse.org/repositories/devel:tools:building/15.6/devel:tools:building.repo | echo 'a'
     zypper -n addrepo https://download.opensuse.org/repositories/openSUSE:Factory/standard/openSUSE:Factory.repo | echo 'a'
     zypper refresh
-    zypper --no-gpg-checks -n install -y --force-resolution glibc gzip libnuma1 libnuma-dev binutils-gold patchelf
+    zypper --no-gpg-checks -n install -y --force-resolution glibc gzip libnuma1 libnuma-devel binutils-gold patchelf
     git clone https://github.com/ROCm/rocm-jax.git
     cd rocm-jax
     git checkout -b mybuild {{ git_hash }}
