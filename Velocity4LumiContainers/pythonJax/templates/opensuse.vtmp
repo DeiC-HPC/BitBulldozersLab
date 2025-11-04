@@ -14,13 +14,44 @@
     git checkout -b mybuild {{ git_hash }}
     >>> Make sure the compile target is ROCm 6
     !envar JAX_VERSION {{ __version__ }}
-    if [[ $JAX_VERSION == 0.6.0 && "${ROCM_RELEASE%%.*}" == "6"]]; then
+    if [[ $JAX_VERSION == 0.6.0 && "${ROCM_RELEASE%%.*}" == "6" ]]; then
       sed -i 's/PLUGIN_NAMESPACE_VERSION = "7"/PLUGIN_NAMESPACE_VERSION = "60"/' stack.py
     fi
     python stack.py develop --rebuild-makefile
     cd jax_rocm_plugin/
-    make dist
-    make jaxlib
+    if [[ $JAX_VERSION == 0.6.0 && "${ROCM_RELEASE%%.*}" == "6" ]]; then
+      python3 ./build/build.py build \
+            --use_clang=true \
+            --wheels=jax-rocm-plugin \
+            --rocm_path=/opt/rocm/ \
+            --rocm_version=60 \
+            --rocm_amdgpu_targets=$AMDGPU_TARGETS \
+            --bazel_options="--override_repository=xla=../xla --define=xla_rocm_profiler=v1" \
+            --verbose \
+            --clang_path=/opt/rocm/llvm/bin/clang
+      python3 ./build/build.py build \
+          --use_clang=true \
+          --wheels=jax-rocm-pjrt \
+          --rocm_path=/opt/rocm/ \
+          --rocm_version=60 \
+          --rocm_amdgpu_targets=$AMDGPU_TARGETS \
+          --bazel_options="--override_repository=xla=../xla --define=xla_rocm_profiler=v1" \
+          --verbose \
+          --clang_path=/opt/rocm/llvm/bin/clang
+      cd ../jax/
+#      python3 ./build/build.py build \
+#            --target_cpu_features=native \
+#            --use_clang=true \
+#            --clang_path=/opt/rocm/llvm/bin/clang \
+#            --wheels=jaxlib \
+#            --bazel_options=${ALL_BAZEL_OPTIONS} \
+#            --bazel_options=${JAXLIB_BAZEL_OPTIONS} \
+#            --verbose
+    elif [[ $JAX_VERSION == 0.7.1 ]]; then
+      make jax_rocm_plugin
+      make jax_rocm_pjrt
+      make jaxlib
+    fi
     cd ../build
     pip install -r requirements.txt
     cd ../jax/dist
