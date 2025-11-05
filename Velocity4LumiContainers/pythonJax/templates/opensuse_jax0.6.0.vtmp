@@ -14,12 +14,18 @@
     git checkout -b mybuild {{ git_hash }}
     >>> Make sure the compile target is ROCm 6
     !envar JAX_VERSION {{ __version__ }}
-    if [[ $JAX_VERSION == 0.6.0 && "${ROCM_RELEASE%%.*}" == "6" ]]; then
+
+    ROCM_MAJOR="${ROCM_RELEASE%%.*}"               # "6" from "6.2.4"
+    ROCM_MINOR="${ROCM_RELEASE#*.}"                # "2.4"
+    ROCM_MINOR="${ROCM_MINOR%%.*}"                 # "2"
+
+    if [[ "$ROCM_MAJOR" == "6" && "$ROCM_MINOR" -lt 4 ]]; then
       sed -i 's/PLUGIN_NAMESPACE_VERSION = "7"/PLUGIN_NAMESPACE_VERSION = "60"/' stack.py
     fi
+
     python stack.py develop --rebuild-makefile
     cd jax_rocm_plugin/
-    if [[ $JAX_VERSION == 0.6.0 && "${ROCM_RELEASE%%.*}" == "6" ]]; then
+    if [[ "$ROCM_MAJOR" == "6" && "$ROCM_MINOR" -lt 4 ]]; then
       python3 ./build/build.py build \
             --use_clang=true \
             --wheels=jax-rocm-plugin \
@@ -47,10 +53,6 @@
 #            --bazel_options=${ALL_BAZEL_OPTIONS} \
 #            --bazel_options=${JAXLIB_BAZEL_OPTIONS} \
 #            --verbose
-    elif [[ $JAX_VERSION == 0.7.1 ]]; then
-      make jax_rocm_plugin
-      make jax_rocm_pjrt
-      make jaxlib
     fi
     cd ../build
     pip install -r requirements.txt
