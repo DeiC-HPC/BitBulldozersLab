@@ -19,7 +19,7 @@
     ROCM_MINOR="${ROCM_RELEASE#*.}"                # "2.4"
     ROCM_MINOR="${ROCM_MINOR%%.*}"                 # "2"
 
-    if [[ "$ROCM_MAJOR" == "6" && "$ROCM_MINOR" -lt 4 ]]; then
+    if [[ "$ROCM_MAJOR" == "6" ]]; then
       sed -i 's/PLUGIN_NAMESPACE_VERSION = "7"/PLUGIN_NAMESPACE_VERSION = "60"/' stack.py
     fi
 
@@ -44,16 +44,20 @@
           --bazel_options="--override_repository=xla=../xla --define=xla_rocm_profiler=v1" \
           --verbose \
           --clang_path=/opt/rocm/llvm/bin/clang
-      cd ../jax/
-#      python3 ./build/build.py build \
-#            --target_cpu_features=native \
-#            --use_clang=true \
-#            --clang_path=/opt/rocm/llvm/bin/clang \
-#            --wheels=jaxlib \
-#            --bazel_options=${ALL_BAZEL_OPTIONS} \
-#            --bazel_options=${JAXLIB_BAZEL_OPTIONS} \
-#            --verbose
+    else
+      make jax_rocm_plugin
+      make jax_rocm_pjrt
     fi
+    cd ../jax/
+    python3 ./build/build.py build \
+      --target_cpu_features=native \
+      --use_clang=true \
+      --clang_path=/opt/rocm/llvm/bin/clang \
+      --rocm_path=/opt/rocm/ \
+      --rocm_version=60 \
+      --wheels=jaxlib \
+      --bazel_options=${--override_repository=xla=/opt/rocm-jax/xla} \
+      --verbose
     cd ../build
     pip install -r requirements.txt
     cd ../jax/dist

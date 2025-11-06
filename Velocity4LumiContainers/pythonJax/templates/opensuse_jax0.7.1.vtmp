@@ -12,7 +12,6 @@
     git clone https://github.com/ROCm/rocm-jax.git
     cd rocm-jax
     git checkout -b mybuild {{ git_hash }}
-    >>> Make sure the compile target is ROCm 6
     python stack.py develop --rebuild-makefile
     cd jax_rocm_plugin/
     make jax_rocm_plugin
