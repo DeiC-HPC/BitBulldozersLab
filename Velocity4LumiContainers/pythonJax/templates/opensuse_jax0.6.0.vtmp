@@ -53,10 +53,8 @@
       --target_cpu_features=native \
       --use_clang=true \
       --clang_path=/opt/rocm/llvm/bin/clang \
-      --rocm_path=/opt/rocm/ \
-      --rocm_version=60 \
       --wheels=jaxlib \
-      --bazel_options=${--override_repository=xla=/opt/rocm-jax/xla} \
+      --bazel_options="--override_repository=xla=/opt/rocm-jax/xla" \
       --verbose
     cd ../build
     pip install -r requirements.txt
