@@ -7,7 +7,7 @@ class watertiny_test(rfm.RunOnlyRegressionTest):
     valid_systems = ['*']
     valid_prog_environs = ['*']
     input_file = variable(str, value='watertiny.fnl')
-    venv = variable(str, value='$HOME/fennol/FeNNol/.venv/bin/activate')
+    venv = variable(str, value='$HOME/fennol/.venv/bin/activate')
     executable = 'fennol_md'
 
     @run_after('init')
