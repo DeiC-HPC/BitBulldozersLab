@@ -2,3 +2,6 @@
 	path = Building the LUMI PyTorch container using cotainr/cotainr
 	url = https://github.com/DeiC-HPC/cotainr.git
 	branch = ebff6bed9948a73b53c04be7e07fdf60d96bed39
+[submodule "FeNNol_benchmark_using_ReFrame/reframe"]
+	path = FeNNol_benchmark_using_ReFrame/reframe
+	url = https://github.com/reframe-hpc/reframe.git
