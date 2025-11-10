@@ -1,0 +1,25 @@
+diff --git a/reframe/core/schedulers/ssh.py b/reframe/core/schedulers/ssh.py
+index 6004b0da9..90965dc5f 100644
+--- a/reframe/core/schedulers/ssh.py
++++ b/reframe/core/schedulers/ssh.py
+@@ -208,10 +208,18 @@ class SSHJobScheduler(JobScheduler):
+         if exec_proc.started():
+             with osext.change_dir(job.localdir):
+                 with open(job.stdout, 'w+') as fout:
+-                    fout.write(exec_proc.stdout().read())
++                    stdout = exec_proc.stdout()
++                    if isinstance(stdout, str):
++                        fout.write(stdout)
++                    else:
++                        fout.write(stdout.read())
+ 
+                 with open(job.stderr, 'w+') as ferr:
+-                    ferr.write(exec_proc.stderr().read())
++                    stderr = exec_proc.stderr()
++                    if isinstance(stderr, str):
++                        fout.write(stderr)
++                    else:
++                        ferr.write(stderr.read())
+ 
+         return True
+ 
