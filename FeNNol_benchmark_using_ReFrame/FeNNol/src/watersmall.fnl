@@ -1,4 +1,3 @@
-device cpu
 #double_precision
 matmul_prec highest
 print_timings no

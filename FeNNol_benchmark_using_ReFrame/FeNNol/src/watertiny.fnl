@@ -1,4 +1,3 @@
-device cpu 
 matmul_precision highest
 
 model_file ani2x.fnx
@@ -55,4 +54,3 @@ qtb{
   # parameter controlling speed of adQTB adaptation 
   agamma  = 1.
 }
-

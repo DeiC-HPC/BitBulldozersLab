@@ -8,6 +8,7 @@ class watertiny_test(rfm.RunOnlyRegressionTest):
     valid_prog_environs = ['*']
     input_file = variable(str, value='watertiny.fnl')
     venv = variable(str, value='$HOME/fennol/.venv/bin/activate')
+    device = variable(str, value='cpu') # Alt. cuda:0
     executable = 'fennol_md'
 
     @run_after('init')
@@ -16,7 +17,8 @@ class watertiny_test(rfm.RunOnlyRegressionTest):
     
     @run_before('run')
     def activate_venv(self):
-        self.prerun_cmds = [f'source {self.venv}']
+        self.prerun_cmds = [f'source {self.venv}',
+                            f'echo "device {self.device}" >> {self.input_file}']
 
     @sanity_function
     def validate(self):

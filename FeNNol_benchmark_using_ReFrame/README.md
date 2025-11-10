@@ -28,3 +28,8 @@ We can thus launch the benchmark on both systems using
 ```
 reframe -C config.py -c FeNNol/watertiny-check.py -r
 ```
+
+The tests are further configurable through the CLI, for example, we can choose to execute only on primebox with cuda enabled
+```
+reframe -C config.py -c FeNNol/watertiny-check.py --system workstations:primebox -S device="cuda:0" -r
+```
