@@ -11,12 +11,12 @@ class watersmall_test(rfm.RunOnlyRegressionTest):
     executable = 'fennol_md'
 
     @run_after('init')
-    def skip_native_test(self):
-        self.prerun_cmds = [f'source {self.venv}']
-
-    @run_before('run')
-    def prepare_run(self):
+    def provide_input(self):
         self.executable_opts = [self.input_file]
+    
+    @run_before('run')
+    def activate_venv(self):
+        self.prerun_cmds = [f'source {self.venv}']
 
     @sanity_function
     def validate(self):
