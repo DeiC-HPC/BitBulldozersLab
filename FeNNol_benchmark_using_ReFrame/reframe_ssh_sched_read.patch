@@ -17,7 +17,7 @@ index 6004b0da9..90965dc5f 100644
 -                    ferr.write(exec_proc.stderr().read())
 +                    stderr = exec_proc.stderr()
 +                    if isinstance(stderr, str):
-+                        fout.write(stderr)
++                        ferr.write(stderr)
 +                    else:
 +                        ferr.write(stderr.read())
  
