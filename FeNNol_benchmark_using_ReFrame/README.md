@@ -16,7 +16,7 @@ and then we install editable `reframe-hpc` and apply the patch,
 ```
 > git submodule update --init --recursive
 > cp reframe_ssh_sched_read.patch reframe/
-> git apply reframe/reframe_ssh_sched_read.patch
+> cd reframe && git apply reframe_ssh_sched_read.patch && cd ..
 > uv pip install reframe/
 ```
 We are now ready to run the FeNNol benchmark
@@ -26,5 +26,5 @@ The ReFrame `config.py` defined the system configuration that we submit the benc
 
 We can thus launch the benchmark on both systems using
 ```
-reframe -C config.py -c FeNNol/watertiny_check.py -r
+reframe -C config.py -c FeNNol/watertiny-check.py -r
 ```
