@@ -33,10 +33,14 @@ velocity avail
 
 To build an image:
 ```
-velocity build rocm@6.2.4 fakeGpu libcxi libfabric@2.0.0 mpich@4.2.3 xcclPlugin@0.1 tests -v
+velocity build ...
 ```
+ And include all the packages you would like.
 
 ## Lumi Recipes 
+
+For Lumi the following three image 'recipes' are a good starting point.
+
 - stable
   - `velocity build rocm@6.0.2 fakeGpu libcxi libfabric@1.9.0 mpich@4.2.3 xcclPlugin@0.1 tests -v`
 - latest
@@ -44,9 +48,15 @@ velocity build rocm@6.2.4 fakeGpu libcxi libfabric@2.0.0 mpich@4.2.3 xcclPlugin@
 - future
   - `velocity build rocm@7.0.2 fakeGpu libcxi libfabric@2.3.0 mpich@4.3.2 xcclPlugin@0.3 tests -v`
 
+To build a pytorch container with the `latest` version of the lumi container one could do:
+- `velocity build rocm@6.2.4 fakeGpu libcxi libfabric@2.3.0 mpich@4.2.3 xcclPlugin@0.3 tests pythonMiniforge python@3.12 pythonPytorch@2.7.1 -v`
+
+This will build the container with all the Lumi communication bits needed as well as install a conda venv with Pytorch pre-installed. 
+
 # Versions
 
-Some packages do not have versions but use git hashes. Velocity currently does not support version numbers that are not in a typical Major.Minor(.Patch) format. 
+Some packages do not have versions but use git hashes. 
+`Velocity` currently does not support version numbers that are not in a typical Major.Minor(.Patch) format. 
 
 - xcclPlugin
   - 0.1 --> stable `aws-ofi-rccl` as is included in the standard Lumi containers
