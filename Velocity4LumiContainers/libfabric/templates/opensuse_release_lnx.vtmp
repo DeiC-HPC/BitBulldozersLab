@@ -1,0 +1,23 @@
+@from
+    {{ __base__ }}
+
+@run
+    zypper
+    >>> Set env variables
+    !envar LIBFABRIC_PATH /opt/libfabric
+    !envar LIBFABRIC_VERSION {{libfabric_version}}
+    export CPATH=/include:$LIBCXI_PATH/lib
+    export LIBRARY_PATH=$LIBCXI_PATH/lib
+    >>> Git clone
+    wget https://github.com/ofiwg/libfabric/releases/download/v$LIBFABRIC_VERSION/libfabric-$LIBFABRIC_VERSION.tar.bz2
+    tar -xf libfabric-$LIBFABRIC_VERSION.tar.bz2 --no-same-owner
+    rm libfabric-$LIBFABRIC_VERSION.tar.bz2
+    cd libfabric-$LIBFABRIC_VERSION
+    sed -i 's/| CXI_MAP_IOVA_ALLOC//g' prov/cxi/include/cxip.h
+    ./configure CC=gcc-$GCC_RELEASE --prefix=$LIBFABRIC_PATH \
+        LDFLAGS=-Wl,--build-id --enable-only \
+        --enable-restricted-dl --enable-tcp --enable-udp --enable-rxm --enable-rxd --enable-lnx --enable-hook_debug \
+        --enable-hook_hmem --enable-dmabuf_peer_mem --enable-cxi=$LIBCXI_PATH --enable-gdrcopy-dlopen --with-rocr=$ROCM_PATH ; \
+    make -j;\
+    make install;\
+    cd / ; rm -rf /opt/libfabric-src

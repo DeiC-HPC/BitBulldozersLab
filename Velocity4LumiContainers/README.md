@@ -36,11 +36,50 @@ To build an image:
 velocity build rocm@6.2.4 fakeGpu libcxi libfabric@2.0.0 mpich@4.2.3 xcclPlugin@0.1 tests -v
 ```
 
+## Lumi Recipes 
+- stable
+  - `velocity build rocm@6.0.2 fakeGpu libcxi libfabric@1.9.0 mpich@4.2.3 xcclPlugin@0.1 tests -v`
+- latest
+  - `velocity build rocm@6.2.4 fakeGpu libcxi libfabric@2.3.0 mpich@4.2.3 xcclPlugin@0.3 tests -v`
+- future
+  - `velocity build rocm@7.0.2 fakeGpu libcxi libfabric@2.3.0 mpich@4.3.2 xcclPlugin@0.3 tests -v`
+
+# Versions
+
+Some packages do not have versions but use git hashes. Velocity currently does not support version numbers that are not in a typical Major.Minor(.Patch) format. 
+
+- xcclPlugin
+  - 0.1 --> stable `aws-ofi-rccl` as is included in the standard Lumi containers
+  - 0.2 --> latest `aws-ofi-rccl`
+  - 0.3 --> `open-ofi-xccl` v1.14.x-xxx; first version that supports ROCm.
+
+- libcxi
+  - 0.1 --> stable as is included in the standard Lumi containers. Git hashes for: `libcxi`, `cxi_driver` and `cassini_headers`
+
+- libfabric
+  - 1.9 --> stable as is included in the standard Lumi containers based on git hash
+  - 2.3 --> enables the lnx provider to combine multiple providers
+
+- fakeGPU
+  - 0.1 --> version to fake LUMI GPUs
+
+- tests
+  - 0.1 --> installs both OSU benchmarks and RCCL tests
+
+- packages
+  - 1.0 --> various normal packages that are required for the other installations (gcc, cmake, autoconf, tar, patch git etc.)
 
 # Issues
-- cannot make versions with name "X.X.X_dev" or "working" etc. if its experimental from e.g. a git commit
+- Cannot make versions with name "X.X.X_dev" or "working" etc. This would be handy if its an experimental version from e.g. a git commit
 - The error messages are a bit limited; e.g., if your version isn't some sort of number it'll just say "No available build".
 - Error message if using `=` when setting envar with `!envar` is cryptic.
 - Folders cannot contain `_`
 - Mapping values are not allowed (?) i.e. `libfabric@2.0.0:`
 - `Python 3.10` becomes `Python 3.1`
+- The graph or hashes are not stable so layers are rebuilt even if that's not necessary. 
+
+
+# Nice to have
+- Top level folder that groups packages. e.g.: Python related stuff, communication, different MPI (MPICH, OpenMPI) etc.
+- Configuration File --> allow to specify a full container toolchain for a config. e.g., `velocity build lumi_latest` should build a container according to the config file. 
+- Show depedency tree for a given package & version
