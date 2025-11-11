@@ -13,12 +13,14 @@ class watersmall_test(rfm.RunOnlyRegressionTest):
 
     @run_after('init')
     def provide_input(self):
-        self.executable_opts = [self.input_file]
+        self.run_input_file = 'run-' + self.input_file
+        self.executable_opts = [self.run_input_file]
     
     @run_before('run')
     def activate_venv(self):
         self.prerun_cmds = [f'source {self.venv}',
-                            f'echo "device {self.device}" >> {self.input_file}']
+                            f'echo "device {self.device}" > {self.run_input_file}',
+                            f'echo "$(cat {self.input_file})" >> {self.run_input_file}']
 
     @sanity_function
     def validate(self):
@@ -26,9 +28,10 @@ class watersmall_test(rfm.RunOnlyRegressionTest):
 
     @performance_function('ns/day')
     def ns_per_day(self):
-        return sn.extractsingle(r'Perf.:\s+(\S+)', self.stdout, 1, float)
+        perf_ns = sn.extractall(r'Perf.:\s+(\S+)', self.stdout, 1, float)  # list
+        return max(perf_ns)
 
     @performance_function('step/s')
     def steps_per_second(self):
-        return sn.extractsingle(r'(\S+)\s+step/s', self.stdout, 1, float)
-    
+        perf_steps = sn.extractall(r'(\S+)\s+step/s', self.stdout, 1, float)  # list
+        return max(perf_steps)

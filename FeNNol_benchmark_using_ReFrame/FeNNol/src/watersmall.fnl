@@ -20,7 +20,7 @@ wrap_box no
 estimate_pressure no
 
 # number of steps to perform
-nsteps = 1000
+nsteps = 10000
 # timestep of the dynamics
 dt[fs] =  .5
 
@@ -32,8 +32,8 @@ traj_format arc
 tdump[ps] = 1.
 
 # number of steps between each printing of the energy
-nprint = 10
-nsummary = 1000
+nprint = 1000
+nsummary = 2500
 
 ## set the thermostat
 #thermostat  NVE 
