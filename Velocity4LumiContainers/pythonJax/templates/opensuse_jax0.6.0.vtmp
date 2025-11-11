@@ -25,7 +25,7 @@
 
     python stack.py develop --rebuild-makefile
     cd jax_rocm_plugin/
-    if [[ "$ROCM_MAJOR" == "6" && "$ROCM_MINOR" -lt 4 ]]; then
+    if [[ "$ROCM_MAJOR" == "6" && "$ROCM_MINOR" -lt 3 ]]; then
       python3 ./build/build.py build \
             --use_clang=true \
             --wheels=jax-rocm-plugin \
