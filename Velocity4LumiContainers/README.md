@@ -80,6 +80,14 @@ Some packages do not have versions but use git hashes.
 - packages
   - 1.0 --> various normal packages that are required for the other installations (gcc, cmake, autoconf, tar, patch git etc.)
 
+# Results
+
+- Creates sif containers 
+- Dependency resolution seems to work well
+- Resulting containers work on Lumi (as long as the packages are compatible with Lumi)
+- Network speeds are similar to other open source containers
+
+
 # Issues
 - Cannot make versions with name "X.X.X_dev" or "working" etc. This would be handy if its an experimental version from e.g. a git commit
 - The error messages are a bit limited; e.g., if your version isn't some sort of number it'll just say "No available build".
@@ -90,7 +98,11 @@ Some packages do not have versions but use git hashes.
 - The graph or hashes are not stable so layers are rebuilt even if that's not necessary. 
 
 
-# Nice to have
+## Would be nice to have features.
 - Top level folder that groups packages. e.g.: Python related stuff, communication, different MPI (MPICH, OpenMPI) etc.
 - Configuration File --> allow to specify a full container toolchain for a config. e.g., `velocity build lumi_latest` should build a container according to the config file. 
 - Show depedency tree for a given package & version
+
+# Conclusion
+
+Great way to simplify/automate container building with some downsides. There are also some features that would be nice to have.  
