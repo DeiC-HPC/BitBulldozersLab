@@ -1,12 +1,13 @@
 # Building LUMI containers using Velocity
 
 - **Keywords:** Velocity, Containers, apptainer, Lumi
-- **Date:** 2025-10-20
+- **Date:** 2025-11-12
 
 Velocity is a tool that helps maintain and build various containers. It is used at Frontier.
+
 Links:
-https://olcf.github.io/velocity/index.html
-https://github.com/olcf/velocity
+- https://olcf.github.io/velocity/index.html
+- https://github.com/olcf/velocity
 
 # Setup
 Make sure you have apptainer installed.
@@ -33,7 +34,7 @@ velocity avail
 
 To build an image:
 ```
-velocity build ...
+velocity build <packages_you_want>
 ```
  And include all the packages you would like.
 
@@ -49,7 +50,7 @@ For Lumi the following three image 'recipes' are a good starting point.
   - `velocity build rocm@7.0.2 fakeGpu libcxi libfabric@2.3.0 mpich@4.3.2 xcclPlugin@0.3 tests -v`
 
 To build a pytorch container with the `latest` version of the lumi container one could do:
-- `velocity build rocm@6.2.4 fakeGpu libcxi libfabric@2.3.0 mpich@4.2.3 xcclPlugin@0.3 tests pythonMiniforge python@3.12 pythonPytorch@2.7.1 -v`
+- `velocity build opensuse@15.5 rocm@6.2.4 fakeGpu libcxi libfabric@2.3.0 mpich@4.2.3 xcclPlugin@0.3 tests pythonMiniforge python@3.12 pythonPytorch@2.7.1 -v`
 
 This will build the container with all the Lumi communication bits needed as well as install a conda venv with Pytorch pre-installed. 
 
