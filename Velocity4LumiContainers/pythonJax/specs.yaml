@@ -2,6 +2,7 @@ versions:
   - spec:
       - 0.6.0
       - 0.7.1
+      - 0.8.0
 variables:
   - name: git_hash
     value: e96602e
@@ -9,6 +10,9 @@ variables:
   - name: git_hash
     value: 88b54b0
     when: pythonJax@0.7.1
+  - name: git_hash
+    value: 403977d
+    when: pythonJax@0.8.0
 dependencies:
   - spec: python
     scope: build
@@ -18,8 +22,13 @@ dependencies:
   - spec: rocm
     scope: build
     when: pythonJax@0.6.0
+  - spec: rocm
+    scope: build
+    when: pythonJax@0.8.0
 templates:
   - name: opensuse_jax0.7.1
     when: distro=opensuse pythonJax@0.7.1
   - name: opensuse_jax0.6.0
     when: distro=opensuse pythonJax@0.6.0
+  - name: opensuse_jax0.8.0
+    when: distro=opensuse pythonJax@0.8.0
