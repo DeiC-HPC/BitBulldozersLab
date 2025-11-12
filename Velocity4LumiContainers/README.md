@@ -3,6 +3,16 @@
 - **Keywords:** Velocity, Containers, apptainer, Lumi
 - **Date:** 2025-11-12
 
+In this BitBulldozer we explore the container builder & management tool `Velocity`. 
+For us, it is important that `Velocity` meets the following requirements>
+
+- Easy to setup & use
+- Flexible: easy to add new packages, libraries, versions 
+- Flexible: easy to combine different versions of libraries etc.
+- Dependency management between the different libraries, packages & versions
+- Clear error messages
+- Preferably easy to use for new users who are not used to containers
+
 Velocity is a tool that helps maintain and build various containers. It is used at Frontier.
 
 Links:
@@ -82,27 +92,31 @@ Some packages do not have versions but use git hashes.
 
 # Results
 
-- Creates sif containers 
+## Pros
+
+- Easy to setup
+- Creates sif containers from predefined setup scripts
+- Adding new libraries etc. is easy - it's basically just bash scripts for your specific linux distro (e.g., zypper with opensuse).
 - Dependency resolution seems to work well
+- It is easy to combine different versions and set dependencies between versions of different packages. 
 - Resulting containers work on Lumi (as long as the packages are compatible with Lumi)
 - Network speeds are similar to other open source containers
 
-
-# Issues
-- Cannot make versions with name "X.X.X_dev" or "working" etc. This would be handy if its an experimental version from e.g. a git commit
-- The error messages are a bit limited; e.g., if your version isn't some sort of number it'll just say "No available build".
+## Cons
+- Cannot make versions with name "X.X.X_dev" or "working" etc. This would be handy if it's an experimental version from e.g. a git commit
+- The error messages are limited; e.g., if your version isn't some sort of number it'll just say "No available build".
 - Error message if using `=` when setting envar with `!envar` is cryptic.
 - Folders cannot contain `_`
 - Mapping values are not allowed (?) i.e. `libfabric@2.0.0:`
 - `Python 3.10` becomes `Python 3.1`
-- The graph or hashes are not stable so layers are rebuilt even if that's not necessary. 
+- The graph or hashes are not necessarily stable so layers are rebuilt even if that's not necessary. 
 
 
-## Would be nice to have features.
+## Nice to have features
 - Top level folder that groups packages. e.g.: Python related stuff, communication, different MPI (MPICH, OpenMPI) etc.
 - Configuration File --> allow to specify a full container toolchain for a config. e.g., `velocity build lumi_latest` should build a container according to the config file. 
-- Show depedency tree for a given package & version
+- Show dependency tree for a given package & version
 
 # Conclusion
 
-Great way to simplify/automate container building with some downsides. There are also some features that would be nice to have.  
+`Velocity` seems like a good starting point to simplify/automate container building with some downsides. The pros are that it works well once the initial definition files are written and if the user defines compatible versions. However, the error messages are not self-explanatory. The naming & versioning is currently limited. Additionally, there are also some features that would be nice to have.  
