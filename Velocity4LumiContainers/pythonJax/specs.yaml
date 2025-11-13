@@ -1,12 +1,23 @@
 versions:
   - spec:
+      - 0.5.9
       - 0.6.0
+      - 0.6.2
       - 0.7.1
       - 0.8.0
 variables:
   - name: git_hash
+    value: a6a5161
+    when: pythonJax@0.5.9
+  - name: git_version_real
+    value: version_unknown_says_rocm6
+    when: pythonJax@0.5.9
+  - name: git_hash
     value: e96602e
     when: pythonJax@0.6.0
+  - name: git_hash
+    value: e96602e
+    when: pythonJax@0.6.2
   - name: git_hash
     value: 88b54b0
     when: pythonJax@0.7.1
@@ -21,7 +32,7 @@ dependencies:
     when: pythonJax@0.7.1
   - spec: rocm
     scope: build
-    when: pythonJax@0.6.0
+    when: pythonJax@0.5.9:0.6.2
   - spec: rocm
     scope: build
     when: pythonJax@0.8.0
@@ -29,6 +40,6 @@ templates:
   - name: opensuse_jax0.7.1
     when: distro=opensuse pythonJax@0.7.1
   - name: opensuse_jax0.6.0
-    when: distro=opensuse pythonJax@0.6.0
+    when: distro=opensuse pythonJax@0.5.9:0.6.2
   - name: opensuse_jax0.8.0
     when: distro=opensuse pythonJax@0.8.0
