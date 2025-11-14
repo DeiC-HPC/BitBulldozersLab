@@ -16,8 +16,20 @@
     cd ..
     git clone https://github.com/ROCm/xla.git
     cd xla
-    git checkout -b mybuild cfce2f10011aab8fc85a8419c2b3fd9045439777
-    sed -i 's/const rocprofiler_tracing_operation_t* hip_ops = nullptr;/rocprofiler_tracing_operation_t* hip_ops = nullptr;/' xla/backends/profiler/gpu/rocm_profiler_sdk.cc
+#    git checkout -b mybuild cfce2f10011aab8fc85a8419c2b3fd9045439777 --> this commit has the fixes for roctracerv1 partially removed
+    git checkout -b mybuild 7775dd04068567dc7e08215de23538da8d1d89f4
+    sed -i 's/const[[:space:]]\+rocprofiler_tracing_operation_t\*[[:space:]]\+hip_ops/rocprofiler_tracing_operation_t* hip_ops/' xla/backends/profiler/gpu/rocm_profiler_sdk.cc
+    # this is needed to disable FP8 on ROCm 6.2.4 and lower because the datatypes are not included in /opt/rocm/include/hip/library_types.h
+    sed -i '/^[[:space:]]*return layout\.type() == HIP_R_8F_E5M2_FNUZ[[:space:]]*||/,+2c\
+            #ifdef HIP_R_8F_E5M2\
+                  return layout.type() == HIP_R_8F_E5M2_FNUZ ||\
+                              layout.type() == HIP_R_8F_E4M3_FNUZ ||\
+                              layout.type() == HIP_R_8F_E5M2 ||\
+                              layout.type() == HIP_R_8F_E4M3;\
+            #else\
+                    return false;\
+            #endif' xla/stream_executor/rocm/hip_blas_lt.cc
+
     cd ../rocm-jax
     >>> Make sure the compile target is ROCm 6
     !envar JAX_VERSION {{ __version__ }}
@@ -43,32 +55,32 @@
           --verbose \
           --clang_path=/opt/rocm/llvm/bin/clang
 #            --bazel_options="--override_repository=xla=../xla --define=xla_rocm_profiler=v1" \
-#    python3 ./build/build.py build \
-#        --use_clang=true \
-#        --wheels=jax-rocm-pjrt \
-#        --rocm_path=/opt/rocm/ \
-#        --rocm_version=60 \
-#        --rocm_amdgpu_targets=$AMDGPU_TARGETS \
-#        --local_xla_path "/opt/xla/" \
-#        --verbose \
-#        --clang_path=/opt/rocm/llvm/bin/clang
+    python3 ./build/build.py build \
+        --use_clang=true \
+        --wheels=jax-rocm-pjrt \
+        --rocm_path=/opt/rocm/ \
+        --rocm_version=60 \
+        --rocm_amdgpu_targets=$AMDGPU_TARGETS \
+        --local_xla_path "/opt/xla/" \
+        --verbose \
+        --clang_path=/opt/rocm/llvm/bin/clang
 #          --bazel_options="--override_repository=xla=../xla --define=xla_rocm_profiler=v1" \
 #    else
 #    make jax_rocm_plugin
 #    make jax_rocm_pjrt
 #    fi
-#    cd ../jax/
-#    python3 ./build/build.py build \
-#      --target_cpu_features=native \
-#      --use_clang=true \
-#      --clang_path=/opt/rocm/llvm/bin/clang \
-#      --wheels=jaxlib \
-#      --local_xla_path "/opt/xla/" \
-#      --verbose
-##      --bazel_options="--override_repository=xla=/opt/rocm-jax/xla" \
-#    cd ../build
-#    pip install -r requirements.txt
-#    cd ../jax/dist
-#    pip install jaxlib*
-#    cd ../../jax_rocm_plugin/dist
-#    pip install jax*
+    cd ../jax/
+    python3 ./build/build.py build \
+      --target_cpu_features=native \
+      --use_clang=true \
+      --clang_path=/opt/rocm/llvm/bin/clang \
+      --wheels=jaxlib \
+      --local_xla_path "/opt/xla/" \
+      --verbose
+#      --bazel_options="--override_repository=xla=/opt/rocm-jax/xla" \
+    cd ../build
+    pip install -r requirements.txt
+    cd ../jax/dist
+    pip install jaxlib*
+    cd ../../jax_rocm_plugin/dist
+    pip install jax*
