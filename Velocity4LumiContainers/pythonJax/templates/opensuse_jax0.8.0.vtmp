@@ -16,4 +16,3 @@
     sed -i '70s/.*/required=False,/' jaxlib/tools/build_gpu_kernels_wheel.py
     sed -i '76s/.*/required=False,/' jaxlib/tools/build_gpu_plugin_wheel.py
     python build/build.py build --wheels=jax,jaxlib,jax-rocm-plugin,jax-rocm-pjrt --rocm_amdgpu_targets=gfx90a --rocm_path=/opt/rocm/ --clang_path=/opt/rocm/llvm/bin/clang
-    python build/build.py requirements_update
