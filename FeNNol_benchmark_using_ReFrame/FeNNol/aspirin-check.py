@@ -1,12 +1,12 @@
 import reframe as rfm
 import reframe.utility.sanity as sn
-
+from statistics import mean, pstdev
 
 @rfm.simple_test
-class watersmall_test(rfm.RunOnlyRegressionTest):
+class aspirin_test(rfm.RunOnlyRegressionTest):
     valid_systems = ['*']
     valid_prog_environs = ['*']
-    input_file = variable(str, value='watersmall.fnl')
+    input_file = variable(str, value='aspirin.fnl')
     venv = variable(str, value='$HOME/fennol/FeNNol/.venv/bin/activate')
     device = variable(str, value='cpu') # Alt. cuda:0
     executable = 'fennol_md'
@@ -35,3 +35,13 @@ class watersmall_test(rfm.RunOnlyRegressionTest):
     def steps_per_second(self):
         perf_steps = sn.extractall(r'(\S+)\s+step/s', self.stdout, 1, float)  # list
         return max(perf_steps)
+    
+    @performance_function('K')
+    def temp_mean(self):
+        temps = sn.extractall(r'^(?:\s+(\S+)){6}', self.stdout, 1, float)  # list
+        return int(round(mean(temps), 0))
+
+    @performance_function('K')
+    def temp_std_dev(self):
+        temps = sn.extractall(r'^(?:\s+(\S+)){6}', self.stdout, 1, float)  # list
+        return int(round(pstdev(temps), 0))
