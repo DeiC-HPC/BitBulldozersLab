@@ -1,0 +1,12 @@
+@from
+    {{ __base__ }}
+
+@run
+  zypper refresh
+  >>> Install TBB
+  zypper --no-gpg-checks -n install -y --force-resolution tbb-devel libtbb2 libtbbmalloc2 python3-tbb
+  >> ELF elfutils
+  zypper --no-gpg-checks -n install -y --force-resolution elfutils
+  >> ELF boost
+  zypper --no-gpg-checks -n install -y --force-resolution boost boost-base boost-gnu-mpich-hpc*
+

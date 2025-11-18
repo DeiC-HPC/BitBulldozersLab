@@ -8,6 +8,6 @@
     zypper --no-gpg-checks -n install -y --force-resolution git cmake gcc12 \
       gcc12-c++ gcc12-fortran zlib-devel numactl awk patch tar autoconf automake \
       libtool libjson-c-devel graphviz ncurses-devel nano which libjansson4 \
-      libnl3-200 wget bzip2 gzip
+      libnl3-200 wget bzip2 gzip binutils libgomp1-gcc12
     zypper clean
     !envar GCC_RELEASE 12

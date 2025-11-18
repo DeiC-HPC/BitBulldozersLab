@@ -1,0 +1,6 @@
+versions:
+  - spec:
+      - 1.0.0
+dependencies:
+  - spec: packages
+    scope: build

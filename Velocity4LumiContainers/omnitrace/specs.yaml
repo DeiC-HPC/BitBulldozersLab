@@ -1,0 +1,18 @@
+versions:
+  - spec:
+      - 6.2.4
+
+variables:
+  - name: git_hash
+    value: 47597c1
+    when: omnitrace@6.2.4
+
+dependencies:
+  - spec: python
+    scope: build
+  - spec: rocm
+    scope: build
+  - spec: mpich
+    scope: build
+  - spec: dyninstDependencies
+    scope: build
