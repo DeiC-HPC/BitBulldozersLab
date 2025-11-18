@@ -16,3 +16,6 @@ dependencies:
     scope: build
   - spec: dyninstDependencies
     scope: build
+
+templates:
+  - name: opensuse
