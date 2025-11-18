@@ -12,6 +12,12 @@
     zypper refresh
     zypper --no-gpg-checks -n install -y --force-resolution glibc gzip libnuma1 libnuma-devel binutils-gold patchelf
 
+    >>> Find ROCm versions
+    !envar JAX_VERSION {{ __version__ }}
+    ROCM_MAJOR="${ROCM_RELEASE%%.*}"               # "6" from "6.2.4"
+    ROCM_MINOR="${ROCM_RELEASE#*.}"                # "2.4"
+    ROCM_MINOR="${ROCM_MINOR%%.*}"                 # "2"
+
     >>> Get XLA and sed if the rocm version is under or equal to v6.2.4
     if [[ "$ROCM_MAJOR" == "6" && "$ROCM_MINOR" -lt 3 ]]; then
       cd /opt/
@@ -38,12 +44,6 @@
     git clone https://github.com/ROCm/rocm-jax.git
     cd rocm-jax
     git checkout -b mybuild {{ git_hash }}
-
-    >>> Find ROCm versions
-    !envar JAX_VERSION {{ __version__ }}
-    ROCM_MAJOR="${ROCM_RELEASE%%.*}"               # "6" from "6.2.4"
-    ROCM_MINOR="${ROCM_RELEASE#*.}"                # "2.4"
-    ROCM_MINOR="${ROCM_MINOR%%.*}"                 # "2"
 
     >>> Fix the ROCm version in the Jax stack.py script
     if [[ "$ROCM_MAJOR" == "6" ]]; then

@@ -1,0 +1,14 @@
+versions:
+  - spec:
+      - 2025.05.16
+
+variables:
+  - name: git_hash
+    value: fca73d7
+    when: pythonFennol@2025.05.16
+
+dependencies:
+  - spec: python
+    scope: build
+  - spec: pythonJax
+    scope: build

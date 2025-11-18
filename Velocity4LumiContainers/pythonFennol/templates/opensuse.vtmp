@@ -1,0 +1,9 @@
+@from
+    {{ __base__ }}
+
+@run
+    cd /opt/
+    git clone https://github.com/FeNNol-tools/FeNNol.git
+    cd FeNNol
+    git checkout -b mybuild  {{ git_hash }}
+    pip install .
