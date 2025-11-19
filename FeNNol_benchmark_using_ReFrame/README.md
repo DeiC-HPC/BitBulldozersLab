@@ -26,10 +26,10 @@ The ReFrame `config.py` defined the system configuration that we submit the benc
 
 We can thus launch the benchmark on both systems using
 ```
-reframe -C config.py -c FeNNol/watertiny-check.py -r
+reframe -C config.py -c FeNNol/aspirin-check.py -r
 ```
 
 The tests are further configurable through the CLI, for example, we can choose to execute only on primebox with cuda enabled
 ```
-reframe -C config.py -c FeNNol/watertiny-check.py --system workstations:primebox -S device="cuda:0" -r
+reframe -C config.py -c FeNNol/aspirin-check.py --system workstations:primebox -S device="cuda:0" -r
 ```
