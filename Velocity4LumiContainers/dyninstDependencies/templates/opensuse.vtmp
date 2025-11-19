@@ -15,18 +15,20 @@
   cd /
   >>> ELF elfutils
   zypper --no-gpg-checks -n install -y --force-resolution elfutils
-  >>> ELF boost
+  >>> Install B2
   cd /opt
+  wget https://github.com/bfgroup/b2/releases/download/5.3.3/b2-5.3.3.tar.bz2
+  mkdir /opt/b2
+  tar -xvf b2-* -C /opt/b2 --strip-components 1
+  cd /opt/b2
+  ./bootstrap.sh
+  ./b2 install --prefix=/bin/
+  >>> Install boost
   wget https://archives.boost.io/release/1.89.0/source/boost_1_89_0.tar.bz2
   mkdir /opt/boost
   tar -xvf boost_* -C /opt/boost --strip-components 1
   rm boost_*
   cd boost
-  mkdir __build
-  cd __build
-  cmake ..
-  cmake --build .
-  cmake --build . --target install
-  export BOOST_ROOT=/usr/local
-  export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
-  export CPLUS_INCLUDE_PATH=/usr/local/include:$CPLUS_INCLUDE_PATH
+  ./bootstrap.sh --prefix=/usr/local
+  ./b2
+  ./b2 install
