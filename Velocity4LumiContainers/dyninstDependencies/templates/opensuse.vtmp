@@ -16,4 +16,17 @@
   >>> ELF elfutils
   zypper --no-gpg-checks -n install -y --force-resolution elfutils
   >>> ELF boost
-  zypper --no-gpg-checks -n install -y --force-resolution boost boost-base boost-gnu-mpich-hpc*
+  cd /opt
+  wget https://archives.boost.io/release/1.89.0/source/boost_1_89_0.tar.bz2
+  mkdir /opt/boost
+  tar -xvf boost_* -C /opt/boost --strip-components 1
+  rm boost_*
+  cd boost
+  mkdir __build
+  cd __build
+  cmake ..
+  cmake --build .
+  cmake --build . --target install
+  export BOOST_ROOT=/usr/local
+  export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+  export CPLUS_INCLUDE_PATH=/usr/local/include:$CPLUS_INCLUDE_PATH
