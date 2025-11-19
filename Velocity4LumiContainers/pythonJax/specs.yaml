@@ -1,5 +1,6 @@
 versions:
   - spec:
+      - 0.4.35
       - 0.6.0
       - 0.6.2
       - 0.7.1
@@ -30,6 +31,8 @@ dependencies:
     scope: build
     when: pythonJax@0.8.0
 templates:
+  - name: opensuse_jax0.4.35
+    when: distro=opensuse pythonJax@0.4.35
   - name: opensuse_jax0.7.1
     when: distro=opensuse pythonJax@0.7.1
   - name: opensuse_jax0.6.0

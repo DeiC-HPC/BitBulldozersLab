@@ -2,12 +2,6 @@
     {{ __base__ }}
 
 @run
-  zypper refresh
-  >>> Install libunwind
-  zypper --no-gpg-checks -n install -y --force-resolution libunwind libunwind-devel
-  >>> Install papi
-  zypper --no-gpg-checks -n install -y --force-resolution papi papi-devel papi-hpc papi-hpc-devel libpapi libpapi-devel libpapi-hpc
-
   # https://rocm.docs.amd.com/projects/omnitrace/en/docs-6.2.0/install/install.html#build-requirements
   cd /opt/
   git clone https://github.com/ROCm/omnitrace.git omnitrace-source
@@ -23,7 +17,7 @@
       -D OMNITRACE_USE_PYTHON=ON              \
       -D OMNITRACE_USE_OMPT=ON                \
       -D OMNITRACE_USE_MPI_HEADERS=ON         \
-      -D OMNITRACE_USE_MPI=ON         \
+      -D OMNITRACE_USE_MPI=ON                 \
       -D OMNITRACE_BUILD_PAPI=ON              \
       -D OMNITRACE_BUILD_LIBUNWIND=ON         \
       -D OMNITRACE_BUILD_DYNINST=ON           \

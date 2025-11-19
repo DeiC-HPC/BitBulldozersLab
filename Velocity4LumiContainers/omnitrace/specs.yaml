@@ -14,8 +14,6 @@ dependencies:
     scope: build
   - spec: mpich
     scope: build
-  - spec: dyninstDependencies
-    scope: build
 
 templates:
   - name: opensuse
