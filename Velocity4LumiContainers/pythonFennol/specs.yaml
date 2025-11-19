@@ -12,3 +12,7 @@ dependencies:
     scope: build
   - spec: pythonJax
     scope: build
+
+templates:
+  - name: opensuse
+    when: distro=opensuse
