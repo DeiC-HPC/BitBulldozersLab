@@ -77,21 +77,30 @@
           --verbose \
           --clang_path=/opt/rocm/llvm/bin/clang
 #            --bazel_options="--define=xla_rocm_profiler=v1" \ # --> needed if we ever need rocprof-v1
+      >>> Build Jax and Jaxlib
+      # v0.6.0 does not have a separate make command for jaxlib and jax.
+      cd /opt/rocm-jax/jax/
+      python3 ./build/build.py build \
+          --target_cpu_features=native \
+          --use_clang=true \
+          --clang_path=/opt/rocm/llvm/bin/clang \
+          --wheels=jaxlib \
+          --local_xla_path "/opt/xla/" \
+          --verbose
     else
       make jax_rocm_plugin
       make jax_rocm_pjrt
+      >>> Build Jax and Jaxlib
+      # v0.6.0 does not have a separate make command for jaxlib and jax.
+      cd /opt/rocm-jax/jax/
+      python3 ./build/build.py build \
+        --target_cpu_features=native \
+        --use_clang=true \
+        --clang_path=/opt/rocm/llvm/bin/clang \
+        --wheels=jaxlib \
+        --verbose
     fi
-
-    >>> Build Jax and Jaxlib
-    # v0.6.0 does not have a separate make command for jaxlib and jax.
-    cd /opt/rocm-jax/jax/
-    python3 ./build/build.py build \
-      --target_cpu_features=native \
-      --use_clang=true \
-      --clang_path=/opt/rocm/llvm/bin/clang \
-      --wheels=jaxlib \
-      --verbose
-#      --local_xla_path "/opt/xla/" \
+# For Jax and Jaxlib
 #      --bazel_options="--define=xla_rocm_profiler=v1" \ # --> not sure if this is required for rocprof-v1
 
     >>> Install Jax requirements
