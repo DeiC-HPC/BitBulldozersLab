@@ -9,11 +9,12 @@
 @run
     >>> Replace rocm information
     cd $ROCM_PATH/bin
-    for i in rocm_agent_enumerator rocminfo ; do \
-      rm -rf $i ; \
-      cp /$i . ; \
-      chmod +x $i ; \
-    done
+    rm -rf rocm_agent_enumerator
+    cp /rocm_agent_enumerator .
+    chmod +x rocm_agent_enumerator
+    rm -rf rocminfo
+    cp /rocminfo .
+    chmod +x rocminfo
     >>> Replace amdgpu-arch and offload-arch
     cd $ROCM_PATH/llvm/bin
     rm amdgpu-arch offload-arch

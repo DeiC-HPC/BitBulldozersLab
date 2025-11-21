@@ -8,6 +8,7 @@
     >>> set env variables
     !envar XCCL_PLUGIN_PATH /opt/xccl_plugin
     !envar XCCL_PLUGIN_VERSION {{ git_hash }}
+    !envar LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/xccl_plugin
     ldconfig
     >>> Git clone
     git clone https://github.com/HewlettPackard/open-ofi-xccl /opt/mybuild_open-ofi-xccl 
@@ -25,5 +26,4 @@
     mkdir $XCCL_PLUGIN_PATH 
     mv src/.libs/librccl-net.so* $XCCL_PLUGIN_PATH 
     rm -rf /opt/mybuild_open-ofi-xccl
-    >>> Set paths
-    !envar LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/$XCCL_PLUGIN_PATH
+

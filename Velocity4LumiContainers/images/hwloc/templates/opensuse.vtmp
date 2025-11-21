@@ -8,7 +8,7 @@
     cd hwloc-2.12.0
     CC=gcc-$GCC_RELEASE ./configure --prefix=/opt/hwloc  --localstatedir=/var 
     make install
-    cd /
+    cd /.
     rm -r hwloc-2.12.0/
     rm hwloc-2.12.0.tar.gz
     !envar PATH /opt/hwloc/bin:$PATH
