@@ -28,3 +28,5 @@
     make install
     cd /
     rm -rf /opt/mpich-$MPICH_VERSION/
+    !envar PATH $MPICH_PATH/bin:$PATH
+    !envar LD_LIBRARY_PATH $LD_LIBRARY_PATH:$MPICH_PATH/lib

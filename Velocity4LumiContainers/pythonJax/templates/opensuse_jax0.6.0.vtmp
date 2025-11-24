@@ -7,8 +7,7 @@
     !envar AMDGPU_TARGETS gfx90a
 
     >>> Add and install required packages
-    zypper -n addrepo  https://download.opensuse.org/repositories/devel:tools:building/15.6/devel:tools:building.repo | echo 'a'
-    zypper -n addrepo https://download.opensuse.org/repositories/openSUSE:Factory/standard/openSUSE:Factory.repo | echo 'a'
+    zypper -n addrepo https://download.opensuse.org/repositories/devel:tools:building/15.6/devel:tools:building.repo
     zypper refresh
     zypper --no-gpg-checks -n install -y --force-resolution glibc gzip libnuma1 libnuma-devel binutils-gold patchelf
 
