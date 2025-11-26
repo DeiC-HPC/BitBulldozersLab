@@ -28,9 +28,9 @@ pip install olcf-velocity
 
 Set the following three environment variables:
 ```
-export VELOCITY_BUILD_DIR=~/containers/velocity
+export VELOCITY_BUILD_DIR=$PWD/containers/velocity
 export VELOCITY_DISTRO=opensuse
-export VELOCITY_IMAGE_PATH=/BitBulldozersLab/Velocity4LumiContainers
+export VELOCITY_IMAGE_PATH=$PWD/images
 ```
 
 And add the following do your `bashrc` or `.bash_aliases`:
