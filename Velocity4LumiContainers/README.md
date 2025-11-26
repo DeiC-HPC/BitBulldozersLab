@@ -12,11 +12,12 @@ In this BitBulldozer we explore the container builder & management tool `Velocit
 - Clear error messages
 - Preferably easy to use for new users who are not used to containers
 
-Velocity is a tool that helps maintain and build various containers. It is used at Frontier.
+Velocity is a tool that helps maintain and build various containers. It is used at Oak Ridge Leadership Computing Facility to build container for Frontier and Summit.
 
 Links:
 - https://olcf.github.io/velocity/index.html
 - https://github.com/olcf/velocity
+- https://github.com/olcf/velocity-images
 
 # Setup
 Make sure you have apptainer installed.
@@ -52,9 +53,9 @@ velocity build <packages_you_want>
 For Lumi the following three image 'recipes' are a good starting point.
 
 - stable
-  - `velocity build rocm@6.0.2 fakeGpu libcxi libfabric@1.9.0 mpich@4.2.3 xcclPlugin@0.1 tests -v`
+  - `velocity build rocm@6.0.2 fakelumig libcxi libfabric@1.9.0 mpich@4.2.3 xcclPlugin@0.1 tests -v`
 - latest
-  - `velocity build rocm@6.2.4 fakeGpu libcxi libfabric@2.3.0 mpich@4.2.3 xcclPlugin@0.3 tests -v`
+  - `velocity build rocm@6.2.4 fakelumig libcxi libfabric@2.3.0 mpich@4.2.3 xcclPlugin@0.3 tests -v`
 - future
   - `velocity build rocm@7.0.2 fakeGpu libcxi libfabric@2.3.0 mpich@4.3.2 xcclPlugin@0.3 tests -v`
 
@@ -65,8 +66,7 @@ This will build the container with all the Lumi communication bits needed as wel
 
 # Versions
 
-Some packages do not have versions but use git hashes. 
-`Velocity` currently does not support version numbers that are not in a typical Major.Minor(.Patch) format. 
+Some packages do not have `<major>.<minor>.<patch>-<suffix`>` versions as currently required by `velocity`,  but instead use git hashes.  When only a git hash is available, we workaround this version specification issue by assigning a consecutive `0.x` version and linking it via an environment variable to the git hash.
 
 - xcclPlugin
   - 0.1 --> stable `aws-ofi-rccl` as is included in the standard Lumi containers
@@ -94,7 +94,7 @@ Some packages do not have versions but use git hashes.
 ## Pros
 
 - Easy to setup
-- Creates sif containers from predefined setup scripts
+- Creates Singularity/Apptainer sif containers as well as Docker/Podman containers from predefined setup scripts
 - Adding new libraries etc. is easy - it's basically just bash scripts for your specific linux distro (e.g., zypper with opensuse).
 - Dependency resolution seems to work well
 - It is easy to combine different versions and set dependencies between versions of different packages. 
@@ -109,6 +109,8 @@ Some packages do not have versions but use git hashes.
 - Mapping values are not allowed (?) i.e. `libfabric@2.0.0:`
 - `Python 3.10` becomes `Python 3.1`
 - The caching is currently only stable in the `develop` branch due to issues with the hashes.
+- There are some subtle details in the [VTMP format](https://olcf.github.io/velocity/reference/vtmp.html) that are not well explained or validated at runtime by `velocity`, e.g. multi line bash for loops may work when building sif images, but are illegal when building Docker containers. VTMP looks like bash, but is actually only a not so well defined subset of it.
+- Velocity is still somewhat immature. It has some rough edges and the documentation is a bit unclear and poorly structured.
 
 
 ## Nice to have features
