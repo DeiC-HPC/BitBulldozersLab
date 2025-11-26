@@ -3,6 +3,10 @@ versions:
       - 2025.05.16
       - 2025.09.30
 
+files:
+  - name:
+    - requirements.txt
+
 variables:
   - name: git_hash
     value: fca73d7

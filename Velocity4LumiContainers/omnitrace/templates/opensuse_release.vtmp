@@ -4,6 +4,7 @@
 @run
   wget {{ download_url }} -O /opt/omnitrace-installer.sh
   chmod +x /opt/omnitrace-installer.sh
+  mkdir /opt/omnitrace
   ./opt/omnitrace-installer.sh --skip-license --prefix=/opt/omnitrace
 
 @post
