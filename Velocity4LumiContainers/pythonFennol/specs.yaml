@@ -15,8 +15,6 @@ variables:
 dependencies:
   - spec: python
     scope: build
-  - spec: pythonJax
-    scope: build
 
 templates:
   - name: opensuse

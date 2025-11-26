@@ -21,6 +21,8 @@ variables:
 dependencies:
   - spec: python
     scope: build
+  - spec: pythonJax
+    scope: build
   - spec: rocm@6.3.4:7.0.2
     scope: build
     when: pythonJax@0.7.1
