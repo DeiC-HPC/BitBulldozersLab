@@ -26,7 +26,7 @@ Then:
 pip install olcf-velocity
 ```
 
-Set the following three environment variables:
+Set the following three environment variables from this `/Velocity4LumiContainers` folder:
 ```
 export VELOCITY_BUILD_DIR=$PWD/containers/velocity
 export VELOCITY_DISTRO=opensuse
