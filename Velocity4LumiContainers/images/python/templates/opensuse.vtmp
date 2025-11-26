@@ -3,7 +3,7 @@
 
 @run
     >>> environment variables
-    export DEFAULT_CONDA_ENV MlConda
+    export DEFAULT_CONDA_ENV=MlConda
     >>> create conda env
     source "/opt/miniforge3/etc/profile.d/conda.sh"
     conda create -n $DEFAULT_CONDA_ENV python={{ __version__ }}
