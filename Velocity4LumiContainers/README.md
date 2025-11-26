@@ -109,7 +109,7 @@ Some packages do not have versions but use git hashes.
 - Folders cannot contain `_`
 - Mapping values are not allowed (?) i.e. `libfabric@2.0.0:`
 - `Python 3.10` becomes `Python 3.1`
-- The graph or hashes are not necessarily stable so layers are rebuilt even if that's not necessary. 
+- The caching is currently only stable in the `develop` branch due to issues with the hashes.
 
 
 ## Nice to have features
