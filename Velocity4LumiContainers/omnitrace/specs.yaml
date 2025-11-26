@@ -16,4 +16,4 @@ dependencies:
     scope: build
 
 templates:
-  - name: opensuse
+  - name: opensuse_release

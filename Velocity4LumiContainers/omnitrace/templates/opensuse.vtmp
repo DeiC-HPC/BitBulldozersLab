@@ -28,6 +28,7 @@
       -D DYNINST_BUILD_ELFUTILS=ON            \
       -D DYNINST_BUILD_LIBIBERTY=ON           \
       -D DYNINST_BUILD_OPENMP=ON           \
+      -D CMAKE_POLICY_VERSION_MINIMUM=3.3 \
       omnitrace-source
   cmake --build omnitrace-build --target all --parallel 8
   cmake --build omnitrace-build --target install
