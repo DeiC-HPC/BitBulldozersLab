@@ -26,5 +26,6 @@
     mkdir $XCCL_PLUGIN_PATH
     mv src/.libs/librccl-net.so* $XCCL_PLUGIN_PATH
     rm -rf /opt/mybuild_aws_ofi
-    >>> Set paths
-    !envar LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/$XCCL_PLUGIN_PATH
+
+@env
+    LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/$XCCL_PLUGIN_PATH

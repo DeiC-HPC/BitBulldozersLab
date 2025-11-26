@@ -13,5 +13,7 @@
     cd /
     rm -r hwloc-${HWLOC_VERSION}/
     rm hwloc-${HWLOC_VERSION}.tar.gz
-    !envar PATH /opt/hwloc/bin:$PATH
-    !envar LD_LIBRARY_PATH /opt/hwloc/lib:$LD_LIBRARY_PATH
+
+@env
+    PATH /opt/hwloc/bin:$PATH
+    LD_LIBRARY_PATH /opt/hwloc/lib:$LD_LIBRARY_PATH

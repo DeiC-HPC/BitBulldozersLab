@@ -48,5 +48,7 @@
     make VERBOSE=1 V=1 -j
     make VERBOSE=1 V=1 -j install
     >>> Set env variables
-    !envar LD_LIBRARY_PATH $LD_LIBRARY_PATH:$LIBCXI_PATH/lib
-    !envar LD_RUN_PATH $LD_RUN_PATH:$LIBCXI_PATH/lib
+
+@env
+    LD_LIBRARY_PATH $LD_LIBRARY_PATH:$LIBCXI_PATH/lib
+    LD_RUN_PATH $LD_RUN_PATH:$LIBCXI_PATH/lib

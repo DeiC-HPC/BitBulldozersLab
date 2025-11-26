@@ -10,4 +10,6 @@
       libtool libjson-c-devel graphviz ncurses-devel nano which libjansson4 \
       libnl3-200 wget bzip2 gzip
     zypper clean
-    !envar GCC_RELEASE 12
+
+@env
+    GCC_RELEASE 12
