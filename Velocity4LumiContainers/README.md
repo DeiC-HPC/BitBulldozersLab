@@ -3,8 +3,7 @@
 - **Keywords:** Velocity, Containers, apptainer, Lumi
 - **Date:** 2025-11-12
 
-In this BitBulldozer we explore the container builder & management tool `Velocity`. 
-For us, it is important that `Velocity` meets the following requirements>
+In this BitBulldozer we explore the container builder & management tool `Velocity` for building multiple containers with different software components and versions. For us, it is important that such a container build management tool meets the following requirements:
 
 - Easy to setup & use
 - Flexible: easy to add new packages, libraries, versions 
