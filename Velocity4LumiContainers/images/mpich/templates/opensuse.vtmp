@@ -2,10 +2,11 @@
     {{ __base__ }}
 
 @run
-  >>> Set env variables to download mpich tar
-  !envar MPICH_VERSION {{ __version__ }}
-  !envar MPICH_TAR http://www.mpich.org/static/downloads/${MPICH_VERSION}/mpich-${MPICH_VERSION}.tar.gz
+  >>> Set persistent env variables
   !envar MPICH_PATH /opt/mpich
+  >>> Set local env variables
+  export MPICH_VERSION {{ __version__ }}
+  export MPICH_TAR http://www.mpich.org/static/downloads/${MPICH_VERSION}/mpich-${MPICH_VERSION}.tar.gz
   >>> download
   cd /opt
   wget $MPICH_TAR

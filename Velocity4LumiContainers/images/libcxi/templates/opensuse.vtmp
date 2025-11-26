@@ -14,11 +14,12 @@
       libsensors4-devel \
       libcurl-devel
     zypper clean
-    >>> Set env variables
-    !envar CASSINI_HEADERS_VERSION {{ cassini_headers_hash }}
-    !envar CXI_DRIVER_VERSION {{ cxi_driver_hash }}
-    !envar LIBCXI_VERSION {{ libcxi_hash }}
+    >>> Set persistent env variables
     !envar LIBCXI_PATH /opt/libcxi
+    >>> Set local env variables
+    export CASSINI_HEADERS_VERSION {{ cassini_headers_hash }}
+    export CXI_DRIVER_VERSION {{ cxi_driver_hash }}
+    export LIBCXI_VERSION {{ libcxi_hash }}
     >>> Git clone cassini cassini headers
     cd /opt/
     git clone https://github.com/HewlettPackard/shs-cassini-headers

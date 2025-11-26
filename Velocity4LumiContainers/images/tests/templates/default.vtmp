@@ -3,7 +3,7 @@
 
 @run
     >>> Build OSU benchmarks
-    !envar OSU_PATH /opt/osu
+    export OSU_PATH /opt/osu
     mkdir /opt/builds
     cd /opt/builds
     curl -LO  https://mvapich.cse.ohio-state.edu/download/mvapich/osu-micro-benchmarks-{{ OSU_VERSION }}.tar.gz

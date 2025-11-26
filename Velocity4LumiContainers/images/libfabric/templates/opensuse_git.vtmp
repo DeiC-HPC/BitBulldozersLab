@@ -4,7 +4,7 @@
 @run
     >>> Set env variables
     !envar LIBFABRIC_PATH /opt/libfabric
-    !envar LIBFABRIC_VERSION {{libfabric_version}}
+    export LIBFABRIC_VERSION {{libfabric_version}}
     export CPATH=/include:$LIBCXI_PATH/lib
     export LIBRARY_PATH=$LIBCXI_PATH/lib
     >>> Git clone
