@@ -53,14 +53,14 @@ velocity build <packages_you_want>
 For Lumi the following three image 'recipes' are a good starting point.
 
 - stable
-  - `velocity build rocm@6.0.2 fakelumig libcxi libfabric@1.9.0 mpich@4.2.3 xcclPlugin@0.1 tests -v`
+  - `velocity build rocm@6.0.2 fakelumig libcxi libfabric@1.9.0 mpich@4.2.3 xcclplugin@0.1 tests -v`
 - latest
-  - `velocity build rocm@6.2.4 fakelumig libcxi libfabric@2.3.0 mpich@4.2.3 xcclPlugin@0.3 tests -v`
+  - `velocity build rocm@6.2.4 fakelumig libcxi libfabric@2.3.0 mpich@4.2.3 xcclplugin@0.3 tests -v`
 - future
-  - `velocity build rocm@7.0.2 fakeGpu libcxi libfabric@2.3.0 mpich@4.3.2 xcclPlugin@0.3 tests -v`
+  - `velocity build rocm@7.0.2 fakeGpu libcxi libfabric@2.3.0 mpich@4.3.2 xcclplugin@0.3 tests -v`
 
 To build a pytorch container with the `latest` version of the lumi container one could do:
-- `velocity build opensuse@15.5 rocm@6.2.4 fakeGpu libcxi libfabric@2.3.0 mpich@4.2.3 xcclPlugin@0.3 tests pythonMiniforge python@3.12 pythonPytorch@2.7.1 -v`
+- `velocity build opensuse@15.5 rocm@6.2.4 fakeGpu libcxi libfabric@2.3.0 mpich@4.2.3 xcclplugin@0.3 tests pythonMiniforge python@3.12 pythonPytorch@2.7.1 -v`
 
 This will build the container with all the Lumi communication bits needed as well as install a conda venv with Pytorch pre-installed. 
 
@@ -68,7 +68,7 @@ This will build the container with all the Lumi communication bits needed as wel
 
 Some packages do not have `<major>.<minor>.<patch>-<suffix`>` versions as currently required by `velocity`,  but instead use git hashes.  When only a git hash is available, we workaround this version specification issue by assigning a consecutive `0.x` version and linking it via an environment variable to the git hash.
 
-- xcclPlugin
+- xcclplugin
   - 0.1 --> stable `aws-ofi-rccl` as is included in the standard Lumi containers
   - 0.2 --> latest `aws-ofi-rccl`
   - 0.3 --> `open-ofi-xccl` v1.14.x-xxx; first version that supports ROCm.
