@@ -1,6 +1,7 @@
 versions:
   - spec:
       - 2025.05.16
+      - 2025.09.30
 
 variables:
   - name: git_hash
@@ -15,4 +16,6 @@ dependencies:
 
 templates:
   - name: opensuse
-    when: distro=opensuse
+    when: distro=opensuse pythonFennol@2025.05.16
+  - name: opensuse_pip
+    when: distro=opensuse pythonFennol@2025.09.30

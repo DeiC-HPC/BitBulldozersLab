@@ -78,6 +78,11 @@ Some packages do not have versions but use git hashes. Velocity currently does n
 - packages
   - 1.0 --> various normal packages that are required for the other installations (gcc, cmake, autoconf, tar, patch git etc.)
 
+- omnitrace
+  - 6.2.4 --> tries to compile from scratch
+  - 1.13.0 --> seems to be latest stable??
+  - 1.14.0 --> beta
+
 # Issues
 - Cannot make versions with name "X.X.X_dev" or "working" etc. This would be handy if its an experimental version from e.g. a git commit
 - The error messages are a bit limited; e.g., if your version isn't some sort of number it'll just say "No available build".
