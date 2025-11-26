@@ -11,9 +11,6 @@ variables:
   - name: cassini_headers_hash
     value: 9a8a738a879f007849fbc69be8e3487a4abf0952
     when: libcxi@0.1
-  - name: real_version
-    value: "Working and tested Git hash"
-    when: libcxi@0.1
 dependencies:
   - spec: rocm
     scope: build
