@@ -11,3 +11,6 @@
       libnl3-200 wget bzip2 gzip binutils libgomp1-gcc12
     zypper clean
     !envar GCC_RELEASE 12
+    >>> Set default gcc g++ to installed release
+    ln -s /usr/bin/gcc-$GCC_RELEASE /usr/bin/gcc
+    ln -s /usr/bin/g++-$GCC_RELEASE /usr/bin/g++

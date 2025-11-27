@@ -2,8 +2,6 @@
     {{ __base__ }}
 
 @run
-  ln -s /usr/bin/gcc-12 /usr/bin/gcc
-  ln -s /usr/bin/g++-12 /usr/bin/g++
   # https://rocm.docs.amd.com/projects/omnitrace/en/docs-6.2.0/install/install.html#build-requirements
   cd /opt/
   git clone https://github.com/ROCm/omnitrace.git omnitrace-source

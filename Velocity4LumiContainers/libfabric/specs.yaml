@@ -24,6 +24,8 @@ variables:
 dependencies:
   - spec: libcxi
     scope: build
+  - spec: rocm
+    scope: build
   - spec: fakeGpu
     scope: build
     when: system=lumig

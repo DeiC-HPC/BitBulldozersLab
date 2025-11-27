@@ -5,6 +5,8 @@ versions:
 dependencies:
   - spec: libfabric
     scope: build
+  - spec: rocm
+    scope: build
   - spec: fakeGpu
     scope: build
     when: system=lumig

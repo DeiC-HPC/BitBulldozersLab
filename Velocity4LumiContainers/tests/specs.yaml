@@ -14,5 +14,13 @@ variables:
 dependencies:
   - spec: rocm
     scope: build
+  - spec: fakeGpu
+    scope: build
+    when: system=lumig
+  - spec: packages
+    scope: build
+  - spec: xcclPlugin
+    scope: build
+    when: system=lumig
   - spec: mpich
     scope: build

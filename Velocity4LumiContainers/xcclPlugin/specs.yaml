@@ -25,6 +25,8 @@ variables:
 dependencies:
   - spec: libfabric
     scope: build
+  - spec: libcxi
+    scope: build
   - spec: rocm
     scope: build
   - spec: mpich
