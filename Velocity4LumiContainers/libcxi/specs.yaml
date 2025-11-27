@@ -17,6 +17,9 @@ variables:
 dependencies:
   - spec: rocm
     scope: build
+  - spec: fakeGpu
+    scope: build
+    when: system=lumig
 templates:
   - name: opensuse
     when: distro=opensuse

@@ -24,6 +24,9 @@ variables:
 dependencies:
   - spec: libcxi
     scope: build
+  - spec: fakeGpu
+    scope: build
+    when: system=lumig
 templates:
   - name: opensuse_git
     when: distro=opensuse libfabric@1.9.0

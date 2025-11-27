@@ -1,0 +1,9 @@
+velocity:
+  system: lumig
+  backend: apptainer
+  distro: opensuse
+  logging:level: DEBUG
+  constraints:
+    variables:
+      - name: rocm_architecture
+        value: "gfx90a"

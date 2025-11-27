@@ -32,6 +32,9 @@ dependencies:
   - spec: hwloc
     scope: build
     when: xcclPlugin@0.3
+  - spec: fakeGpu
+    scope: build
+    when: system=lumig
 files:
   - name: aws.patch
 templates:
