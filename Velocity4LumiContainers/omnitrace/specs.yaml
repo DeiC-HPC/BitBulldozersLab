@@ -21,9 +21,13 @@ dependencies:
     scope: build
   - spec: rocm
     scope: build
+  - spec: packages
+    scope: build
   - spec: mpich
     scope: build
 
 templates:
   - name: opensuse_release
     when: omnitrace@1.13.0:1.14.0
+  - name: opensuse
+    when: omnitrace@6.2.4

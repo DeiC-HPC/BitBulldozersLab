@@ -2,6 +2,7 @@
     {{ __base__ }}
 
 @run
+  zypper install cmake=3.10
   # https://rocm.docs.amd.com/projects/omnitrace/en/docs-6.2.0/install/install.html#build-requirements
   cd /opt/
   git clone https://github.com/ROCm/omnitrace.git omnitrace-source
@@ -31,3 +32,4 @@
   cmake --build omnitrace-build --target all --parallel 8
   cmake --build omnitrace-build --target install
   source /opt/omnitrace/share/omnitrace/setup-env.sh
+  zypper install cmake
