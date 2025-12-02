@@ -2,14 +2,35 @@
     {{ __base__ }}
 
 @run
-  zypper install cmake=3.10
-  # https://rocm.docs.amd.com/projects/omnitrace/en/docs-6.2.0/install/install.html#build-requirements
+  >>> Install older version of cmake to build omnitrace
   cd /opt/
+  wget https://cmake.org/files/v3.20/cmake-3.20.0-linux-x86_64.sh -O cmake-installer.sh
+  chmod +x cmake-installer.sh
+  mkdir /opt/cmake
+  ./cmake-installer.sh --skip-license --prefix=/opt/cmake
+  export PATH=/opt/cmake/bin:$PATH
+  >>> Get Boost
+#  wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.gz -O boost.tar.gz
+#  tar -xf boost.tar.gz
+#  cd boost_1_82_0
+#  ./bootstrap.sh --with-python=/opt/miniforge3/envs/$DEFAULT_CONDA_ENV/bin/python
+#  ./b2 install
+#  cd /opt/
+  >>> Install elfutils
+  wget https://sourceware.org/elfutils/ftp/0.194/elfutils-0.194.tar.bz2 -O elfutils.tar.gz
+  tar -xf elfutils.tar.gz
+  cd elfutils-0.194
+  ./configure
+  make && make install
+  cd /opt/
+  >>> Setup omnitrace
+  # https://rocm.docs.amd.com/projects/omnitrace/en/docs-6.2.0/install/install.html#build-requirements
   git clone https://github.com/ROCm/omnitrace.git omnitrace-source
   cd omnitrace-source
   git checkout -b mybuild  {{ git_hash }}
   cd /opt/
-  cmake                                       \
+  >>> Configure omnitrace
+  CC=gcc CXX=g++ cmake                                       \
       -B omnitrace-build                      \
       -D CMAKE_INSTALL_PREFIX=/opt/omnitrace  \
       -D OMNITRACE_USE_HIP=ON                 \
@@ -18,18 +39,24 @@
       -D OMNITRACE_USE_PYTHON=ON              \
       -D OMNITRACE_USE_OMPT=ON                \
       -D OMNITRACE_USE_MPI_HEADERS=ON         \
-      -D OMNITRACE_USE_MPI=OFF                 \
+      -D OMNITRACE_USE_MPI=OFF                \
       -D OMNITRACE_BUILD_PAPI=ON              \
       -D OMNITRACE_BUILD_LIBUNWIND=ON         \
       -D OMNITRACE_BUILD_DYNINST=ON           \
       -D DYNINST_BUILD_TBB=ON                 \
-      -D DYNINST_BUILD_BOOST=ON               \
-      -D DYNINST_BUILD_ELFUTILS=ON            \
+      -D DYNINST_BUILD_BOOST=ON              \
+      -D DYNINST_BUILD_ELFUTILS=OFF            \
       -D DYNINST_BUILD_LIBIBERTY=ON           \
-      -D DYNINST_BUILD_OPENMP=ON           \
-      -D CMAKE_POLICY_VERSION_MINIMUM=3.3 \
+      -D DYNINST_BUILD_OPENMP=ON              \
       omnitrace-source
-  cmake --build omnitrace-build --target all --parallel 8
-  cmake --build omnitrace-build --target install
+  >>> Get newer version of libpfm4 that compiles with gcc-12.
+  cd /opt/omnitrace-build/external/papi/source/src/
+  rm -r libpfm4/
+  git clone https://git.code.sf.net/p/perfmon2/libpfm4 libpfm4
+  cd libpfm4
+  git checkout -b mybuild 86a9dc23f62ea14651dbe22b58211747f9f3d8fe
+  cd /opt/
+  >>> Build omnitrace
+  CC=gcc CXX=g++ cmake --build omnitrace-build --target all --parallel 8
+  CC=gcc CXX=g++ cmake --build omnitrace-build --target install
   source /opt/omnitrace/share/omnitrace/setup-env.sh
-  zypper install cmake
