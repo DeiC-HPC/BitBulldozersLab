@@ -3,8 +3,8 @@
 
 @run
     >>> Set env variables
-    !envar TF_ROCM_AMDGPU_TARGETS gfx90a
-    !envar AMDGPU_TARGETS gfx90a
+    !envar TF_ROCM_AMDGPU_TARGETS $ROCM_TARGET
+    !envar AMDGPU_TARGETS $ROCM_TARGET
 
     >>> Add and install required packages
     zypper -n addrepo https://download.opensuse.org/repositories/devel:tools:building/15.6/devel:tools:building.repo
@@ -22,10 +22,10 @@
       cd /opt/
       git clone https://github.com/ROCm/xla.git
       cd xla
-      git checkout -b mybuild cfce2f10011aab8fc85a8419c2b3fd9045439777 #--> original commit hash pulled by Jax v0.6.0. This commit has the fixes for roctracerv1 partially removed
-  #    git checkout -b mybuild 7775dd04068567dc7e08215de23538da8d1d89f4  # --> needed if we ever need rocprof-v1
+#      git checkout -b mybuild cfce2f10011aab8fc85a8419c2b3fd9045439777 #--> original commit hash pulled by Jax v0.6.0. This commit has the fixes for roctracerv1 partially removed
+      git checkout -b mybuild 7775dd04068567dc7e08215de23538da8d1d89f4  # --> needed if we ever need rocprof-v1
   #   Next line is NOT needed for roc-prof-v1 but doesnt seem to do harm
-      sed -i 's/const[[:space:]]\+rocprofiler_tracing_operation_t\*[[:space:]]\+hip_ops/rocprofiler_tracing_operation_t* hip_ops/' xla/backends/profiler/gpu/rocm_profiler_sdk.cc
+#      sed -i 's/const[[:space:]]\+rocprofiler_tracing_operation_t\*[[:space:]]\+hip_ops/rocprofiler_tracing_operation_t* hip_ops/' xla/backends/profiler/gpu/rocm_profiler_sdk.cc
       # this is needed to disable FP8 on ROCm 6.2.4 and lower because the datatypes are not included in /opt/rocm/include/hip/library_types.h
       sed -i '/^[[:space:]]*return layout\.type() == HIP_R_8F_E5M2_FNUZ[[:space:]]*||/,+2c\
               #ifdef HIP_R_8F_E5M2\
@@ -64,8 +64,8 @@
             --rocm_amdgpu_targets=$AMDGPU_TARGETS \
             --local_xla_path "/opt/xla/" \
             --verbose \
-            --clang_path=/opt/rocm/llvm/bin/clang
-#              --bazel_options="--define=xla_rocm_profiler=v1"  # --> needed if we ever need rocprof-v1
+            --clang_path=/opt/rocm/llvm/bin/clang \
+              --bazel_options="--define=xla_rocm_profiler=v1"  # --> needed if we ever need rocprof-v1
       python3 ./build/build.py build \
           --use_clang=true \
           --wheels=jax-rocm-pjrt \
@@ -74,8 +74,8 @@
           --rocm_amdgpu_targets=$AMDGPU_TARGETS \
           --local_xla_path "/opt/xla/" \
           --verbose \
-          --clang_path=/opt/rocm/llvm/bin/clang
-#            --bazel_options="--define=xla_rocm_profiler=v1" \ # --> needed if we ever need rocprof-v1
+          --clang_path=/opt/rocm/llvm/bin/clang \
+            --bazel_options="--define=xla_rocm_profiler=v1" \ # --> needed if we ever need rocprof-v1
       >>> Build Jax and Jaxlib
       # v0.6.0 does not have a separate make command for jaxlib and jax.
       cd /opt/rocm-jax/jax/
@@ -85,7 +85,8 @@
           --clang_path=/opt/rocm/llvm/bin/clang \
           --wheels=jaxlib \
           --local_xla_path "/opt/xla/" \
-          --verbose
+          --verbose \
+          --bazel_options="--define=xla_rocm_profiler=v1"
     else
       make jax_rocm_plugin
       make jax_rocm_pjrt
