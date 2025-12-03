@@ -3,8 +3,8 @@
 
 @run
     >>> Set env variables
-    !envar TF_ROCM_AMDGPU_TARGETS $ROCM_TARGET
-    !envar AMDGPU_TARGETS $ROCM_TARGET
+    !envar TF_ROCM_AMDGPU_TARGETS gfx90a
+    !envar AMDGPU_TARGETS gfx90a
 
     >>> Add and install required packages
     zypper -n addrepo https://download.opensuse.org/repositories/devel:tools:building/15.6/devel:tools:building.repo
