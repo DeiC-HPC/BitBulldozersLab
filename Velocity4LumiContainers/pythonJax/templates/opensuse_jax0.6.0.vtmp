@@ -75,7 +75,7 @@
           --local_xla_path "/opt/xla/" \
           --verbose \
           --clang_path=/opt/rocm/llvm/bin/clang \
-            --bazel_options="--define=xla_rocm_profiler=v1" \ # --> needed if we ever need rocprof-v1
+          --bazel_options="--define=xla_rocm_profiler=v1" # --> needed if we ever need rocprof-v1
       >>> Build Jax and Jaxlib
       # v0.6.0 does not have a separate make command for jaxlib and jax.
       cd /opt/rocm-jax/jax/
