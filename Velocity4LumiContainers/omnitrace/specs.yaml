@@ -14,7 +14,9 @@ variables:
   - name: download_url
     value: https://github.com/ROCm/rocprofiler-systems/releases/download/rocm-6.3.3/rocprofiler-systems-0.1.2-opensuse-15.6-ROCm-60200-PAPI-OMPT-Python3.sh
     when: omnitrace@1.14.0
-
+  - name: download_url
+    value: https://github.com/ROCm/rocprofiler-systems/releases/download/rocm-6.4.1/rocprofiler-systems-1.0.1-opensuse-15.6-ROCm-60400-PAPI-OMPT-Python3.sh
+    when: omnitrace@1.15.0
 
 dependencies:
   - spec: python
@@ -28,6 +30,6 @@ dependencies:
 
 templates:
   - name: opensuse_release
-    when: omnitrace@1.13.0:1.14.0
+    when: omnitrace@1.13.0:1.15.0
   - name: opensuse
     when: omnitrace@6.2.4
