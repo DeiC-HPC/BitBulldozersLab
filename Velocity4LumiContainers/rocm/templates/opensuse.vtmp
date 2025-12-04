@@ -8,13 +8,12 @@
     >>> install AMD installer
     zypper --no-gpg-checks -n install $ROCM_RPM
     sed -i 's#gpgcheck=1#gpgcheck=0#g' /etc/zypp/repos.d/*.repo
-    if (($OPENSUSE_VERSION < 15.6)); then
-      zypper --no-gpg-checks -n install --oldpackage libsystemd0-249.16 libudev1-249.16
-    fi
     zypper refresh
     amdgpu-install -y --no-dkms --usecase=rocm --rocmrelease=$ROCM_RELEASE
     zypper cc -a
-    zypper --no-gpg-checks -n install -y --force miopen-hip-gfx90akdb
+    if [[ "$ROCM_TARGET" == "gfx90a" ]]; then
+      zypper --no-gpg-checks -n install -y --force miopen-hip-gfx90akdb
+    fi
     zypper --no-gpg-checks -n install -y --force omniperf omnitrace
     >>> Set More Env variables
     !envar ROCM_PATH /opt/rocm-$ROCM_RELEASE

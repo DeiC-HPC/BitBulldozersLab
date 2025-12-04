@@ -9,7 +9,7 @@ Old:
 velocity -s lumig build opensuse@15.6 libfabric@2.3.0 libcxi mpich@4.2.3 xcclPlugin@0.2 fakeGpu rocm@6.0.2 tests pythonMiniforge python@3.12 pythonJax@0.4.35 pythonFennol@2025.05.16 omnitrace -v     
 
 New:
-velocity -s lumig build opensuse@15.6 libfabric@2.3.0 libcxi mpich@4.2.3 xcclPlugin@0.2 fakeGpu rocm@6.2.4 tests pythonMiniforge python@3.12 pythonJax@0.6.0 pythonFennol@2025.05.16 omnitrace -v
+velocity -s lumig build opensuse@15.6 libfabric@2.3.0 libcxi mpich@4.2.3 xcclPlugin@0.2 fakeGpu rocm@6.2.4 tests pythonMiniforge python@3.12 pythonJax@0.6.0 pythonFennol@2025.05.16 omnitrace@6.2.4 -v
 
 New Non-Lumi G:
 velocity build opensuse@15.6 rocm@6.2.4 pythonMiniforge python@3.12 pythonJax@0.6.0 pythonFennol@2025.05.16 omnitrace -v

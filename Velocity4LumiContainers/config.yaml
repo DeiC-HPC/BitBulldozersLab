@@ -1,9 +1,26 @@
-velocity:
+lumig:
   system: lumig
+  backend: apptainer
+  distro: opensuse
+  logging:level: DEBUG
+  variables:
+    - name: rocm_architecture
+      value: "gfx90a"
+raxos:
+  system: raxos
+  backend: apptainer
+  distro: opensuse
+  logging:level: DEBUG
+  variables:
+    - name: rocm_architecture
+      value: "gfx1200"
+
+generic:
+  system: generic
   backend: apptainer
   distro: opensuse
   logging:level: DEBUG
   constraints:
     variables:
       - name: rocm_architecture
-        value: "gfx90a"
+        value: "gfx950,gfx942,gfx90a,gfx1201,gfx1200,gfx1101,gfx1100"

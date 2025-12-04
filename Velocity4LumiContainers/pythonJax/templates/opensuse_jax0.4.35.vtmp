@@ -2,5 +2,5 @@
     {{ __base__ }}
 
 @run
-    !envar HCC_AMDGPU_TARGET gfx90a
+    !envar HCC_AMDGPU_TARGET $ROCM_TARGET
     pip install jax==0.4.35 jaxlib==0.4.35 jax-rocm60-pjrt==0.4.35 jax-rocm60-plugin==0.4.35

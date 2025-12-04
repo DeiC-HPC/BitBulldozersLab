@@ -2,13 +2,9 @@
     {{ __base__ }}
 
 @run
-    !envar TF_ROCM_AMDGPU_TARGETS gfx90a
-    !envar AMDGPU_TARGETS gfx90a
+    !envar TF_ROCM_AMDGPU_TARGETS $ROCM_TARGET
+    !envar AMDGPU_TARGETS $ROCM_TARGET
     cd /opt/
-    zypper -n addrepo  https://download.opensuse.org/repositories/devel:tools:building/15.6/devel:tools:building.repo | echo 'a'
-    zypper -n addrepo https://download.opensuse.org/repositories/openSUSE:Factory/standard/openSUSE:Factory.repo | echo 'a'
-    zypper refresh
-    zypper --no-gpg-checks -n install -y --force-resolution glibc gzip libnuma1 libnuma-devel binutils-gold patchelf
     git clone https://github.com/ROCm/rocm-jax.git
     cd rocm-jax
     git checkout -b mybuild {{ git_hash }}

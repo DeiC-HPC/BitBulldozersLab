@@ -27,6 +27,8 @@ dependencies:
     when: distro=opensuse rocm@6.4.1:7.0.2
   - spec: packages
     scope: build
+  - spec: envvariables
+    scope: build
 templates:
   - name: opensuse
     when: distro=opensuse

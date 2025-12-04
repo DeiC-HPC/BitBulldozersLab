@@ -1,5 +1,15 @@
 versions:
   - spec: 1.0
+#variables:
+#  - name: perl_repo
+#    value: "https://download.opensuse.org/repositories/devel:/languages:/perl/SLE_15_SP5"
+#    when: opensuse@15.5
+#  - name: perl_repo
+#    value: "https://download.opensuse.org/repositories/devel:/languages:/perl/SLE_15_SP6"
+#    when: opensuse@15.6
+#  - name: perl_repo
+#    value: "https://download.opensuse.org/repositories/devel:/languages:/perl/SLE_15_SP7"
+#    when: opensuse@15.7
 dependencies:
   - spec: opensuse
     when: distro=opensuse

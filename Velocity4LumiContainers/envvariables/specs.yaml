@@ -1,0 +1,12 @@
+versions:
+  - spec: 1.0
+dependencies:
+  - spec: opensuse
+    when: distro=opensuse
+templates:
+  - name: opensuse_lumi
+    when: system=lumig
+  - name: opensuse_raxos
+    when: system=raxos
+  - name: opensuse_generic
+    when: system=generic

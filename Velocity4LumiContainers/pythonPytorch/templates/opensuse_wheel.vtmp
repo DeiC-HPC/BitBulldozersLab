@@ -2,7 +2,7 @@
     {{ __base__ }}
 
 @run
-    !envar PYTORCH_ROCM_ARCH gfx90a
+    !envar PYTORCH_ROCM_ARCH $ROCM_TARGET
     pip3 install packaging
     pip3 install --pre torch=={{ torch_version }} --index-url https://download.pytorch.org/whl/ ; \
     pip3 install --pre torchvision=={{ torchvision_version }} --index-url https://download.pytorch.org/whl/

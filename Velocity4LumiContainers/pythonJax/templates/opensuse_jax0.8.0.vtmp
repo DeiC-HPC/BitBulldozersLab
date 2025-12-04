@@ -2,17 +2,13 @@
     {{ __base__ }}
 
 @run
-    !envar TF_ROCM_AMDGPU_TARGETS gfx90a
-    !envar AMDGPU_TARGETS gfx90a
-    !envar TF_ROCM_VERSION 60200
+    !envar TF_ROCM_AMDGPU_TARGETS $ROCM_TARGET
+    !envar AMDGPU_TARGETS $ROCM_TARGET
     cd /opt/
-    zypper -n addrepo  https://download.opensuse.org/repositories/devel:tools:building/15.6/devel:tools:building.repo | echo 'a'
-    zypper -n addrepo https://download.opensuse.org/repositories/openSUSE:Factory/standard/openSUSE:Factory.repo | echo 'a'
-    zypper refresh
-    zypper --no-gpg-checks -n install -y --force-resolution glibc gzip libnuma1 libnuma-devel binutils-gold patchelf
     git clone https://github.com/jax-ml/jax
     cd jax
     git checkout -b mybuild {{ git_hash }}
+    >>> make sure nvidia isnt required!
     sed -i '70s/.*/required=False,/' jaxlib/tools/build_gpu_kernels_wheel.py
     sed -i '76s/.*/required=False,/' jaxlib/tools/build_gpu_plugin_wheel.py
-    python build/build.py build --wheels=jax,jaxlib,jax-rocm-plugin,jax-rocm-pjrt --rocm_amdgpu_targets=gfx90a --rocm_path=/opt/rocm/ --clang_path=/opt/rocm/llvm/bin/clang
+    python build/build.py build --wheels=jax,jaxlib,jax-rocm-plugin,jax-rocm-pjrt --rocm_amdgpu_targets=$ROCM_TARGET --rocm_path=/opt/rocm/ --clang_path=/opt/rocm/llvm/bin/clang
