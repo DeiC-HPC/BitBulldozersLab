@@ -1,0 +1,25 @@
+@from
+    {{ __base__ }}
+
+@run
+    >>> Set env variables
+    !envar LIBFABRIC_PATH /opt/libfabric
+    export LIBFABRIC_VERSION={{libfabric_version}}
+    export CPATH=/include:$LIBCXI_PATH/lib
+    export LIBRARY_PATH=$LIBCXI_PATH/lib
+    >>> Git clone
+    git clone --recursive https://github.com/ofiwg/libfabric /opt/libfabric-src
+    git -C /opt/libfabric-src checkout -b mydev $LIBFABRIC_VERSION
+    >>> Build libfabric
+    cd /opt/libfabric-src
+    ./autogen.sh
+    mkdir /opt/libfabric-src/build
+    cd /opt/libfabric-src/build
+    ../configure CC=gcc-$GCC_RELEASE --prefix=$LIBFABRIC_PATH \
+      LDFLAGS=-Wl,--build-id --enable-only \
+      --enable-restricted-dl --enable-tcp --enable-udp --enable-rxm --enable-rxd --enable-hook_debug \
+      --enable-hook_hmem --enable-dmabuf_peer_mem --enable-cxi=$LIBCXI_PATH --enable-gdrcopy-dlopen --with-rocr=$ROCM_PATH
+    cd /opt/libfabric-src/build
+    nice make V=1 VERBOSE=1 -j
+    nice make V=1 VERBOSE=1 -j install
+    cd / ; rm -rf /opt/libfabric-src

@@ -1,0 +1,8 @@
+versions:
+  - spec: 1.0
+dependencies:
+  - spec: opensuse
+    when: distro=opensuse
+templates:
+  - name: opensuse
+    when: distro=opensuse

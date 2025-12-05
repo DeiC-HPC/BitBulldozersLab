@@ -1,0 +1,19 @@
+@from
+    {{ __base__ }}
+
+@run
+    cd /
+    export HWLOC_VERSION={{__version__}}
+    export SHORT_VER=${HWLOC_VERSION%'.'*}
+    wget https://download.open-mpi.org/release/hwloc/v${SHORT_VER}/hwloc-${HWLOC_VERSION}.tar.gz
+    tar -xzf hwloc-${HWLOC_VERSION}.tar.gz
+    cd hwloc-${HWLOC_VERSION}
+    CC=gcc-$GCC_RELEASE ./configure --prefix=/opt/hwloc  --localstatedir=/var 
+    make install
+    cd /
+    rm -r hwloc-${HWLOC_VERSION}/
+    rm hwloc-${HWLOC_VERSION}.tar.gz
+
+@env
+    PATH /opt/hwloc/bin:$PATH
+    LD_LIBRARY_PATH /opt/hwloc/lib:$LD_LIBRARY_PATH

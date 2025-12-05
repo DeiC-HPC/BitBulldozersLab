@@ -1,0 +1,30 @@
+@from
+    {{ __base__ }}
+
+@copy
+    aws.patch aws.patch
+
+@run
+    >>> Set Local Env Variables
+    export XCCL_PLUGIN_PATH=/opt/xccl_plugin
+    export XCCL_PLUGIN_VERSION={{ git_hash }}
+    ldconfig
+    >>> Git clone
+    git clone https://github.com/HewlettPackard/open-ofi-xccl /opt/mybuild_open-ofi-xccl 
+    cd /opt/mybuild_open-ofi-xccl 
+    git checkout -b mydev $XCCL_PLUGIN_VERSION
+    >>> remove git tree so warnings arent errors
+    rm -r .git/
+    ./autogen.sh 
+    export CPATH=$LIBFABRIC_PATH/include 
+    export LIBRARY_PATH=$LD_LIBRARY_PATH 
+    LDFLAGS='-L/opt/libcxi/lib -lcxi' CC=gcc-12  \
+      ./configure --with-libfabric=$LIBFABRIC_PATH --enable-trace  \
+                  --with-rocm=$ROCM_PATH --with-mpi=$MPICH_PATH --with-hwloc=/opt/hwloc --disable-tests
+    LDFLAGS='-L/opt/libcxi/lib -lcxi' CC=gcc-12 nice make -j 
+    mkdir $XCCL_PLUGIN_PATH 
+    mv src/.libs/librccl-net.so* $XCCL_PLUGIN_PATH 
+    rm -rf /opt/mybuild_open-ofi-xccl
+
+@env
+    LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/xccl_plugin

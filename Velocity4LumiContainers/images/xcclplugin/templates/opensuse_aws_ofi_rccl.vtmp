@@ -1,0 +1,31 @@
+@from
+    {{ __base__ }}
+
+@copy
+    aws.patch aws.patch
+
+@run
+    >>> Set Local Env Variables
+    export XCCL_PLUGIN_PATH=/opt/xccl_plugin
+    export XCCL_PLUGIN_VERSION={{ git_hash }}
+    >>> Git clone
+    git clone -b cxi https://github.com/ROCmSoftwarePlatform/aws-ofi-rccl /opt/mybuild_aws_ofi
+    cd /opt/mybuild_aws_ofi
+    git checkout -b mydev $AWS_PLUGIN_VERSION
+    if [{{ __real_version__ }} = "aws_ofi_rccl_working"]; then
+        git apply < /aws.patch
+    fi
+    ./autogen.sh
+    cd /opt/mybuild_aws_ofi
+    export CPATH=$LIBFABRIC_PATH/include
+    export LIBRARY_PATH=$LD_LIBRARY_PATH
+    LDFLAGS='-L/opt/libcxi/lib -lcxi' CC=gcc-12 ./configure \
+        --with-libfabric=$LIBFABRIC_PATH --enable-trace --with-hip=$ROCM_PATH \
+        --with-rccl=$ROCM_PATH --disable-tests
+    LDFLAGS='-L/opt/libcxi/lib -lcxi' CC=gcc-12 nice make -j
+    mkdir $XCCL_PLUGIN_PATH
+    mv src/.libs/librccl-net.so* $XCCL_PLUGIN_PATH
+    rm -rf /opt/mybuild_aws_ofi
+
+@env
+    LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/xccl_plugin

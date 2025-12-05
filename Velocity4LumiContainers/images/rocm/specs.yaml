@@ -1,0 +1,32 @@
+versions:
+  - spec: 6.0.2
+  - spec: 6.2.4
+  - spec: 6.3.4
+  - spec: 6.4.1
+  - spec: 7.0.2
+variables:
+  - name: repo_version
+    value: "6.0.60002-1"
+    when: rocm@6.0.2
+  - name: repo_version
+    value: "6.2.60204-1"
+    when: rocm@6.2.4
+  - name: repo_version
+    value: "6.3.60304-1"
+    when: rocm@6.3.4
+  - name: repo_version
+    value: "6.4.60401-1"
+    when: rocm@6.4.1
+  - name: repo_version
+    value: "7.0.2.70002-1"
+    when: rocm@7.0.2
+dependencies:
+  - spec: opensuse
+    when: distro=opensuse
+  - spec: opensuse@15.6
+    when: distro=opensuse rocm@6.4.1:7.0.2
+  - spec: buildtools
+    scope: build
+templates:
+  - name: opensuse
+    when: distro=opensuse

@@ -1,0 +1,13 @@
+versions:
+  - spec:
+      - 25.7.0
+variables:
+  - name: download_version
+    value: 25.7.0-2
+    when: pythonminiforge@25.7.0
+dependencies:
+  - spec: buildtools
+    scope: build
+templates:
+  - name: opensuse
+    when: distro=opensuse
