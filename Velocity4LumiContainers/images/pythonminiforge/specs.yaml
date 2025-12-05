@@ -4,7 +4,7 @@ versions:
 variables:
   - name: download_version
     value: 25.7.0-2
-    when: pythonMiniforge@25.7.0
+    when: pythonminiforge@25.7.0
 dependencies:
   - spec: packages
     scope: build

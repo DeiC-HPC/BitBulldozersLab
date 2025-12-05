@@ -6,7 +6,7 @@ versions:
       - 3.13
       - 3.14
 dependencies:
-  - spec: pythonMiniforge
+  - spec: pythonminiforge
     scope: build
 templates:
   - name: opensuse

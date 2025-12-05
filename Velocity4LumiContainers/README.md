@@ -60,7 +60,7 @@ For Lumi the following three image 'recipes' are a good starting point.
   - `velocity build rocm@7.0.2 fakeGpu libcxi libfabric@2.3.0 mpich@4.3.2 xcclplugin@0.3 tests -v`
 
 To build a pytorch container with the `latest` version of the lumi container one could do:
-- `velocity build opensuse@15.5 rocm@6.2.4 fakeGpu libcxi libfabric@2.3.0 mpich@4.2.3 xcclplugin@0.3 tests pythonMiniforge python@3.12 pythonPytorch@2.7.1 -v`
+- `velocity build opensuse@15.5 rocm@6.2.4 fakeGpu libcxi libfabric@2.3.0 mpich@4.2.3 xcclplugin@0.3 tests pythonminiforge python@3.12 pythonpytorch@2.7.1 -v`
 
 This will build the container with all the Lumi communication bits needed as well as install a conda venv with Pytorch pre-installed. 
 
