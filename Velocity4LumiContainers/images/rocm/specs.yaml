@@ -25,7 +25,7 @@ dependencies:
     when: distro=opensuse
   - spec: opensuse@15.6
     when: distro=opensuse rocm@6.4.1:7.0.2
-  - spec: packages
+  - spec: buildtools
     scope: build
 templates:
   - name: opensuse

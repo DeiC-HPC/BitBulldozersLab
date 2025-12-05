@@ -53,14 +53,14 @@ velocity build <packages_you_want>
 For Lumi the following three image 'recipes' are a good starting point.
 
 - stable
-  - `velocity build rocm@6.0.2 fakelumig libcxi libfabric@1.9.0 mpich@4.2.3 xcclplugin@0.1 tests -v`
+  - `velocity build rocm@6.0.2 fakelumig libcxi libfabric@1.9.0 mpich@4.2.3 xcclplugin@0.1 commtests -v`
 - latest
-  - `velocity build rocm@6.2.4 fakelumig libcxi libfabric@2.3.0 mpich@4.2.3 xcclplugin@0.3 tests -v`
+  - `velocity build rocm@6.2.4 fakelumig libcxi libfabric@2.3.0 mpich@4.2.3 xcclplugin@0.3 commtests -v`
 - future
-  - `velocity build rocm@7.0.2 fakeGpu libcxi libfabric@2.3.0 mpich@4.3.2 xcclplugin@0.3 tests -v`
+  - `velocity build rocm@7.0.2 fakelumig libcxi libfabric@2.3.0 mpich@4.3.2 xcclplugin@0.3 commtests -v`
 
 To build a pytorch container with the `latest` version of the lumi container one could do:
-- `velocity build opensuse@15.5 rocm@6.2.4 fakeGpu libcxi libfabric@2.3.0 mpich@4.2.3 xcclplugin@0.3 tests pythonminiforge python@3.12 pythonpytorch@2.7.1 -v`
+- `velocity build opensuse@15.5 rocm@6.2.4 fakelumig libcxi libfabric@2.3.0 mpich@4.2.3 xcclplugin@0.3 commtests pythonminiforge python@3.12 pythonpytorch@2.7.1 -v`
 
 This will build the container with all the Lumi communication bits needed as well as install a conda venv with Pytorch pre-installed. 
 
@@ -80,10 +80,10 @@ Some packages do not have `<major>.<minor>.<patch>-<suffix`>` versions as curren
   - 1.9 --> stable as is included in the standard Lumi containers based on git hash
   - 2.3 --> enables the lnx provider to combine multiple providers
 
-- fakeGPU
+- fakelumig
   - 0.1 --> version to fake LUMI GPUs
 
-- tests
+- commtests
   - 0.1 --> installs both OSU benchmarks and RCCL tests
 
 - packages
