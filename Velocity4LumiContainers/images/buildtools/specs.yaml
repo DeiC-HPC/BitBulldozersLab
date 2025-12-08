@@ -1,5 +1,6 @@
 versions:
   - spec: 1.0
+    when: distro=opensuse
 dependencies:
   - spec: opensuse
     when: distro=opensuse
