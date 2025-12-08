@@ -1,0 +1,11 @@
+@from
+    {{ __base__ }}
+
+@run
+  wget {{ download_url }} -O /opt/rocprofilersystems-installer.sh
+  chmod +x /opt/rocprofilersystems-installer.sh
+  mkdir /opt/rocprofilersystems
+  ./opt/rocprofilersystems-installer.sh --skip-license --prefix=/opt/rocprofilersystems
+
+@post
+    source /opt/rocprofilersystems/share/rocprofiler-systems/setup-env.sh

@@ -8,9 +8,9 @@
   ./opt/omnitrace-installer.sh --skip-license --prefix=/opt/omnitrace
 
 @post
-  if (( {{ __version__ }}=="1.13.0" )); then
-    source /opt/omnitrace/share/omnitrace/setup-env.sh; \
-  fi
-  if (( {{ __version__ }}=="1.14.0" )); then
-     source /opt/omnitrace/share/rocprofiler-systems/setup-env.sh; \
-  fi
+    if (( {{ __version__ }}=="1.13.0" )); then
+      source /opt/omnitrace/share/omnitrace/setup-env.sh; \
+    fi
+    if (( {{ __version__ }}=="1.14.0" )); then
+       source /opt/omnitrace/share/rocprofiler-systems/setup-env.sh; \
+    fi

@@ -1,0 +1,24 @@
+versions:
+  - spec:
+      - 1.0.1
+      - 1.2.0
+
+variables:
+  - name: download_url
+    value: "https://github.com/ROCm/rocprofiler-systems/releases/download/rocm-6.4.1/rocprofiler-systems-1.0.1-opensuse-15.6-ROCm-60400-PAPI-OMPT-Python3.sh"
+    when: rocprofilersystems@1.0.1
+  - name: download_url
+    value: "https://github.com/ROCm/rocm-systems/releases/download/rocm-7.1.0/rocprofiler-systems-1.2.0-opensuse-15.6-ROCm-60400-PAPI-OMPT-Python3.sh"
+    when: rocprofilersystems@1.2.0
+
+
+dependencies:
+  - spec: python
+    scope: build
+  - spec: rocm
+    scope: build
+  - spec: packages
+    scope: build
+
+templates:
+  - name: opensuse_release
