@@ -1,0 +1,10 @@
+versions:
+  - spec:
+
+dependencies:
+  - spec: packages
+    scope: build
+
+templates:
+  - name: opensuse
+    when: distro=opensuse

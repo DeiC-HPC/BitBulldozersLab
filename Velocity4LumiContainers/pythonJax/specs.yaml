@@ -32,6 +32,8 @@ dependencies:
   - spec: rocm
     scope: build
     when: pythonJax@0.8.0
+  - spec: packages
+    scope: build
 templates:
   - name: opensuse_jax0.4.35
     when: distro=opensuse pythonJax@0.4.35

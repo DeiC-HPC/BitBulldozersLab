@@ -1,0 +1,6 @@
+@from
+    {{ __base__ }}
+
+@run
+    zypper --no-gpg-checks -n install -y --force-resolution ffmpeg
+    zypper clean
