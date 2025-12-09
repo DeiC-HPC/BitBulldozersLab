@@ -1,0 +1,6 @@
+versions:
+  - spec: 1.0
+dependencies:
+  - spec: buildtools
+  - spec: fakelumig
+    when: system=lumig
