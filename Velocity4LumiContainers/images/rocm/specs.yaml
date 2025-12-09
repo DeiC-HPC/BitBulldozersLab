@@ -1,26 +1,10 @@
 versions:
   - spec:
-      - 6.0.2
-      - 6.2.4
-      - 6.3.4
-      - 6.4.1
-      - 7.0.2
-variables:
-  - name: repo_version
-    value: "6.0.60002-1"
-    when: rocm@6.0.2
-  - name: repo_version
-    value: "6.2.60204-1"
-    when: rocm@6.2.4
-  - name: repo_version
-    value: "6.3.60304-1"
-    when: rocm@6.3.4
-  - name: repo_version
-    value: "6.4.60401-1"
-    when: rocm@6.4.1
-  - name: repo_version
-    value: "7.0.2.70002-1"
-    when: rocm@7.0.2
+      - 6.0.2-60600021  # ROCM_RELEASE-ROCM_REPO_VERSION (6.0.2)-(6.0.60002-1)
+      - 6.2.4-60204021
+      - 6.3.4-60304021
+      - 6.4.1-60401021
+      - 7.0.2-70002021
 dependencies:
   - spec: opensuse@15.5
     when: distro=opensuse rocm@:6.4.1

@@ -3,8 +3,9 @@
 
 @run
     >>> Set Local Environment variables
-    export ROCM_RPM=https://repo.radeon.com/amdgpu-install/{{ __version__ }}/sle/$OPENSUSE_VERSION/amdgpu-install-{{ repo_version }}.noarch.rpm
-    export ROCM_RELEASE={{ __version__ }}
+    export ROCM_RELEASE={{ __version_major__ }}.{{ __version_minor__ }}.{{ __version_patch__ }}
+    vs={{ __version_suffix__ }}; export ROCM_REPO_VERSION=$(printf "%s.%s.%s.%s-%s\n" "${vs:0:1}" "${vs:1:1}" "${vs:2:1}" "${vs:3:5}" "${vs:7:1}")
+    export ROCM_RPM=https://repo.radeon.com/amdgpu-install/${ROCM_RELEASE}/sle/$OPENSUSE_VERSION/amdgpu-install-${ROCM_REPO_VERSION}.noarch.rpm
     >>> install AMD installer
     zypper --no-gpg-checks -n install $ROCM_RPM
     sed -i 's#gpgcheck=1#gpgcheck=0#g' /etc/zypp/repos.d/*.repo
@@ -13,12 +14,12 @@
       zypper --no-gpg-checks -n install --oldpackage libsystemd0-249.16 libudev1-249.16
     fi
     zypper refresh
-    amdgpu-install -y --no-dkms --usecase=rocm --rocmrelease=$ROCM_RELEASE
+    amdgpu-install -y --no-dkms --usecase=rocm --rocmrelease=${ROCM_RELEASE}
     zypper cc -a
     zypper --no-gpg-checks -n install -y --force miopen-hip-gfx90akdb
     zypper --no-gpg-checks -n install -y --force omniperf omnitrace
 
 @env
-    ROCM_PATH /opt/rocm-{{ __version__ }}
-    PATH /opt/rocm-{{ __version__ }}/bin:/opt/rocm-{{ __version__ }}/llvm/bin:$PATH
-    LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/rocm-{{ __version__ }}/lib
+    ROCM_PATH /opt/rocm-${ROCM_RELEASE}
+    PATH /opt/rocm-${ROCM_RELEASE}/bin:/opt/rocm-${ROCM_RELEASE}/llvm/bin:$PATH
+    LD_LIBRARY_PATH $LD_LIBRARY_PATH:/opt/rocm-${ROCM_RELEASE}/lib
