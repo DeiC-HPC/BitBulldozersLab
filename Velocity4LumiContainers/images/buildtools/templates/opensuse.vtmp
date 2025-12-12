@@ -2,7 +2,7 @@
     {{ __base__ }}
 
 @run
-    zypper -n addrepo https://download.opensuse.org/repositories/devel:/languages:/perl/SLE_15_SP5 perl
+    zypper -n addrepo https://download.opensuse.org/repositories/devel:/languages:/perl/SLE_{{ __opensuse__version_major__ }}_SP{{ __opensuse__version_minor__ }} perl
     echo 'gpgcheck=0' >> /etc/zypp/repos.d/perl.repo
     sed -i 's#gpgcheck=1#gpgcheck=0#g' /etc/zypp/repos.d/*.repo
     zypper --no-gpg-checks -n install -y --force-resolution git cmake gcc12 \

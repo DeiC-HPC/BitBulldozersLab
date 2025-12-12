@@ -4,20 +4,17 @@
 @run
     >>> Set Local Environment variables
     export ROCM_RELEASE={{ __version_major__ }}.{{ __version_minor__ }}.{{ __version_patch__ }}
-    vs={{ __version_suffix__ }}; export ROCM_REPO_VERSION=$(printf "%s.%s.%s.%s-%s\n" "${vs:0:1}" "${vs:1:1}" "${vs:2:1}" "${vs:3:5}" "${vs:7:1}")
+    vs={{ __version_suffix__ }}; export ROCM_REPO_SUFFIX=$(printf "%s-%s" "${vs:0:5}" "${vs:5:1}")
+    if [ {{__version_major__}} -ge 7 ]; then export ROCM_REPO_VERSION=${ROCM_RELEASE}.${ROCM_REPO_SUFFIX}; else export ROCM_REPO_VERSION={{ __version_major__ }}.{{ __version_minor__ }}.${ROCM_REPO_SUFFIX}; fi
     export ROCM_RPM=https://repo.radeon.com/amdgpu-install/${ROCM_RELEASE}/sle/$OPENSUSE_VERSION/amdgpu-install-${ROCM_REPO_VERSION}.noarch.rpm
-    >>> install AMD installer
+    >>> Install AMD installer and ROCm
     zypper --no-gpg-checks -n install $ROCM_RPM
     sed -i 's#gpgcheck=1#gpgcheck=0#g' /etc/zypp/repos.d/*.repo
-    OPENSUSE_MINOR="${OPENSUSE_VERSION#*.}"
-    if (( OPENSUSE_MINOR < 6 )); then
-      zypper --no-gpg-checks -n install --oldpackage libsystemd0-249.16 libudev1-249.16
-    fi
+    if [ {{ __opensuse__version_minor__ }} -lt 6 ]; then zypper --no-gpg-checks -n install --oldpackage libsystemd0-249.16 libudev1-249.16; fi
     zypper refresh
     amdgpu-install -y --no-dkms --usecase=rocm --rocmrelease=${ROCM_RELEASE}
     zypper cc -a
-    zypper --no-gpg-checks -n install -y --force miopen-hip-gfx90akdb
-    zypper --no-gpg-checks -n install -y --force omniperf omnitrace
+    zypper --no-gpg-checks -n install -y --force omniperf omnitrace ?? system=lumig |> miopen-hip-gfx90akdb ??
 
 @env
     ROCM_PATH /opt/rocm-${ROCM_RELEASE}

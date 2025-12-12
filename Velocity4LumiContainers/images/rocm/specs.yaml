@@ -1,10 +1,10 @@
 versions:
   - spec:
-      - 6.0.2-60600021  # ROCM_RELEASE-ROCM_REPO_VERSION (6.0.2)-(6.0.60002-1)
-      - 6.2.4-60204021
-      - 6.3.4-60304021
-      - 6.4.1-60401021
-      - 7.0.2-70002021
+      - 6.0.2-600021 # ROCM_RELEASE-ROCM_REPO_SUFFIX (6.0.2)-(6.0.60002-1)
+      - 6.2.4-204021
+      - 6.3.4-304021
+      - 6.4.1-401021
+      - 7.0.2-700021 # ROCM_RELEASE-ROCM_REPO_SUFFIX (7.0.2)-(7.0.2.20021-1) <-- change in format
 dependencies:
   - spec: opensuse@15.5
     when: distro=opensuse rocm@:6.4.1
