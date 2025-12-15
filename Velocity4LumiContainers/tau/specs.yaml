@@ -1,0 +1,10 @@
+versions:
+  - spec: 2.35
+dependencies:
+  - spec: python
+    scope: build
+  - spec: rocm
+    scope: build
+  - spec: fakeGpu
+    scope: build
+    when: system=lumig

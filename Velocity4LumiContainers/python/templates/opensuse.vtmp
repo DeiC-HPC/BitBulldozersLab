@@ -20,5 +20,5 @@
     !envar PATH /opt/miniforge3/envs/$DEFAULT_CONDA_ENV/bin:/opt/miniforge3/condabin:$PATH
     !envar PYTHON_VERSION {{ __version__ }}
     !envar PYTHONINT /opt/miniforge3/envs/$DEFAULT_CONDA_ENV/bin/python3
-    !envar PYTHONINC /opt/miniforge3/envs/$DEFAULT_CONDA_ENV/include/python$PYTHON_VERSION/
-    !envar PYTHONLIB /opt/miniforge3/envs/$DEFAULT_CONDA_ENV/lib/python$PYTHON_VERSION/
+    !envar PYTHONINC /opt/miniforge3/envs/$DEFAULT_CONDA_ENV/include/python{{ __version__ }}
+    !envar PYTHONLIB /opt/miniforge3/envs/$DEFAULT_CONDA_ENV/lib/python{{ __version__ }}
