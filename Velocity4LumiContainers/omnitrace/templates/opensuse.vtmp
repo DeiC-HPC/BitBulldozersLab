@@ -9,13 +9,6 @@
   mkdir /opt/cmake
   ./cmake-installer.sh --skip-license --prefix=/opt/cmake
   export PATH=/opt/cmake/bin:$PATH
-  >>> Get Boost
-#  wget https://archives.boost.io/release/1.82.0/source/boost_1_82_0.tar.gz -O boost.tar.gz
-#  tar -xf boost.tar.gz
-#  cd boost_1_82_0
-#  ./bootstrap.sh --with-python=/opt/miniforge3/envs/$DEFAULT_CONDA_ENV/bin/python
-#  ./b2 install
-#  cd /opt/
   >>> Install elfutils
   wget https://sourceware.org/elfutils/ftp/0.194/elfutils-0.194.tar.bz2 -O elfutils.tar.gz
   tar -xf elfutils.tar.gz
