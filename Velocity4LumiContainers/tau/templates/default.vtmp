@@ -1,0 +1,33 @@
+@from
+    {{ __base__ }}
+
+@run
+    >>> Build TAU
+    !envar TAU_PATH /opt/tau
+    mkdir $TAU_PATH
+    cd $TAU_PATH
+    wget https://www.cs.uoregon.edu/research/tau/tau_releases/tau-{{ __version__ }}.tar.gz
+    tar zxvf tau-{{ __version__ }}.tar.gz --strip-components=2
+    wget http://tau.uoregon.edu/ext.tgz
+    tar zxvf ext.tgz
+    rm -rf tau-{{ __version__ }}.tar.gz
+    rm -rf ext.tgz
+    >>> source "/opt/miniforge3/etc/profile.d/conda.sh"
+    >>> conda activate $DEFAULT_CONDA_ENV    
+    ./configure \
+    	-prefix=/opt/tau \
+	-c++=g++-$GCC_RELEASE \
+	-cc=gcc-$GCC_RELEASE \
+	-fortran=gfortran-$GCC_RELEASE \
+	-bfd=download \
+	-unwind=download \
+	-zlib=download \
+	-rocm=$ROCM_PATH \
+	-hip=$ROCM_PATH \
+	-rocprofsdk=$ROCM_PATH \
+	-python=$PYTHONINT \
+	-pythoninc=$PYTHONINC \
+	-pythonlib=$PYTHONLIB
+	
+
+    make -j install
