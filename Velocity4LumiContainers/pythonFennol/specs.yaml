@@ -6,6 +6,7 @@ versions:
 files:
   - name:
     - requirements.txt
+    - dynamic.patch
 
 variables:
   - name: git_hash

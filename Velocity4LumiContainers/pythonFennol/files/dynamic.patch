@@ -1,0 +1,26 @@
+diff --git a/src/fennol/md/dynamic.py b/src/fennol/md/dynamic.py
+index b504a8f..ab5e9e2 100644
+--- a/src/fennol/md/dynamic.py
++++ b/src/fennol/md/dynamic.py
+@@ -9,16 +9,16 @@ import jax
+ import jax.numpy as jnp
+ import pickle
+ 
+-from ..utils.io import (
++from fennol.utils.io import (
+     write_arc_frame,
+     write_xyz_frame,
+     write_extxyz_frame,
+     human_time_duration,
+ )
+-from .utils import wrapbox, save_dynamics_restart
+-from ..utils import minmaxone, AtomicUnits as au
+-from ..utils.input_parser import parse_input
+-from .integrate import initialize_dynamics
++from fennol.md.utils import wrapbox, save_dynamics_restart
++from fennol.utils import minmaxone, AtomicUnits as au
++from fennol.utils.input_parser import parse_input
++from fennol.md.integrate import initialize_dynamics
+ 
+ 
+ def main():
