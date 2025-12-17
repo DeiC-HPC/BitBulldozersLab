@@ -2,5 +2,4 @@
     {{ __base__ }}
 
 @run
-    export ROCM_TARGET= "gfx950,gfx942,gfx90a,gfx1201,gfx1200,gfx1101,gfx1100"
-    echo $ROCM_TARGET
+    !envar ROCM_TARGET "gfx950,gfx942,gfx90a,gfx1201,gfx1200,gfx1101,gfx1100"

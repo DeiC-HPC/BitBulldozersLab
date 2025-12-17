@@ -2,8 +2,8 @@
     {{ __base__ }}
 
 @run
-    !envar TF_ROCM_AMDGPU_TARGETS $ROCM_TARGET
-    !envar AMDGPU_TARGETS $ROCM_TARGET
+    export TF_ROCM_AMDGPU_TARGETS=$ROCM_TARGET
+    export AMDGPU_TARGETS=$ROCM_TARGET
     cd /opt/
     git clone https://github.com/jax-ml/jax
     cd jax

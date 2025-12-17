@@ -2,4 +2,4 @@
     {{ __base__ }}
 
 @run
-  export ROCM_TARGET=gfx90a
+  !envar ROCM_TARGET gfx90a
