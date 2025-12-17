@@ -1,9 +1,14 @@
 @from
     {{ __base__ }}
 
+@copy
+    dynamic.patch /opt/dynamic.patch
+
 @run
     cd /opt/
     git clone https://github.com/FeNNol-tools/FeNNol.git
+    mv dynamic.patch FeNNol/
     cd FeNNol
     git checkout -b mybuild  {{ git_hash }}
+    git apply dynamic.patch
     pip install .
