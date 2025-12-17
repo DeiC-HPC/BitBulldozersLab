@@ -17,9 +17,11 @@
   git clone https://github.com/ROCm/rocm-systems
   cd rocm-systems
   git checkout -b mybranch {{ git_hash }}
+  >>> Fix Dyninst compilation
   cd projects/rocprofiler-systems/external/dyninst
   git submodule update --init
   sed -i '3631,3636d' symtabAPI/src/Object-elf.C
+  >>> Config rocprofiler-systems
   cd /opt
   CC=gcc CXX=g++ cmake                                  \
       -B rocprof-sys-build                              \
@@ -38,9 +40,10 @@
       -D ROCPROFSYS_BUILD_ELFUTILS=OFF                  \
       -D ROCPROFSYS_BUILD_LIBIBERTY=ON                 \
       -D ROCPROFSYS_BUILD_SQLITE=ON                     \
+      -DGPU_TARGETS=$ROCM_TARGET                        \
       rocm-systems/projects/rocprofiler-systems
 
-  >>> Build omnitrace
+  >>> Build rocprofiler-systems
   CC=gcc CXX=g++ cmake --build rocprof-sys-build --target all --parallel 8
   CC=gcc CXX=g++ cmake --build rocprof-sys-build --target install
 

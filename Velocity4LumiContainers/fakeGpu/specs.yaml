@@ -5,11 +5,16 @@ dependencies:
     scope: build
 templates:
   - name: opensuse
-    when: distro=opensuse
+    when: distro=opensuse system=lumig
+  - name: opensuse_raxos
+    when: distro=opensuse system=raxos
 files:
   - name:
     - hipcc-flash-attention
     - hipcc-xformers
     - rocm_agent_enumerator
+    - rocm_agent_enumerator_raxos
     - rocminfo
+    - rocminfo_raxos
     - amdgpu-arch.cpp
+    - amdgpu-arch_raxos.cpp

@@ -22,6 +22,12 @@ dependencies:
     scope: build
   - spec: packages
     scope: build
+  - spec: fakeGpu
+    scope: build
+    when: system=raxos
+  - spec: fakeGpu
+    scope: build
+    when: system=lumig
 
 templates:
   - name: opensuse_release
