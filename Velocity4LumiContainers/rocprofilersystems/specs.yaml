@@ -2,6 +2,7 @@ versions:
   - spec:
       - 1.0.1
       - 1.2.0
+      - 1.3.0
 
 variables:
   - name: download_url
@@ -10,7 +11,9 @@ variables:
   - name: download_url
     value: "https://github.com/ROCm/rocm-systems/releases/download/rocm-7.1.0/rocprofiler-systems-1.2.0-opensuse-15.6-ROCm-60400-PAPI-OMPT-Python3.sh"
     when: rocprofilersystems@1.2.0
-
+  - name: git_hash
+    value: 26aae43
+    when: rocprofilersystems@1.3.0
 
 dependencies:
   - spec: python
@@ -22,3 +25,6 @@ dependencies:
 
 templates:
   - name: opensuse_release
+    when: distro=opensuse rocprofilersystems@1.0.1:1.2.0
+  - name: opensuse_git
+    when: distro=opensuse rocprofilersystems@1.3.0

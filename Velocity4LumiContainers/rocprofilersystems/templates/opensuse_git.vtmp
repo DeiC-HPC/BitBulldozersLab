@@ -1,0 +1,48 @@
+@from
+    {{ __base__ }}
+
+@run
+  >>> Install needed packages. makeinfo is just for documentation making --> apparently we cant turn it off?
+  zypper --no-gpg-checks -n install -y --force-resolution chrpath makeinfo bison sqlite3 sqlite3-devel libdebuginfod1 libdebuginfod-devel flex sysvinit-tools
+  >>> Install elfutils
+  wget https://sourceware.org/elfutils/ftp/0.194/elfutils-0.194.tar.bz2 -O elfutils.tar.gz
+  tar -xf elfutils.tar.gz
+  cd elfutils-0.194
+  ./configure
+  make && make install
+  >>> update ld library
+  export LD_LIBRARY_PATH=/usr/lib:/usr/lib64:$LD_LIBRARY_PATH
+  >>> rocprofiler-systems
+  cd /opt/
+  git clone https://github.com/ROCm/rocm-systems
+  cd rocm-systems
+  git checkout -b mybranch {{ git_hash }}
+  cd projects/rocprofiler-systems/external/dyninst
+  git submodule update --init
+  sed -i '3631,3636d' symtabAPI/src/Object-elf.C
+  cd /opt
+  CC=gcc CXX=g++ cmake                                  \
+      -B rocprof-sys-build                              \
+      -D CMAKE_INSTALL_PREFIX=/opt/rocprofiler-systems  \
+      -D ROCPROFSYS_USE_ROCM=ON                         \
+      -D ROCPROFSYS_USE_PAPI=ON                         \
+      -D ROCPROFSYS_USE_PYTHON=ON                       \
+      -D ROCPROFSYS_USE_OMPT=ON                        \
+      -D ROCPROFSYS_USE_MPI_HEADERS=ON                  \
+      -D ROCPROFSYS_USE_MPI=OFF                         \
+      -D ROCPROFSYS_BUILD_PAPI=ON                       \
+      -D ROCPROFSYS_BUILD_LIBUNWIND=ON                  \
+      -D ROCPROFSYS_BUILD_DYNINST=ON                   \
+      -D ROCPROFSYS_BUILD_BOOST=ON                     \
+      -D ROCPROFSYS_BUILD_TBB=ON                       \
+      -D ROCPROFSYS_BUILD_ELFUTILS=OFF                  \
+      -D ROCPROFSYS_BUILD_LIBIBERTY=ON                 \
+      -D ROCPROFSYS_BUILD_SQLITE=ON                     \
+      rocm-systems/projects/rocprofiler-systems
+
+  >>> Build omnitrace
+  CC=gcc CXX=g++ cmake --build rocprof-sys-build --target all --parallel 8
+  CC=gcc CXX=g++ cmake --build rocprof-sys-build --target install
+
+@post
+    source /opt/rocprofiler-systems/share/rocprofiler-systems/setup-env.sh
