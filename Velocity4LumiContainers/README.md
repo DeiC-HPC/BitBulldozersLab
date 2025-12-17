@@ -5,16 +5,39 @@
 
 -------------------------------------------
 ## For Lumi
-Old:
-velocity -s lumig build opensuse@15.6 libfabric@2.3.0 libcxi mpich@4.2.3 xcclPlugin@0.2 fakeGpu rocm@6.0.2 tests pythonMiniforge python@3.12 pythonJax@0.4.35 pythonFennol@2025.05.16 omnitrace -v     
+Older Jax build:
+```velocity -s lumig build opensuse@15.6 libfabric@2.3.0 libcxi mpich@4.2.3 xcclPlugin@0.2 fakeGpu rocm@6.0.2 tests pythonMiniforge python@3.12 pythonJax@0.4.35 pythonFennol@2025.05.16 omnitrace -v```
 
-New:
-velocity -s lumig build opensuse@15.6 libfabric@2.3.0 libcxi mpich@4.2.3 xcclPlugin@0.2 fakeGpu rocm@6.2.4 tests pythonMiniforge python@3.12 pythonJax@0.6.0 pythonFennol@2025.05.16 omnitrace@6.2.4 -v
+New Jax build:
+```velocity -s lumig build opensuse@15.6 libfabric@2.3.0 libcxi mpich@4.2.3 xcclPlugin@0.2 fakeGpu rocm@6.2.4 tests pythonMiniforge python@3.12 pythonJax@0.6.0 pythonFennol@2025.05.16 omnitrace@6.2.4 -v```
 
 New Non-Lumi G:
-velocity build opensuse@15.6 rocm@6.2.4 pythonMiniforge python@3.12 pythonJax@0.6.0 pythonFennol@2025.05.16 omnitrace -v
+```velocity -s generic build opensuse@15.6 rocm@6.2.4 pythonMiniforge python@3.12 pythonJax@0.6.0 pythonFennol@2025.05.16 omnitrace -v```
+
+## For Raxos
+```velocity -s raxos build opensuse@15.6 rocm@6.4.1 pythonMiniforge python@3.12 pythonJax@0.8.0 pythonFennol@2025.05.16 rocprofiler@1.2.0 -v```
 
 -------------------------------------------
+
+
+
+Issues:
+- rocprofilersystems specs.yaml --> the download URLs are very specific. Currently only rocm 6.4.1 versions are included. But there is no proper way of filtering on rocm version and opensuse version. See the issues section below.
+- 
+
+-------------------------------------------
+
+# State of Profilers:
+- omnitrace:
+  - available for ROCm 6.2.4
+  - Does not work very well overall. 
+  - Incomplete traces and sometimes segfaults
+  - TODO: Probably remove the profiler
+- rocprofiler-systems
+  - renamed version of omnitrace
+  - available for ROCm 6.4
+  - Compile for ROCm 7.0+
+
 
 Velocity is a tool that helps maintain and build various containers. It is used at Frontier.
 Links:
@@ -95,7 +118,8 @@ Some packages do not have versions but use git hashes. Velocity currently does n
 - Mapping values are not allowed (?) i.e. `libfabric@2.0.0:`
 - `Python 3.10` becomes `Python 3.1`
 - The graph or hashes are not stable so layers are rebuilt even if that's not necessary. 
-
+- filtering variables on e.g. rocm@6.4.1 is not possible??
+- filtering on opensuse@VERSION not possible?
 
 # Nice to have
 - Top level folder that groups packages. e.g.: Python related stuff, communication, different MPI (MPICH, OpenMPI) etc.
