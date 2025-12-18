@@ -7,13 +7,10 @@ versions:
       - 0.8.0
 variables:
   - name: git_hash
-    value: e96602e
+    value: ae78eb3
     when: pythonJax@0.6.0
   - name: git_hash
-    value: e96602e
-    when: pythonJax@0.6.2
-  - name: git_hash
-    value: 88b54b0
+    value: 3b02da3
     when: pythonJax@0.7.1
   - name: git_hash
     value: 403977d
