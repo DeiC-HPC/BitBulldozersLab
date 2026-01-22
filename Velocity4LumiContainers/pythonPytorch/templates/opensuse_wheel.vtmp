@@ -3,7 +3,31 @@
 
 @run
     !envar PYTORCH_ROCM_ARCH $ROCM_TARGET
+
+    case $ROCM_RELEASE in
+      6.0.*)
+        download_url=https://download.pytorch.org/whl/rocm6.0/
+        ;;
+      6.2.4)
+        download_url=https://download.pytorch.org/whl/rocm6.2.4
+        ;;
+      6.3.*)
+        download_url=https://download.pytorch.org/whl/rocm6.3
+        ;;
+      6.4.*)
+        download_url=https://download.pytorch.org/whl/rocm6.4
+        ;;
+      7.0.*)
+        download_url=https://download.pytorch.org/whl/rocm7.0
+        ;;
+      *)
+        echo "Unknown version"
+        ;;
+    esac
+
+    echo $download_url
+
     pip3 install packaging
-    pip3 install --pre torch=={{ torch_version }} --index-url {{ download_url }} ; \
-    pip3 install --pre torchvision=={{ torchvision_version }} --index-url {{ download_url }}
-    pip3 install --pre torchaudio=={{ torch_version }} --index-url {{ download_url }}
+    pip3 install --pre torch=={{ torch_version }} --index-url $download_url ; \
+    pip3 install --pre torchvision=={{ torchvision_version }} --index-url $download_url
+    pip3 install --pre torchaudio=={{ torch_version }} --index-url $download_url

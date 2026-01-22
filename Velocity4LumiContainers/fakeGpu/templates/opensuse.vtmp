@@ -16,7 +16,12 @@
     done
     >>> Replace amdgpu-arch and offload-arch
     cd $ROCM_PATH/llvm/bin
-    rm amdgpu-arch offload-arch
+    if [ -f "offload-arch" ]; then
+      rm offload-arch
+    fi
+        if [ -f "amdgpu-arch" ]; then
+      rm amdgpu-arch
+    fi 
     g++-12 /amdgpu-arch.cpp -DNUM_TARGETS=8 -o amdgpu-arch
     g++-12 /amdgpu-arch.cpp -DNUM_TARGETS=1 -o offload-arch
     ./amdgpu-arch

@@ -11,21 +11,6 @@ versions:
       - 2.9.1
       - 2.10.0
 variables:
-  - name: download_url
-    value: https://download.pytorch.org/whl/rocm6.4
-    when: rocm@6.4.1
-  - name: download_url
-    value: https://download.pytorch.org/whl/rocm6.3
-    when: rocm@6.3.4
-  - name: download_url
-    value: https://download.pytorch.org/whl/rocm7.0
-    when: rocm@7.0.2
-  - name: download_url
-    value: https://download.pytorch.org/whl/rocm6.2.4
-    when: rocm@7.2.4
-  - name: download_url
-    value: https://download.pytorch.org/whl/rocm6.0/
-    when: rocm@6.0.2
   - name: torch_version
     value: 2.4.0
     when: pythonPytorch@2.4.0
