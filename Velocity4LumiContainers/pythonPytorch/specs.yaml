@@ -7,49 +7,85 @@ versions:
       - 2.6.0
       - 2.7.0
       - 2.7.1
+      - 2.8.0
+      - 2.9.1
+      - 2.10.0
 variables:
+  - name: download_url
+    value: https://download.pytorch.org/whl/rocm6.4
+    when: rocm@6.4.1
+  - name: download_url
+    value: https://download.pytorch.org/whl/rocm6.3
+    when: rocm@6.3.4
+  - name: download_url
+    value: https://download.pytorch.org/whl/rocm7.0
+    when: rocm@7.0.2
+  - name: download_url
+    value: https://download.pytorch.org/whl/rocm6.2.4
+    when: rocm@7.2.4
+  - name: download_url
+    value: https://download.pytorch.org/whl/rocm6.0/
+    when: rocm@6.0.2
   - name: torch_version
-    value: 2.4.0+rocm6.0
+    value: 2.4.0
     when: pythonPytorch@2.4.0
   - name: torch_version
-    value: 2.4.1+rocm6.0
+    value: 2.4.1
     when: pythonPytorch@2.4.1
   - name: torch_version
-    value: 2.5.0+rocm6.2
+    value: 2.5.0
     when: pythonPytorch@2.5.0
   - name: torch_version
-    value: 2.5.1+rocm6.2
+    value: 2.5.1
     when: pythonPytorch@2.5.1
   - name: torch_version
-    value: 2.6.0+rocm6.2.4
+    value: 2.6.0
     when: pythonPytorch@2.6.0
   - name: torch_version
-    value: 2.7.0+rocm6.2.4
+    value: 2.7.0
     when: pythonPytorch@2.7.0
   - name: torch_version
-    value: 2.7.1+rocm6.2.4
+    value: 2.7.1
     when: pythonPytorch@2.7.1
+  - name: torch_version
+    value: 2.8.0
+    when: pythonPytorch@2.8.0
+  - name: torch_version
+    value: 2.9.1
+    when: pythonPytorch@2.9.1
+  - name: torch_version
+    value: 2.10.0
+    when: pythonPytorch@2.10.0
   - name: torchvision_version
-    value: 0.19.0+rocm6.0
+    value: 0.19.0
     when: pythonPytorch@2.4.0
   - name: torchvision_version
-    value: 0.19.1+rocm6.0
+    value: 0.19.1
     when: pythonPytorch@2.4.1
   - name: torchvision_version
-    value: 0.20.0+rocm6.2
+    value: 0.20.0
     when: pythonPytorch@2.5.0
   - name: torchvision_version
-    value: 0.20.1+rocm6.2
+    value: 0.20.1
     when: pythonPytorch@2.5.1
   - name: torchvision_version
-    value: 0.21.0+rocm6.2.4
+    value: 0.21.0
     when: pythonPytorch@2.6.0
   - name: torchvision_version
-    value: 0.22.0+rocm6.2.4
+    value: 0.22.0
     when: pythonPytorch@2.7.0
   - name: torchvision_version
-    value: 0.22.1+rocm6.2.4
+    value: 0.22.1
     when: pythonPytorch@2.7.1
+  - name: torchvision_version
+    value: 0.23.0
+    when: pythonPytorch@2.8.0
+  - name: torchvision_version
+    value: 0.24.1
+    when: pythonPytorch@2.9.1
+  - name: torchvision_version
+    value: 0.25.0
+    when: pythonPytorch@2.10.0
 dependencies:
   - spec: python
     scope: build
@@ -59,6 +95,15 @@ dependencies:
   - spec: rocm@6.2.4
     scope: build
     when: pythonPytorch@2.5.0:2.7.1
+  - spec: rocm@6.3.4
+    scope: build
+    when: pythonPytorch@2.7.1:2.9.1
+  - spec: rocm@6.4.1
+    scope: build
+    when: pythonPytorch@2.8.0:2.9.1
+  - spec: rocm@7.02
+    scope: build
+    when: pythonPytorch@2.10.0
   - spec: fakeGpu
     scope: build
     when: system=lumig
