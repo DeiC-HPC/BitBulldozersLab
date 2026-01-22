@@ -101,7 +101,7 @@ dependencies:
   - spec: rocm@6.4.1
     scope: build
     when: pythonPytorch@2.8.0:2.9.1
-  - spec: rocm@7.02
+  - spec: rocm@7.0.2
     scope: build
     when: pythonPytorch@2.10.0
   - spec: fakeGpu
