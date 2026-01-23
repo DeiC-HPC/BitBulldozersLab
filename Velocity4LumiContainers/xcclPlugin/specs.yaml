@@ -3,6 +3,7 @@ versions:
     - 0.1
     - 0.2
     - 0.3
+    - 1.18.0
 variables:
   - name: git_hash
     value: 17d41cb
@@ -13,6 +14,9 @@ variables:
   - name: git_hash
     value: 1ea938a
     when: xcclPlugin@0.3
+  - name: tarball_download
+    value: https://github.com/aws/aws-ofi-nccl/archive/refs/tags/v1.18.0.tar.gz
+    when: xcclPlugin@1.18.0
   - name: real_version
     value: aws_ofi_rccl_working
     when: xcclPlugin@0.1
@@ -33,7 +37,7 @@ dependencies:
     scope: build
   - spec: hwloc
     scope: build
-    when: xcclPlugin@0.3
+    when: xcclPlugin@0.3:1.18.0
   - spec: fakeGpu
     scope: build
     when: system=lumig
@@ -44,3 +48,5 @@ templates:
     when: distro=opensuse xcclPlugin@0.1:0.2
   - name: opensuse_open_ofi_xccl
     when: distro=opensuse xcclPlugin@0.3
+  - name: opensuse_aws_ofi_nccl
+    when: distro=opensuse xcclPlugin@1.18.0

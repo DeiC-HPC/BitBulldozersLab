@@ -25,6 +25,7 @@
       ;;
       7.0.*)
         git_hash=e1b8a3a
+      ;;
       *)
         git_hash=448c4c7
       ;;

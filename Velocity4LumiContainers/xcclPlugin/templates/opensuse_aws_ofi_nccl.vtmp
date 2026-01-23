@@ -1,0 +1,25 @@
+@from
+    {{ __base__ }}
+
+@copy
+    aws.patch aws.patch
+
+@run
+    >>> set env variables
+    !envar XCCL_PLUGIN_PATH /opt/xccl_plugin
+    cd /opt/
+    wget {{ tarball_download }} -O aws-ofi-nccl.tar.gz
+    mkdir aws-ofi-nccl
+    tar -xzf aws-ofi-nccl.tar.gz -C aws-ofi-nccl --strip-components=1
+    rm aws-ofi-nccl.tar.gz
+    cd aws-ofi-nccl
+    ./autogen.sh
+    ./configure \
+        --prefix $XCCL_PLUGIN_PATH --with-hwloc=/opt/hwloc \
+        --with-libfabric=$LIBFABRIC_PATH --enable-trace --with-rocm=$ROCM_PATH \
+        --disable-tests
+    make -j
+    make install
+    rm -rf /opt/aws-ofi-nccl
+    >>> Set paths
+    !envar LD_LIBRARY_PATH $LD_LIBRARY_PATH:$XCCL_PLUGIN_PATH
