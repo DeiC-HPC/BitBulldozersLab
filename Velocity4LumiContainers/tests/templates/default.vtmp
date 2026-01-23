@@ -19,7 +19,17 @@
     >>> Build RCCL tests
     git clone -b master https://github.com/rocm/rccl-tests /opt/mybuild
     cd  /opt/mybuild
-    git checkout -b mydev {{ GIT_HASH_RCCL }}
+    case $ROCM_RELEASE in
+      6.0.*)
+        git_hash=ae3e635
+      ;;
+      7.0.*)
+        git_hash=e1b8a3a
+      *)
+        git_hash=448c4c7
+      ;;
+    esac
+    git checkout -b mydev $git_hash
     cd /opt/mybuild
     CC=gcc-$GCC_RELEASE \
       DEBUG=${{ RCCL_DEBUG }} \
