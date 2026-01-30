@@ -1,0 +1,26 @@
+## Required Environment
+
+Create required Python environment:
+```shell
+uv venv
+uv pip install jax==0.6.0 jaxlib==0.6.0 jax-rocm7-plugin==0.6.0 jax-rocm7-pjrt==0.6.0
+```
+
+Using this Python venv, we can generate export (Ahead-of-time compiled) Jax kernels to HLO and stableHLO intermediate representation using `compile_jax_to_hlo.py`.
+
+In order to read, compile and exectue these kernels from C we need the PJRT interface from XLA,
+we grab this interface as a PJRT C API header file from the xla repository (pjrt_c_api.h is included in this repo)
+```
+git clone https://github.com/openxla/xla.git
+cp xla/xla/pjrt/c/pjrt_c_api.h c/pjrt/
+```
+
+Additionally, we need the pjrt_c_api implementation, we can consider compiling the CPU C++ implementation in the XLA repo, however in this repo, we get a precompiled
+binary for the ROCm backend from the jax-rocm7-pjrt PyPI Wheel, which provides (xla_rocm_plugin.so is included in this repo)
+```
+export PJRT_PLUGIN=.venv/lib/python3.12/site-packages/jax_plugins/xla_rocm7/xla_rocm_plugin.so
+cp $PJRT_PLUGIN c/pjrt
+```
+
+
+
