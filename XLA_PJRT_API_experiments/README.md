@@ -3,7 +3,7 @@
 Create required Python environment:
 ```shell
 uv venv
-uv pip install jax==0.6.0 jaxlib==0.6.0 jax-rocm7-plugin==0.6.0 jax-rocm7-pjrt==0.6.0
+uv pip install jax==0.6.0 jaxlib==0.6.0 jax-rocm7-plugin==0.6.0 jax-rocm7-pjrt==0.6.0 absl-py flatbuffers
 ```
 
 Using this Python venv, we can generate export (Ahead-of-time compiled) Jax kernels to HLO and stableHLO intermediate representation using `compile_jax_to_hlo.py`.

@@ -3,12 +3,12 @@ HloModule jit_simple_add, is_scheduled=true, entry_computation_layout={(f32[4]{0
 %wrapped_add_computation (param_0: f32[4], param_1: f32[4]) -> f32[4] {
   %param_0 = f32[4]{0} parameter(0)
   %param_1 = f32[4]{0} parameter(1)
-  ROOT %add.2.1 = f32[4]{0} add(%param_0, %param_1), metadata={op_name="jit(simple_add)/jit(main)/add" source_file="/home/joaso/fennol/xla-pjrt-c-api/BitBulldozersLab/XLA_PJRT_API_experiments/jax_kernel_example/compile_jax_to_hlo.py" source_line=16}
+  ROOT %add.2.1 = f32[4]{0} add(%param_0, %param_1), metadata={op_name="jit(simple_add)/jit(main)/add" source_file="/home/joaso/fennol/xla-pjrt-c-api/BitBulldozersLab/XLA_PJRT_API_experiments/jax_kernel_example/compile_jax_to_hlo.py" source_line=19}
 }
 
 ENTRY %main.4 (Arg_0.1: f32[4], Arg_1.2: f32[4]) -> f32[4] {
   %Arg_1.2 = f32[4]{0} parameter(1), metadata={op_name="y"}
   %Arg_0.1 = f32[4]{0} parameter(0), metadata={op_name="x"}
-  ROOT %wrapped_add = f32[4]{0} fusion(%Arg_0.1, %Arg_1.2), kind=kLoop, calls=%wrapped_add_computation, metadata={op_name="jit(simple_add)/jit(main)/add" source_file="/home/joaso/fennol/xla-pjrt-c-api/BitBulldozersLab/XLA_PJRT_API_experiments/jax_kernel_example/compile_jax_to_hlo.py" source_line=16}
+  ROOT %wrapped_add = f32[4]{0} fusion(%Arg_0.1, %Arg_1.2), kind=kLoop, calls=%wrapped_add_computation, metadata={op_name="jit(simple_add)/jit(main)/add" source_file="/home/joaso/fennol/xla-pjrt-c-api/BitBulldozersLab/XLA_PJRT_API_experiments/jax_kernel_example/compile_jax_to_hlo.py" source_line=19}
 }
 
