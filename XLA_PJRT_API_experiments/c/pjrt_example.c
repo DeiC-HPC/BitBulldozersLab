@@ -157,30 +157,24 @@ int main(int argc, char** argv) {
     printf("4. Loading compiled HLO code...\n");
 
     size_t code_size;
-    char* code = read_file("../jax_kernel_example/simple_add.hlo", &code_size);
+    //char* code = read_file("../jax_kernel_example/simple_add.hlo", &code_size);
+    char* code = read_file("../jax_kernel_example/foo.bin", &code_size);
     if (!code) {
         fprintf(stderr, "Failed to read compiled code\n");
         return 1;
     }
-
-    const char* format = "hlo";
-    PJRT_Program program = {
-      .struct_size = PJRT_Program_STRUCT_SIZE,
-      .code = code,
-      .code_size = code_size,
-      .format = format,
-      .format_size = strlen(format)
-    };
-    
-    PJRT_Client_Compile_Args compile_args = {
-        .struct_size = PJRT_Client_Compile_Args_STRUCT_SIZE,
-        .client = client,
-        .program = &program,
+  
+    PJRT_Executable_DeserializeAndLoad_Args exe_args = {
+      .struct_size = PJRT_Executable_DeserializeAndLoad_Args_STRUCT_SIZE,
+      .client = client,
+      .serialized_executable=code,
+      .serialized_executable_size=code_size
     };
 
-    CHECK_STATUS(api->PJRT_Client_Compile(&compile_args), "Failed to compile");
-    PJRT_LoadedExecutable* executable = compile_args.executable;
-    printf("   ✓ Code loaded and compiled\n\n");
+    CHECK_STATUS(api->PJRT_Executable_DeserializeAndLoad(&exe_args), "Failed to deserialize and load");
+    PJRT_LoadedExecutable* executable = exe_args.loaded_executable;
+
+    printf("   ✓ Deserialized and Loaded executable\n\n");
     free(code);
     
     // Step 5: Prepare input data
