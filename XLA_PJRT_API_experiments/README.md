@@ -11,7 +11,8 @@ Using this Python venv, we can generate export (Ahead-of-time compiled) Jax kern
 In order to read, compile and exectue these kernels from C we need the PJRT interface from XLA,
 we grab this interface as a PJRT C API header file from the xla repository (pjrt_c_api.h is included in this repo)
 ```
-git clone https://github.com/openxla/xla.git
+git clone https://github.com/ROCm/xla.git
+git checkout cfce2f10011aab8fc85a8419c2b3fd9045439777
 cp xla/xla/pjrt/c/pjrt_c_api.h c/pjrt/
 ```
 
