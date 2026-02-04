@@ -10,6 +10,14 @@ Using this Python venv, we can generate export (Ahead-of-time compiled) Jax kern
 
 In order to read, compile and exectue these kernels from C we need the PJRT interface from XLA,
 we grab this interface as a PJRT C API header file from the xla repository (pjrt_c_api.h is included in this repo)
+
+
+
+git checkout 4178517b7d7e5e3318ea4b701b01dc06847b73b0 --> for 0.7.1
+
+how did you find the commit hash? The following is the one that is referenced in the bazel build script: 
+`ff74b5fda7dec651c9ed3d7a2bab4365ca25d61f`
+
 ```
 git clone https://github.com/ROCm/xla.git
 git checkout cfce2f10011aab8fc85a8419c2b3fd9045439777

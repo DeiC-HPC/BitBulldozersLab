@@ -1,4 +1,4 @@
-CC = gcc
+CC = amdclang
 CFLAGS = -I $(PWD)/pjrt
 LDFLAGS = -ldl
 TARGET = pjrt_example

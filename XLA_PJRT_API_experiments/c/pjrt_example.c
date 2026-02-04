@@ -190,16 +190,19 @@ int main(int argc, char** argv) {
     
     // Step 6: Create input buffers
     printf("6. Creating input buffers...\n");
-    
+
+    // TODO: Can we create a PJRT buffer directly from a raw rocm pointer?
+
     // Buffer for X
     PJRT_Client_BufferFromHostBuffer_Args buffer_x_args = {
         .struct_size = PJRT_Client_BufferFromHostBuffer_Args_STRUCT_SIZE,
         .client = client,
-        .data = input_x,
+        .data = &input_x,
         .type = PJRT_Buffer_Type_F32,
         .dims = (int64_t[]){4},
         .num_dims = 1,
         .device = device
+        // .host_buffer_semantics = PJRT_HostBufferSemantics_kImmutableUntilTransferCompletes
     };
     CHECK_STATUS(api->PJRT_Client_BufferFromHostBuffer(&buffer_x_args), 
                  "Failed to create buffer X");
@@ -209,11 +212,12 @@ int main(int argc, char** argv) {
     PJRT_Client_BufferFromHostBuffer_Args buffer_y_args = {
         .struct_size = PJRT_Client_BufferFromHostBuffer_Args_STRUCT_SIZE,
         .client = client,
-        .data = input_y,
+        .data = &input_y,
         .type = PJRT_Buffer_Type_F32,
         .dims = (int64_t[]){4},
         .num_dims = 1,
         .device = device
+        // .host_buffer_semantics = PJRT_HostBufferSemantics_kImmutableUntilTransferCompletes
     };
     CHECK_STATUS(api->PJRT_Client_BufferFromHostBuffer(&buffer_y_args),
                  "Failed to create buffer Y");
@@ -224,9 +228,13 @@ int main(int argc, char** argv) {
     printf("7. Executing computation...\n");
     PJRT_Buffer* device_args[2] = { buffer_x, buffer_y };
     PJRT_Buffer* const* const argument_lists[1] = { device_args };
-    
-    PJRT_Buffer** output_buffers = NULL;
-    
+
+    PJRT_Buffer* outputs_for_device[4];
+    PJRT_Buffer** output_lists[1] = { outputs_for_device };
+
+    PJRT_ExecuteOptions options = {0};
+    options.struct_size = PJRT_ExecuteOptions_STRUCT_SIZE;
+
     PJRT_LoadedExecutable_Execute_Args execute_args = {
         .struct_size = PJRT_LoadedExecutable_Execute_Args_STRUCT_SIZE,
         .executable = executable,
@@ -234,10 +242,10 @@ int main(int argc, char** argv) {
         .argument_lists = argument_lists,
         .num_devices = 1,
         .num_args = 2,
-        .output_lists = &output_buffers,
-        .device_complete_events = NULL
+        .output_lists = output_lists,
+        .options = &options
     };
-    
+
     CHECK_STATUS(api->PJRT_LoadedExecutable_Execute(&execute_args),
                  "Failed to execute");
     printf("   ✓ Execution complete\n\n");
@@ -245,33 +253,36 @@ int main(int argc, char** argv) {
     // Step 8: Retrieve results
     printf("8. Retrieving results...\n");
 
-    PJRT_Buffer* result_buffer = output_buffers[0];
-        
     float output[4];
     PJRT_Buffer_ToHostBuffer_Args to_host_args = {
       .struct_size = PJRT_Buffer_ToHostBuffer_Args_STRUCT_SIZE,
-      .src = result_buffer,
+      .src = *output_lists[0],
       .dst = output,
       .dst_size = sizeof(output)
     };
-        
     CHECK_STATUS(api->PJRT_Buffer_ToHostBuffer(&to_host_args),
 		 "Failed to copy result to host");
-        
+
+    PJRT_Event_Await_Args ready = {
+        .struct_size = PJRT_Event_IsReady_Args_STRUCT_SIZE,
+        .event = to_host_args.event
+    };
+    CHECK_STATUS(api->PJRT_Event_Await(&ready), "Failed to wait for ready event.");
+
     printf("   Output: [%.1f, %.1f, %.1f, %.1f]\n",
-	   output[0], output[1], output[2], output[3]);
-    printf("   Expected: [6.0, 8.0, 10.0, 12.0]\n\n");
+           output[0], output[1], output[2], output[3]);
+    printf("   Expected: [7.0, 10.0, 13.0, 16.0]\n\n");
         
     // Cleanup output buffer
-    PJRT_Buffer_Destroy_Args destroy_buffer_args = {
+    printf("9. Cleaning up...\n");
+    PJRT_Buffer_Destroy_Args destroy_out_device_buffer_args = {
       .struct_size = PJRT_Buffer_Destroy_Args_STRUCT_SIZE,
-      .buffer = result_buffer
+      .buffer = *output_lists[0]
     };
-    api->PJRT_Buffer_Destroy(&destroy_buffer_args);
+    api->PJRT_Buffer_Destroy(&destroy_out_device_buffer_args);
     
     // Cleanup
-    printf("9. Cleaning up...\n");
-    
+    // TODO: For proper functioning may have to first check if the runtime is done with the buffer
     PJRT_Buffer_Destroy_Args destroy_x = {
         .struct_size = PJRT_Buffer_Destroy_Args_STRUCT_SIZE,
         .buffer = buffer_x
@@ -283,19 +294,25 @@ int main(int argc, char** argv) {
         .buffer = buffer_y
     };
     api->PJRT_Buffer_Destroy(&destroy_y);
-    
+
+    PJRT_Event_Destroy_Args destroy_ready_event = {
+        .struct_size = PJRT_Event_Destroy_Args_STRUCT_SIZE,
+        .event = to_host_args.event
+    };
+    api->PJRT_Event_Destroy(&destroy_ready_event);
+
     PJRT_LoadedExecutable_Destroy_Args destroy_exec = {
         .struct_size = PJRT_LoadedExecutable_Destroy_Args_STRUCT_SIZE,
         .executable = executable
     };
     api->PJRT_LoadedExecutable_Destroy(&destroy_exec);
-    
+
     PJRT_Client_Destroy_Args destroy_client = {
         .struct_size = PJRT_Client_Destroy_Args_STRUCT_SIZE,
         .client = client
     };
     api->PJRT_Client_Destroy(&destroy_client);
-    
+
     printf("   ✓ Cleanup complete\n\n");
     printf("Success! ✓\n");
     

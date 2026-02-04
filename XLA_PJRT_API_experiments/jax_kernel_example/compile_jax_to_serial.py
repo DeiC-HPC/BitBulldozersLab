@@ -1,5 +1,7 @@
 import jax
 from jax._src.lib import xla_client
+import jax.numpy as jnp
+
 def f(x, y):
     return 2 * x + y
 
