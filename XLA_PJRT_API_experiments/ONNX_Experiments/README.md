@@ -14,6 +14,11 @@ The following command compiles the function to the ONNX format with variable inp
 ```shell
 python compile_jax_to_onnx.py
 ```
+Similarly we can convert the MC_simulation with:
+
+```shell
+python MC_simulation_to_onnx.py
+```
 
 We can then execute it using the `onnxruntime-rocm`. 
 We can provide torch tensors that are allocated on the GPU directly as an input via the IO_binding option.
@@ -29,11 +34,21 @@ Additionally, we can provide hipMalloc'ed arrays as an input:
 python onnx_runtime_hip_test.py
 ```
 
+Furthermore, we can run the ONNX version of the MC simulation with:
+```shell
+python onnx_MC_Sim.py
+```
+
+There are quite a few Jax functions that cannot be converted to ONNX (jnp.full, jnp.concatenate). 
+Additionally, the ONNX version of the MC simulation is slow. This is probably due to the excessive amounts of memcopies that seem to be required for the simulation. 
+
+Note: The `MC_simulation.py` needs the venv of the parent directory to run on the GPU. Additionally, the simulation is fully generated with AI.  
+
 ## Links
 - https://github.com/enpasos/jax2onnx
 - https://netron.app/ -->visualize ONNX network 
 - https://onnxruntime.ai/docs/api/python/api_summary.html --> info on data & io_binding
-- https://github.com/ROCm/hip-python --> hip-python 
+- https://github.com/ROCm/hip-python --> hip-python
 
 ### Deprecated links
 - https://github.com/CrayLabs/SmartSim

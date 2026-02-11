@@ -207,6 +207,8 @@ int main(int argc, char** argv) {
     CHECK_STATUS(api->PJRT_Client_BufferFromHostBuffer(&buffer_x_args), 
                  "Failed to create buffer X");
     PJRT_Buffer* buffer_x = buffer_x_args.buffer;
+
+    api->
     
     // Buffer for Y
     PJRT_Client_BufferFromHostBuffer_Args buffer_y_args = {
