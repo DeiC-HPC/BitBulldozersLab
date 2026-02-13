@@ -1,8 +1,8 @@
 CXX = g++
-CFLAGS = -I $(PWD)/../c/pjrt
+CFLAGS = --debug -ggdb -I $(PWD)/../c/pjrt -I /snap/flatbuffers/current/include/flatbuffers -I /snap/flatbuffers/current/include
 LDFLAGS = -ldl
-TARGET = pjrt_example
-SOURCE = pjrt_example.cpp
+TARGET = pjrt_flatbuffers
+SOURCE = pjrt_flatbuffers.cpp
 
 all: $(TARGET)
 
