@@ -9,12 +9,15 @@
  * 5. Executing the computation
  */
 
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <dlfcn.h>
-#include "pjrt/pjrt_c_api.h"
+#include "../c/pjrt/pjrt_c_api.h"
+#include "flatbuffers/serialization_generated.h"
 
+using namespace jax_export::serialization;
 
 #define CHECK_STATUS(expr, msg) \
     do { \
@@ -58,7 +61,7 @@ const PJRT_Api* load_pjrt_plugin(const char* plugin_path) {
         return NULL;
     }
     
-    const PJRT_Api* (*get_api)() = dlsym(handle, "GetPjrtApi");
+    const PJRT_Api* (*get_api)() = (const PJRT_Api* (*)())dlsym(handle, "GetPjrtApi");
     if (!get_api) {
         fprintf(stderr, "Failed to find GetPjrtApi symbol\n");
         dlclose(handle);
@@ -80,7 +83,7 @@ char* read_file(const char* filename, size_t* size) {
     *size = ftell(f);
     fseek(f, 0, SEEK_SET);
     
-    char* buffer = malloc(*size);
+    char* buffer = (char *)malloc(*size);
     if (!buffer) {
         fclose(f);
         return NULL;
@@ -98,7 +101,7 @@ int main(int argc, char** argv) {
     // Step 1: Load PJRT plugin (CPU)
     printf("1. Loading PJRT CPU plugin...\n");
     // api = load_pjrt_plugin("/home/joaso/fennol/xla-pjrt-c-api/BitBulldozersLab/XLA_PJRT_API_experiments/c/pjrt_c_api_gpu_plugin.so");
-    api = load_pjrt_plugin("pjrt/xla_rocm_plugin.so");
+    api = load_pjrt_plugin("../c/pjrt/xla_rocm_plugin.so");
     
     if (!api) {
         fprintf(stderr, "Failed to load PJRT plugin\n");
@@ -156,23 +159,54 @@ int main(int argc, char** argv) {
     // Step 4: Load compiled HLO code
     printf("4. Loading compiled HLO code...\n");
 
-    size_t code_size;
-    //char* code = read_file("../jax_kernel_example/simple_add.hlo", &code_size);
-    char* code = read_file("../jax_kernel_example/foo.bin", &code_size);
+    size_t flatbuffer_size;
+    char* flatbuffer = read_file("../jax_kernel_example/simple_add_stablehlo.flatbuffer", &flatbuffer_size);
+    // char* flatbuffer = read_file("../jax_kernel_example/simple_add.stablehlo", &flatbuffer_size);
+    
+    const auto* exported = GetExported(flatbuffer);
+    auto* mlir_bytes = exported->mlir_module_serialized();
+    
+    char* code = (char *)mlir_bytes->data();
+    size_t code_size = mlir_bytes->size();
+
+    // size_t code_size;
+    // char* code = read_file("../jax_kernel_example/simple_add.stablehlo", &code_size);
     if (!code) {
         fprintf(stderr, "Failed to read compiled code\n");
         return 1;
     }
-  
-    PJRT_Executable_DeserializeAndLoad_Args exe_args = {
-      .struct_size = PJRT_Executable_DeserializeAndLoad_Args_STRUCT_SIZE,
-      .client = client,
-      .serialized_executable=code,
-      .serialized_executable_size=code_size
+
+    const PJRT_Program program = {
+      .struct_size = PJRT_Program_STRUCT_SIZE,
+      .code = code,
+      .code_size = code_size,
+      .format = "mlir",
+      .format_size = strlen("mlir")
     };
 
-    CHECK_STATUS(api->PJRT_Executable_DeserializeAndLoad(&exe_args), "Failed to deserialize and load");
-    PJRT_LoadedExecutable* executable = exe_args.loaded_executable;
+    //const char* compile_options;
+    //size_t compile_options_size;
+    
+    PJRT_Client_Compile_Args compile_args = {
+      .struct_size = PJRT_Client_Compile_Args_STRUCT_SIZE,
+      .client = client,
+      .program = &program,
+      // .compile_options=compile_options,
+      // .compile_options_size=compile_options_size,
+    };
+
+    CHECK_STATUS(api->PJRT_Client_Compile(&compile_args), "Failed to compile");
+    PJRT_LoadedExecutable* executable = compile_args.executable;
+
+    // PJRT_Executable_DeserializeAndLoad_Args exe_args = {
+    //   .struct_size = PJRT_Executable_DeserializeAndLoad_Args_STRUCT_SIZE,
+    //   .client = client,
+    //   .serialized_executable=code,
+    //   .serialized_executable_size=code_size
+    // };
+
+    // CHECK_STATUS(api->PJRT_Executable_DeserializeAndLoad(&exe_args), "Failed to deserialize and load");
+    // PJRT_LoadedExecutable* executable = exe_args.loaded_executable;
 
     printf("   ✓ Deserialized and Loaded executable\n\n");
     free(code);
@@ -182,7 +216,8 @@ int main(int argc, char** argv) {
     float input_x[] = {1.0f, 2.0f, 3.0f, 4.0f};
     float input_y[] = {5.0f, 6.0f, 7.0f, 8.0f};
     size_t input_size = 4 * sizeof(float);
-    
+    const int64_t dims[] = {4};
+      
     printf("   Input X: [%.1f, %.1f, %.1f, %.1f]\n", 
            input_x[0], input_x[1], input_x[2], input_x[3]);
     printf("   Input Y: [%.1f, %.1f, %.1f, %.1f]\n\n",
@@ -199,7 +234,7 @@ int main(int argc, char** argv) {
         .client = client,
         .data = &input_x,
         .type = PJRT_Buffer_Type_F32,
-        .dims = (int64_t[]){4},
+        .dims = dims,
         .num_dims = 1,
         .device = device
         // .host_buffer_semantics = PJRT_HostBufferSemantics_kImmutableUntilTransferCompletes
@@ -214,7 +249,7 @@ int main(int argc, char** argv) {
         .client = client,
         .data = &input_y,
         .type = PJRT_Buffer_Type_F32,
-        .dims = (int64_t[]){4},
+        .dims = dims,
         .num_dims = 1,
         .device = device
         // .host_buffer_semantics = PJRT_HostBufferSemantics_kImmutableUntilTransferCompletes
@@ -238,12 +273,12 @@ int main(int argc, char** argv) {
     PJRT_LoadedExecutable_Execute_Args execute_args = {
         .struct_size = PJRT_LoadedExecutable_Execute_Args_STRUCT_SIZE,
         .executable = executable,
-        .execute_device = device,
+	.options = &options,
         .argument_lists = argument_lists,
         .num_devices = 1,
         .num_args = 2,
         .output_lists = output_lists,
-        .options = &options
+	.execute_device = device,
     };
 
     CHECK_STATUS(api->PJRT_LoadedExecutable_Execute(&execute_args),

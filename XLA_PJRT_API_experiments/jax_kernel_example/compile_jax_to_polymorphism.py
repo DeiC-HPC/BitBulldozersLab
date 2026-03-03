@@ -11,6 +11,10 @@ def main():
     x_shape = jax.ShapeDtypeStruct(a, jnp.float32)
     y_shape = jax.ShapeDtypeStruct(a, jnp.float32)
 
+    # static equivalent
+    # x_shape = jax.ShapeDtypeStruct((4,), jnp.float32)
+    # y_shape = jax.ShapeDtypeStruct((4,), jnp.float32)
+
     jit_f = jax.jit(simple_add)
     
     # MLIR Stablehlo
@@ -18,7 +22,8 @@ def main():
     print(exported.in_avals)
     print(exported.out_avals)
 
-    res = exported.call(np.ones(5, dtype=np.float32), 2 * np.ones(5, dtype=np.float32))
+    print(exported.__dict__.keys())
+    # res = exported.call(np.ones(5, dtype=np.float32), 2 * np.ones(5, dtype=np.float32))
     serialized = exported.serialize()
 
     with open("simple_add_stablehlo.flatbuffer", "wb") as bf2:
