@@ -1,0 +1,9 @@
+@from
+    {{ __base__ }}
+
+@run
+    !envar HCC_AMDGPU_TARGET gfx90a
+    !envar __HIP_PLATFORM_HCC__
+    !envar CUPY_INSTALL_USE_HIP 1
+    pip install cupy
+    pip cffi
