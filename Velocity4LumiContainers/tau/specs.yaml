@@ -5,6 +5,8 @@ dependencies:
     scope: build
   - spec: rocm
     scope: build
+  - spec: mpich
+    scope: build
   - spec: fakeGpu
     scope: build
     when: system=lumig

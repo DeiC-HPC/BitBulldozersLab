@@ -3,6 +3,16 @@
 
 @run
     >>> Build TAU
+    cd /opt
+    wget https://www.cs.uoregon.edu/research/paracomp/pdtoolkit/Download/pdtoolkit-3.25.2.tar.gz
+    tar zxvf pdtoolkit-3.25.2.tar.gz
+    cd pdtoolkit-3.25.2/
+    ./configure -prefix=/opt/pdt
+    gmake
+    gmake install
+    cd /opt
+    rm pdtoolkit-3.25.2.tar.gz
+    rm -r pdtoolkit-3.25.2/
     !envar TAU_PATH /opt/tau
     mkdir $TAU_PATH
     cd $TAU_PATH
@@ -16,18 +26,21 @@
     >>> conda activate $DEFAULT_CONDA_ENV    
     ./configure \
     	-prefix=/opt/tau \
-	-c++=g++-$GCC_RELEASE \
-	-cc=gcc-$GCC_RELEASE \
-	-fortran=gfortran-$GCC_RELEASE \
-	-bfd=download \
-	-unwind=download \
-	-zlib=download \
-	-rocm=$ROCM_PATH \
-	-hip=$ROCM_PATH \
-	-rocprofsdk=$ROCM_PATH \
-	-python=$PYTHONINT \
-	-pythoninc=$PYTHONINC \
-	-pythonlib=$PYTHONLIB
-	
+      -c++=g++-$GCC_RELEASE \
+      -cc=gcc-$GCC_RELEASE \
+      -fortran=gfortran-$GCC_RELEASE \
+      -bfd=download \
+      -unwind=download \
+      -zlib=download \
+      -rocm=$ROCM_PATH \
+      -hip=$ROCM_PATH \
+      -rocprofsdk=$ROCM_PATH \
+      -python=$PYTHONINT \
+      -pythoninc=$PYTHONINC \
+      -pythonlib=$PYTHONLIB \
+      -mpi \
+      -mpiinc=/opt/mpich/include \
+      -mpilib=/opt/mpich/lib \
+      -pdt=/opt/pdt
 
     make -j install

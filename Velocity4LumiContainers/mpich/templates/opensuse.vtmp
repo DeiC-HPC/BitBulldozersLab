@@ -12,12 +12,11 @@
   tar -xzf mpich-$MPICH_VERSION.tar.gz
   rm mpich-$MPICH_VERSION.tar.gz
   cd mpich-$MPICH_VERSION
-  CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE  \
+  CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE FC=gfortran-$GCC_RELEASE   \
         ./configure --prefix=$MPICH_PATH  \
             --with-hip-lib=$ROCM_PATH/lib/  \
             --with-hip-include=$ROCM_PATH/include/  \
             --with-libfabric=$LIBFABRIC_PATH \
-            --disable-fortran  \
             --enable-fast=all,O3  \
             --with-device=ch4:ofi \
              --with-pm=none \
