@@ -2,8 +2,10 @@
     {{ __base__ }}
 
 @run
-    !envar HCC_AMDGPU_TARGET gfx90a
-    !envar __HIP_PLATFORM_HCC__
-    !envar CUPY_INSTALL_USE_HIP 1
+    export HCC_AMDGPU_TARGET="gfx90a"
+    export __HIP_PLATFORM_HCC__
+    export CUPY_INSTALL_USE_HIP=1
+    export ROCM_HOME=/opt/rocm
     pip install cupy
-    pip cffi
+    pip install cffi
+    pip install numpy
