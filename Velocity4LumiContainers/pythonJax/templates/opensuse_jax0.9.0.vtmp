@@ -1,0 +1,22 @@
+@from
+    {{ __base__ }}
+
+@run
+    export TF_ROCM_AMDGPU_TARGETS=$ROCM_TARGET
+    export AMDGPU_TARGETS=$ROCM_TARGET
+    cd /opt/
+    git clone https://github.com/jax-ml/jax
+    cd jax
+    git checkout -b mybuild {{ git_hash }}
+    mkdir /opt/jax/dist
+#    >>> make sure nvidia isnt required!
+#    sed -i '70s/.*/required=False,/' jaxlib/tools/build_gpu_kernels_wheel.py
+#    sed -i '76s/.*/required=False,/' jaxlib/tools/build_gpu_plugin_wheel.py
+    python build/build.py build --wheels=jax,jaxlib,jax-rocm-plugin,jax-rocm-pjrt --rocm_amdgpu_targets=$ROCM_TARGET --rocm_path=/opt/rocm-6.3.4/ --rocm_version=60 --clang_path=/opt/rocm/llvm/bin/clang --verbose
+#   with jax depending on fennol, we do not need to install the requirements because the fennol installation already installs the requirements
+#    pip install -r build/requirements_lock_3_12.txt
+#   Fennol/Jax installs flax==0.12.1 which requires jax 0.8.1 but we are installing jax 0.8.0
+    pip install flax[all]==0.12.0 --force-reinstall
+    pip uninstall -y jax jaxlib
+    pip install --force-reinstall --no-deps dist/*.whl
+    pip install --force-reinstall --no-deps bazel-bin/jaxlib/tools/dist/jax_rocm*.whl
