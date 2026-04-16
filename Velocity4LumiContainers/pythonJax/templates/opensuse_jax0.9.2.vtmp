@@ -10,24 +10,14 @@
     git checkout -b mybuild {{ git_hash }}
     mkdir /opt/jax/dist
 #    >>> make sure nvidia isnt required!
-#    sed -i '70s/.*/required=False,/' jaxlib/tools/build_gpu_kernels_wheel.py
-#    sed -i '76s/.*/required=False,/' jaxlib/tools/build_gpu_plugin_wheel.py
-#    mkdir -p /opt/tmp/fake_clang_include
-#    touch /opt/tmp/fake_clang_include/cet.h
     cat build/rocm/rocm.bazelrc >> .bazelrc
     sed -i 's/common:rocm --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx908,gfx90a,gfx942,gfx950,gfx1030,gfx1100,gfx1101,gfx1200,gfx1201"/common:rocm --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx90a"/' .bazelrc
-#    rm .bazelversion
-#    echo "9.0.2" >> .bazelversion
     zypper addrepo https://download.opensuse.org/repositories/home:redwil:15.6/15.6/home:redwil:15.6.repo
     zypper refresh
     zypper install bazel8
     bazel --version
-#    ./bazel-7.4.1-linux-x86_64 fetch --configure --force
     python build/build.py build --wheels=jax,jaxlib,jax-rocm-plugin,jax-rocm-pjrt --rocm_amdgpu_targets=$ROCM_TARGET --rocm_path=$ROCM_PATH --rocm_version=$ROCM_VERSION --clang_path=$ROCM_PATH/llvm/bin/clang --verbose #--bazel_options='--copts=-I/opt/rocm-6.3.4/lib/llvm/lib/clang/18/include/'
-#   with jax depending on fennol, we do not need to install the requirements because the fennol installation already installs the requirements
-#    pip install -r build/requirements_lock_3_12.txt
-#   Fennol/Jax installs flax==0.12.1 which requires jax 0.8.1 but we are installing jax 0.8.0
-    pip install flax[all]==0.12.0 --force-reinstall
+    pip install flax[all]==0.12.6 --force-reinstall
     pip uninstall -y jax jaxlib
     pip install --force-reinstall --no-deps dist/*.whl
     pip install --force-reinstall --no-deps bazel-bin/jaxlib/tools/dist/jax_rocm*.whl

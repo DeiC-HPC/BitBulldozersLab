@@ -20,6 +20,12 @@ variables:
   - name: repo_version
     value: "7.0.2.70002-1"
     when: rocm@7.0.2
+  - name: rocm_version
+    value: "60"
+    when: rocm@6.0.2:6.4.2
+  - name: rocm_version
+    value: "70"
+    when: rocm@7.0.2
 dependencies:
   - spec: opensuse
     when: distro=opensuse
