@@ -52,13 +52,12 @@ variables:
     when: pythonpytorch@2.7.1
 dependencies:
   - spec: python
-    scope: build
   - spec: rocm@6.0.2
-    scope: build
     when: pythonpytorch@2.4.0:2.4.1
-  - spec: rocm@6.2.4
     scope: build
+  - spec: rocm@6.2.4
     when: pythonpytorch@2.5.0:2.7.1
+    scope: build
 templates:
   - name: opensuse_wheel
     when: distro=opensuse

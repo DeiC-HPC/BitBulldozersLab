@@ -13,7 +13,6 @@ variables:
     when: libcxi@0.1
 dependencies:
   - spec: rocm
-    scope: build
 templates:
   - name: opensuse
     when: distro=opensuse

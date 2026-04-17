@@ -24,14 +24,11 @@ variables:
     when: xcclplugin@0.3
 dependencies:
   - spec: libfabric
-    scope: build
   - spec: rocm
-    scope: build
   - spec: mpich
-    scope: build
   - spec: hwloc
-    scope: build
     when: xcclplugin@0.3
+    scope: build
 files:
   - name: aws.patch
 templates:

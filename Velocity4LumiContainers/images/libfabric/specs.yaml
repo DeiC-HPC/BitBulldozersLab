@@ -23,7 +23,6 @@ variables:
     when: libfabric@2.3.0
 dependencies:
   - spec: libcxi
-    scope: build
 templates:
   - name: opensuse_git
     when: distro=opensuse libfabric@1.9.0

@@ -13,6 +13,4 @@ variables:
     when: rocm@6.2.4:7.0.2
 dependencies:
   - spec: rocm
-    scope: build
   - spec: mpich
-    scope: build
