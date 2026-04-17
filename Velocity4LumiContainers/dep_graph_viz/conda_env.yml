@@ -1,0 +1,13 @@
+name: velocity
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - python=3.12
+  - pygraphviz
+  - jupyter
+variables:
+  VELOCITY_BUILD_DIR: /tmp/velocity_containers
+  VELOCITY_DISTRO: opensuse
+  #VELOCITY_IMAGE_PATH: <local_path>/BitBulldozersLab/Velocity4LumiContainers/images
