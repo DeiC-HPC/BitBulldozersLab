@@ -9,7 +9,7 @@
     zypper --no-gpg-checks -n install $ROCM_RPM
     sed -i 's#gpgcheck=1#gpgcheck=0#g' /etc/zypp/repos.d/*.repo
     zypper refresh
-    amdgpu-install -y --no-dkms --usecase=rocm --rocmrelease=$ROCM_RELEASE
+    amdgpu-install -y --no-dkms --usecase=rocm,rocmdev,opencl,openclsdk,openmpsdk,mllib,mlsdk,asan  --rocmrelease=$ROCM_RELEASE
     zypper cc -a
     if [[ "$ROCM_TARGET" == "gfx90a" ]]; then
       zypper --no-gpg-checks -n install -y --force miopen-hip-gfx90akdb
