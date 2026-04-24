@@ -3,6 +3,7 @@ versions:
   - spec: 6.2.4
   - spec: 6.3.4
   - spec: 6.4.1
+  - spec: 6.4.2
   - spec: 7.0.2
 variables:
   - name: repo_version
@@ -17,6 +18,9 @@ variables:
   - name: repo_version
     value: "6.4.60401-1"
     when: rocm@6.4.1
+  - name: repo_version
+    value: "6.4.60402-1"
+    when: rocm@6.4.2
   - name: repo_version
     value: "7.0.2.70002-1"
     when: rocm@7.0.2

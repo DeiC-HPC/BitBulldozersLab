@@ -2,13 +2,98 @@
     {{ __base__ }}
 
 @run
+    cd /opt/
+    wget https://github.com/facebook/zstd/releases/download/v1.5.7/zstd-1.5.7.tar.gz
+    tar -xzf zstd-1.5.7.tar.gz
+    cd zstd-1.5.7
+#    CC=gcc-$GCC_RELEASE CXX=g++-$GCC_RELEASE make install
+    # 2. Build with ROCm Clang
+    # We use 'make' to build the library, but we must set CC/CXX to the ROCm clang
+    export CC=/opt/rocm/llvm/bin/clang
+    export CXX=/opt/rocm/llvm/bin/clang++
+    export CFLAGS="-O3 -fPIC -mavx -I/opt/rocm/lib/llvm/lib/clang/18/include"
+    export LDFLAGS="-L/opt/rocm/lib/llvm/lib"
+    # Build the library (static and shared)
+    make lib-release -j$(nproc)
+    # 3. Create a directory to hold the "Bazel-ready" artifacts
+    mkdir -p /tmp/local_zstd/include/zstd
+    mkdir -p /tmp/local_zstd/lib
+    # 4. Copy headers
+    cp lib/zstd.h lib/zstd_errors.h /tmp/local_zstd/include/zstd/
+    # Copy the internal headers if needed (usually not for external deps, but good to have)
+    cp lib/common/*.h /tmp/local_zstd/include/zstd/ 2>/dev/null || true
+    # 5. Copy libraries
+    cp lib/libzstd.a /tmp/local_zstd/lib/
+    cp lib/libzstd.so.* /tmp/local_zstd/lib/ 2>/dev/null || true
+    echo "Manual zstd build complete in /tmp/local_zstd"
+    cd /opt/
+    git clone https://github.com/openxla/xla
+    cd xla
+    git checkout -b mybuild b6f37ab7767f428fd6f993de5e211643d47d4deb
+    cd third_party
+    mkdir -p net_zstd/
+    mkdir -p net_zstd/lib
+    cp /tmp/local_zstd/include/zstd/* net_zstd/
+    # 5. Copy libraries
+    cp /tmp/local_zstd/lib/* net_zstd/lib
+    ls -alh net_zstd/lib
+    file /opt/xla/third_party/net_zstd/lib/libzstd.a
+    echo "content of net_zstd/lib"
+    rm net_zstd.BUILD
+    cat <<EOF > net_zstd.BUILD
+      load("@rules_cc//cc:defs.bzl", "cc_library")
+      cc_library(
+          name = "zstdlib",
+          srcs = ["lib/libzstd.a"], # Or list .so files if using shared
+          hdrs = glob(["zstd.h", "zstd_errors.h"]),
+          includes = ["."],
+          visibility = ["//visibility:public"]
+          # Ensure the compiler doesn't look for cet.h in the system path
+#          copts = [
+#              "-I/opt/rocm-6.3.4/lib/llvm/lib/clang/18/include",
+#              # If you still get cet.h errors, you might need to define a macro here
+#              # "-DCET_DISABLE=1",
+#          ],
+      )
+      # Alias for compatibility if riegeli expects 'zstd'
+      alias(
+          name = "zstd",
+          actual = ":zstdlib",
+          visibility = ["//visibility:public"],
+      )
+    EOF
+#    rm net_zstd/workspace.bzl
+    cd ..
+    cat << EOF >> MODULE.bazel
+      local_path_override(
+        name = "net_zstd",
+        path = "third_party/net_zstd.BUILD", # Relative to the JAX root
+      )
+    EOF
     export TF_ROCM_AMDGPU_TARGETS=$ROCM_TARGET
     export AMDGPU_TARGETS=$ROCM_TARGET
     cd /opt/
     git clone https://github.com/jax-ml/jax
     cd jax
     git checkout -b mybuild {{ git_hash }}
+#    git revert de45ee7c2fbd03e66b8b9302fca214c83afaae34
     mkdir /opt/jax/dist
+    mkdir -p third_party/net_zstd_local
+    mkdir -p third_party/net_zstd_local/lib
+    cp -rs /opt/xla/third_party/net_zstd/* /opt/jax/third_party/net_zstd_local/
+    rm /opt/jax/third_party/net_zstd_local/BUILD
+    cp /opt/xla/third_party/net_zstd.BUILD /opt/jax/third_party/net_zstd_local/BUILD
+    touch /opt/jax/third_party/net_zstd_local/WORKSPACE
+    ls -alh /opt/jax/third_party/net_zstd_local/
+    touch temp.txt
+    cat << EOF >> temp.txt
+      local_repository(
+        name = "net_zstd",
+        path = "third_party/net_zstd_local",
+      )
+    EOF
+    cat WORKSPACE >> temp.txt
+    mv temp.txt WORKSPACE
 #    >>> make sure nvidia isnt required!
 #    sed -i '70s/.*/required=False,/' jaxlib/tools/build_gpu_kernels_wheel.py
 #    sed -i '76s/.*/required=False,/' jaxlib/tools/build_gpu_plugin_wheel.py
@@ -16,14 +101,7 @@
 #    touch /opt/tmp/fake_clang_include/cet.h
     cat build/rocm/rocm.bazelrc >> .bazelrc
     sed -i 's/common:rocm --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx908,gfx90a,gfx942,gfx950,gfx1030,gfx1100,gfx1101,gfx1200,gfx1201"/common:rocm --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx90a"/' .bazelrc
-#    rm .bazelversion
-#    echo "9.0.2" >> .bazelversion
-    zypper addrepo https://download.opensuse.org/repositories/home:redwil:15.6/15.6/home:redwil:15.6.repo
-    zypper refresh
-    zypper install bazel8
-    bazel --version
-#    ./bazel-7.4.1-linux-x86_64 fetch --configure --force
-    python build/build.py build --wheels=jax,jaxlib,jax-rocm-plugin,jax-rocm-pjrt --rocm_amdgpu_targets=$ROCM_TARGET --rocm_path=$ROCM_PATH --rocm_version=$ROCM_VERSION --clang_path=$ROCM_PATH/llvm/bin/clang --verbose #--bazel_options='--copts=-I/opt/rocm-6.3.4/lib/llvm/lib/clang/18/include/'
+    python build/build.py build --wheels=jax,jaxlib,jax-rocm-plugin,jax-rocm-pjrt --rocm_amdgpu_targets=$ROCM_TARGET --rocm_path=$ROCM_PATH --rocm_version=$ROCM_VERSION --clang_path=$ROCM_PATH/llvm/bin/clang --verbose --local_xla_path "/opt/xla/"
 #   with jax depending on fennol, we do not need to install the requirements because the fennol installation already installs the requirements
 #    pip install -r build/requirements_lock_3_12.txt
 #   Fennol/Jax installs flax==0.12.1 which requires jax 0.8.1 but we are installing jax 0.8.0

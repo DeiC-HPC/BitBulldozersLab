@@ -2,21 +2,39 @@
     {{ __base__ }}
 
 @run
+#    cd /opt
+#    wget https://download.opensuse.org/repositories/devel:/tools:/building/15.6/x86_64/bazel6-6.5.0-11.d_t_b.5.x86_64.rpm
+##    wget https://download.opensuse.org/repositories/devel:/tools:/building/15.6/x86_64/bazel8-8.4.1-5.d_t_b.2.x86_64.rpm
+#    zypper --no-gpg-checks -n install -y bazel6-6.5.0-11.d_t_b.5.x86_64.rpm
+#    bazel --version
     export TF_ROCM_AMDGPU_TARGETS=$ROCM_TARGET
     export AMDGPU_TARGETS=$ROCM_TARGET
+    cd /opt/
+    git clone https://github.com/openxla/xla
+    cd xla
+    sed -i '25s/^/#/' third_party/net_zstd.BUILD
+#    cp /opt/rocm-6.3.4/lib/llvm/lib/clang/18/include/cet.h third_party/tsl/tsl/profiler/lib/
+#    ls third_party/tsl/tsl/profiler/lib/
+#    git revert 4fe387cbe2f0e9f8a3b9a5907204e162f84fb60f
+#    git checkout -b mybuild 7d9b40ba458f389d978603fb78d7fe4bff02100c
     cd /opt/
     git clone https://github.com/jax-ml/jax
     cd jax
     git checkout -b mybuild {{ git_hash }}
+#    git submodule update --init --recursive
+#    bazel fetch --configure --force --enable_workspace
     mkdir /opt/jax/dist
 #    >>> make sure nvidia isnt required!
+#    mkdir -p jax/third_party/fake_headers
+#    touch jax/third_party/fake_headers/cet.h
     cat build/rocm/rocm.bazelrc >> .bazelrc
     sed -i 's/common:rocm --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx908,gfx90a,gfx942,gfx950,gfx1030,gfx1100,gfx1101,gfx1200,gfx1201"/common:rocm --repo_env=TF_ROCM_AMDGPU_TARGETS="gfx90a"/' .bazelrc
-    zypper addrepo https://download.opensuse.org/repositories/home:redwil:15.6/15.6/home:redwil:15.6.repo
-    zypper refresh
-    zypper install bazel8
-    bazel --version
-    python build/build.py build --wheels=jax,jaxlib,jax-rocm-plugin,jax-rocm-pjrt --rocm_amdgpu_targets=$ROCM_TARGET --rocm_path=$ROCM_PATH --rocm_version=$ROCM_VERSION --clang_path=$ROCM_PATH/llvm/bin/clang --verbose #--bazel_options='--copts=-I/opt/rocm-6.3.4/lib/llvm/lib/clang/18/include/'
+    python build/build.py build --wheels=jax,jaxlib,jax-rocm-plugin,jax-rocm-pjrt \
+      --rocm_amdgpu_targets=$ROCM_TARGET --rocm_path=$ROCM_PATH --rocm_version=$ROCM_VERSION \
+      --clang_path=$ROCM_PATH/llvm/bin/clang \
+      --verbose \
+      --local_xla_path "/opt/xla/"
+#      --bazel_options="--enable_workspace=true --enable_bzlmod=false"
     pip install flax[all]==0.12.6 --force-reinstall
     pip uninstall -y jax jaxlib
     pip install --force-reinstall --no-deps dist/*.whl
