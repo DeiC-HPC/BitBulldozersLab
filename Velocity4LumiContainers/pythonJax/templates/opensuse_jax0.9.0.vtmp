@@ -30,10 +30,6 @@
     git clone https://github.com/openxla/xla
     cd xla
     git checkout -b mybuild b6f37ab7767f428fd6f993de5e211643d47d4deb
-    sed -i '1i\
-      #ifndef __CLK_GLOBAL_MEM_FENCE\
-      #define __CLK_GLOBAL_MEM_FENCE 0x02\
-      #endif' xla/stream_executor/rocm/rocm_helpers.cu.cc
     cd third_party
     mkdir -p net_zstd/
     mkdir -p net_zstd/lib
