@@ -1,8 +1,8 @@
-CC = amdclang
-CFLAGS = -I $(PWD)/pjrt
+CC = gcc # clang #amdclang
+CFLAGS = -I $(PWD)/pjrt --debug -ggdb
 LDFLAGS = -ldl
 TARGET = pjrt_example
-SOURCE = pjrt_example.c
+SOURCE = pjrt_example_minimal.c
 
 all: $(TARGET)
 
