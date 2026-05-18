@@ -65,20 +65,17 @@ def hidden_alloc(direct = False):
     else:
         return x_d, y_d, alpha, len(x_h)
 
-from hip._util.types import DeviceArray
+from hip._util.types import DeviceArray, NDBuffer, Pointer
 from ctypes import c_void_p
 def hipArray(ptr: c_void_p, shape: int):
     addr = int(ffi.cast("uintptr_t", ptr))
     arr = DeviceArray(addr)
-    arr.configure(_force=True, shape=(shape,))
+    arr.configure(_force=True, shape=(shape,), itemsize=4)
     return arr
 
 def numpyArray(ptr: c_void_p, shape: int):
-    print(ptr)
-    addr = int(ffi.cast("uintptr_t", ptr))
-    arr = np.ndarray(buffer=(addr, False), shape=(shape,), dtype=np.float32, copy=False)
-    #arr = NDBuffer(addr)
-    #arr.configure(_force=True, shape=(shape,))    
+    addr_b = ffi.buffer(ptr, shape*4)
+    arr = np.frombuffer(addr_b, dtype=np.float32)
     return arr
 
 @ffi.def_extern()
@@ -93,13 +90,22 @@ def run(xptr, yptr, aptr, size):
     # xptr, xs, yptr, ys, alpha, n = hidden_alloc()
     
     # Initialize hip buffers from raw pointers
-    x_d = hipArray(xptr, size)
-    y_d = hipArray(yptr, size)
+    #x_d = hipArray(xptr, size)
+    #y_d = hipArray(yptr, size)
     #alpha = hipArray(aptr, 1)
     #alpha = 2.0
     # alpha = np.array([2.0], dtype=np.float32)
-    alpha = numpyArray(aptr, 1)
+    x_d = hipArray(xptr, size)
+    y_d = hipArray(yptr, size)
+    # import jax
+    # device =jax.devices("gpu")[0]
+    # jax.config.update("jax_default_device", device)
     
+    # a = jax.numpy.arange(10)
+    # print(a.__cuda_array_interface__)
+    print(x_d.__cuda_array_interface__)
+    alpha = numpyArray(aptr, 1)
+
     # Directly retrieve hip buffers
     #x_d, y_d, alpha, n = hidden_alloc(direct = True)
 

@@ -66,7 +66,7 @@ int main(int argc, char **argv)
   CHECK_HIP(hipMemcpy(d_b, h_b, size, hipMemcpyHostToDevice));
   CHECK_HIP(hipMemcpy(d_c, h_c, sizeof(float), hipMemcpyHostToDevice));
 
-  int ret = run(d_a, d_b, d_c, N);
+  int ret = run(d_a, d_b, h_c, N);
   fprintf(stdout, "Return code: %i\n", ret);
 
   CHECK_HIP(hipFree(d_a));
