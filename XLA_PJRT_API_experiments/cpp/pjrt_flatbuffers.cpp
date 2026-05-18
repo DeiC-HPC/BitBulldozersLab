@@ -160,7 +160,7 @@ int main(int argc, char** argv) {
     printf("4. Loading compiled HLO code...\n");
 
     size_t flatbuffer_size;
-    char* flatbuffer = read_file("../jax_kernel_example/simple_add_stablehlo.flatbuffer", &flatbuffer_size);
+    char* flatbuffer = read_file("../jax_kernel_example/simple_add_stablehlo_static.flatbuffer", &flatbuffer_size);
     // char* flatbuffer = read_file("../jax_kernel_example/simple_add.stablehlo", &flatbuffer_size);
     
     const auto* exported = GetExported(flatbuffer);
